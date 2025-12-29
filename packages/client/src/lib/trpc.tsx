@@ -13,13 +13,9 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Cache data for 5 minutes by default
             staleTime: 1000 * 60 * 5,
-            // Keep unused data in cache for 10 minutes
             gcTime: 1000 * 60 * 10,
-            // Retry failed requests up to 3 times
             retry: 3,
-            // Refetch on window focus for fresh data
             refetchOnWindowFocus: true,
           },
         },

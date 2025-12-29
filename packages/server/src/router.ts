@@ -7,7 +7,6 @@ export const appRouter = router({
     return { status: 'ok', timestamp: new Date().toISOString(), formatted: formatDate(new Date()) };
   }),
 
-  // User routes
   user: router({
     list: publicProcedure.query(async ({ ctx }) => {
       return ctx.prisma.user.findMany({
@@ -34,7 +33,6 @@ export const appRouter = router({
     }),
   }),
 
-  // Case routes
   case: router({
     list: publicProcedure
       .input(

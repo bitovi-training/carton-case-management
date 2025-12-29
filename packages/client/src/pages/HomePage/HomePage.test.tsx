@@ -5,7 +5,6 @@ import { http, HttpResponse } from 'msw';
 import HomePage from './HomePage';
 import { renderWithTrpc } from '../test/utils';
 
-// Setup MSW server for API mocking
 const server = setupServer();
 
 beforeAll(() => server.listen());
@@ -14,7 +13,6 @@ afterAll(() => server.close());
 
 describe('HomePage', () => {
   it('renders loading state initially', async () => {
-    // Mock slow response to ensure we see loading state
     server.use(
       http.get('http://localhost:3000/trpc/case.list', async () => {
         await new Promise((resolve) => globalThis.setTimeout(resolve, 100));
@@ -24,17 +22,14 @@ describe('HomePage', () => {
 
     renderWithTrpc(<HomePage />);
     
-    // Loading state should be visible
     expect(screen.getByText(/Loading cases/i)).toBeInTheDocument();
     
-    // Wait for loading to complete
     await waitFor(() => {
       expect(screen.queryByText(/Loading cases/i)).not.toBeInTheDocument();
     });
   });
 
   it('renders cases list when data loads successfully', async () => {
-    // Mock successful API response
     server.use(
       http.get('http://localhost:3000/trpc/case.list', () => {
         return HttpResponse.json({
@@ -58,7 +53,6 @@ describe('HomePage', () => {
 
     renderWithTrpc(<HomePage />);
 
-    // Wait for data to load
     await waitFor(() => {
       expect(screen.getByText('Test Case')).toBeInTheDocument();
     });
@@ -70,7 +64,6 @@ describe('HomePage', () => {
   });
 
   it('renders error state when API call fails', async () => {
-    // Mock error response
     server.use(
       http.get('http://localhost:3000/trpc/case.list', () => {
         return HttpResponse.json(
@@ -87,14 +80,12 @@ describe('HomePage', () => {
 
     renderWithTrpc(<HomePage />);
 
-    // Wait for error message to appear
     await waitFor(() => {
       expect(screen.getByText(/Error loading cases/i)).toBeInTheDocument();
     });
   });
 
   it('renders empty state when no cases exist', async () => {
-    // Mock empty response
     server.use(
       http.get('http://localhost:3000/trpc/case.list', () => {
         return HttpResponse.json({
@@ -107,12 +98,10 @@ describe('HomePage', () => {
 
     renderWithTrpc(<HomePage />);
 
-    // Wait for loading to complete
     await waitFor(() => {
       expect(screen.queryByText(/Loading cases/i)).not.toBeInTheDocument();
     });
 
-    // No cases should be rendered
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 });
