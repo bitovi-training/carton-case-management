@@ -2,13 +2,8 @@ import { Link } from 'react-router-dom';
 import { trpc } from '../lib/trpc';
 
 export default function HomePage() {
-  // tRPC + React Query automatically caches this query
-  // On first render: fetches from API
-  // On subsequent renders: returns cached data instantly (staleTime: 5 minutes)
-  // On window refocus: refetches in background to keep data fresh
   const { data: cases, isLoading, error, refetch, isFetching } = trpc.case.list.useQuery();
 
-  // Show loading spinner (with subtle indicator if refetching cached data)
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -20,7 +15,6 @@ export default function HomePage() {
     );
   }
 
-  // Show error state with retry button
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">

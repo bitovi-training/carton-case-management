@@ -13,12 +13,12 @@ export function createTestQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        retry: false, // Don't retry failed queries in tests
-        gcTime: 0, // Don't cache data between tests
-        staleTime: 0, // Always refetch in tests
+        retry: false,
+        gcTime: 0,
+        staleTime: 0,
       },
       mutations: {
-        retry: false, // Don't retry failed mutations in tests
+        retry: false,
       },
     },
   });
@@ -40,25 +40,20 @@ export function createTestQueryClient(): QueryClient {
 export function createTrpcWrapper(queryClient?: QueryClient) {
   const testQueryClient = queryClient || createTestQueryClient();
   
-  // Create a test tRPC client that points to the local server
-  // MSW will intercept these requests
   const trpcClient = trpc.createClient({
     links: [
       httpBatchLink({
         url: 'http://localhost:3000/trpc',
-        // Fix AbortSignal issues in tests
         fetch(url, options) {
-          // Use globalThis.fetch to avoid ESLint errors
           return globalThis.fetch(url, {
             ...options,
-            signal: undefined, // Remove signal to avoid AbortSignal errors in tests
+            signal: undefined,
           });
         },
       }),
     ],
   });
 
-  // Return a wrapper component
   return function TrpcWrapper({ children }: { children: ReactNode }) {
     return (
       <BrowserRouter>

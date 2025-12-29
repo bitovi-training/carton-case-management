@@ -5,18 +5,16 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Clearing existing data...');
 
-  // Delete all existing data in correct order (respecting foreign keys)
   await prisma.case.deleteMany();
   await prisma.user.deleteMany();
 
   console.log('Seeding database...');
 
-  // Create demo users
   const user1 = await prisma.user.create({
     data: {
       email: 'john.doe@example.com',
       name: 'John Doe',
-      password: 'hashed_password_here', // In production, use bcrypt
+      password: 'hashed_password_here',
     },
   });
 
@@ -28,7 +26,6 @@ async function main() {
     },
   });
 
-  // Create demo cases
   await prisma.case.create({
     data: {
       title: 'Website Not Loading',

@@ -1,10 +1,8 @@
 import { z } from 'zod';
 
-// Common validation schemas
 export const emailSchema = z.string().email();
 export const passwordSchema = z.string().min(8);
 
-// Example shared types - expand these based on your domain
 export interface User {
   id: string;
   email: string;
@@ -32,7 +30,6 @@ export enum CaseStatus {
   CLOSED = 'CLOSED',
 }
 
-// API Response types
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;

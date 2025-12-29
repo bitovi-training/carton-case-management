@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Error Handling', () => {
   test('should display error message when API fails', async ({ page }) => {
-    // Intercept API and return error
     await page.route(
       (url) => url.href.includes('/trpc') && url.href.includes('batch=1'),
       (route) => {
@@ -21,11 +20,9 @@ test.describe('Error Handling', () => {
 
     await page.goto('/');
 
-    // Should show error message (after retries, may take a few seconds)
     await expect(page.getByText(/Error loading cases/i)).toBeVisible({ timeout: 15000 });
     await expect(page.getByText(/Database connection failed/i)).toBeVisible();
 
-    // Should show retry button
     const retryButton = page.getByRole('button', { name: /retry/i });
     await expect(retryButton).toBeVisible();
   });
@@ -33,12 +30,10 @@ test.describe('Error Handling', () => {
   test('should retry request when retry button is clicked', async ({ page }) => {
     let requestCount = 0;
 
-    // First few requests fail (due to auto-retry), then manual retry succeeds
     await page.route(
       (url) => url.href.includes('/trpc') && url.href.includes('batch=1'),
       (route) => {
         requestCount++;
-        // Fail the first 4 requests (initial + 3 auto-retries)
         if (requestCount <= 4) {
           route.fulfill({
             status: 500,
@@ -77,19 +72,15 @@ test.describe('Error Handling', () => {
 
     await page.goto('/');
 
-    // Should show error initially (after retries complete)
     await expect(page.getByText(/Error loading cases/i)).toBeVisible({ timeout: 15000 });
 
-    // Click retry button
     await page.getByRole('button', { name: /retry/i }).click();
 
-    // Should eventually show the case (loading might be too fast to catch)
     await expect(page.getByText('Test Case')).toBeVisible({ timeout: 10000 });
     await expect(page.getByText(/Error loading cases/i)).not.toBeVisible();
   });
 
   test('should display loading spinner while fetching', async ({ page }) => {
-    // Add delay to API response
     await page.route(
       (url) => url.href.includes('/trpc') && url.href.includes('batch=1'),
       async (route) => {
@@ -100,40 +91,31 @@ test.describe('Error Handling', () => {
 
     await page.goto('/');
 
-    // Should show loading spinner
     const loadingText = page.getByText(/Loading cases/i);
     await expect(loadingText).toBeVisible();
 
-    // Should have spinner animation (check for presence of spinner element)
     const spinner = page.locator('.animate-spin').first();
     await expect(spinner).toBeVisible();
 
-    // Wait for loading to complete
     await expect(loadingText).not.toBeVisible({ timeout: 10000 });
   });
 
   test('should show background refetch indicator', async ({ page }) => {
-    // First visit - load data
     await page.goto('/');
     await expect(page.getByText(/Loading cases/i)).not.toBeVisible({ timeout: 10000 });
 
-    // Navigate away and back to trigger cache
     await page.goto('/about');
     await page.goto('/');
 
-    // Data should be visible immediately from cache
     const caseList = page.locator('.grid > a');
     await expect(caseList.first()).toBeVisible({ timeout: 500 });
 
-    // Trigger a page reload to simulate refetch behavior
     await page.reload();
 
-    // After reload with cache, data should still be visible quickly
     await expect(caseList.first()).toBeVisible({ timeout: 2000 });
   });
 
   test('should display empty state when no cases exist', async ({ page }) => {
-    // Mock empty response - intercept before navigation
     await page.route(
       (url) => url.href.includes('/trpc') && url.href.includes('batch=1'),
       (route) => {
@@ -151,20 +133,16 @@ test.describe('Error Handling', () => {
 
     await page.goto('/');
 
-    // Wait for loading to complete
     await expect(page.getByText(/Loading cases/i)).not.toBeVisible({ timeout: 10000 });
 
-    // Should show empty state message
     await expect(page.getByText(/No cases found/i)).toBeVisible();
     await expect(page.getByText(/Create a new case to get started/i)).toBeVisible();
 
-    // Should not have any case links
     const caseLinks = page.locator('.grid > a');
     await expect(caseLinks).toHaveCount(0);
   });
 
   test('should show error loading cases message', async ({ page }) => {
-    // Intercept API and return a generic error
     await page.route(
       (url) => url.href.includes('/trpc') && url.href.includes('batch=1'),
       (route) => {
@@ -183,10 +161,8 @@ test.describe('Error Handling', () => {
 
     await page.goto('/');
 
-    // Should show error loading cases message (after retries)
     await expect(page.getByText(/Error loading cases/i)).toBeVisible({ timeout: 15000 });
 
-    // Should have a retry button available
     await expect(page.getByRole('button', { name: /retry/i })).toBeVisible();
   });
 });

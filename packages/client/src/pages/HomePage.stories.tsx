@@ -74,16 +74,13 @@ const meta: Meta<typeof HomePage> = {
 export default meta;
 type Story = StoryObj<typeof HomePage>;
 
-// Default story with sample cases
 export const Default: Story = {};
 
-// Loading state story
 export const Loading: Story = {
   parameters: {
     msw: {
       handlers: [
         http.get('/trpc/case.list', async () => {
-          // Delay response to show loading state
           await new Promise((resolve) => globalThis.setTimeout(resolve, 10000));
           return HttpResponse.json({
             result: {
@@ -92,7 +89,6 @@ export const Loading: Story = {
           });
         }),
         http.post('/trpc/case.list', async () => {
-          // Delay response to show loading state
           await new Promise((resolve) => globalThis.setTimeout(resolve, 10000));
           return HttpResponse.json({
             result: {
@@ -105,7 +101,6 @@ export const Loading: Story = {
   },
 };
 
-// Error state story
 export const Error: Story = {
   parameters: {
     msw: {
@@ -143,7 +138,6 @@ export const Error: Story = {
   },
 };
 
-// Empty state story
 export const Empty: Story = {
   parameters: {
     msw: {
