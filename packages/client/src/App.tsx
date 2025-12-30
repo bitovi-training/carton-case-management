@@ -1,11 +1,11 @@
 import { Routes, Route } from 'react-router-dom';
-import { Folder } from 'lucide-react';
+import { FolderClosed } from 'lucide-react';
 import { Header } from './components/Header';
 import { MenuList } from './components/MenuList';
 import { CasePage } from './pages/CasePage';
 
 const menuItems = [
-  { id: 'home', label: 'Cases', path: '/', icon: <Folder size={20} />, isActive: true },
+  { id: 'home', label: 'Cases', path: '/cases/', icon: <FolderClosed size={20} />, isActive: true },
 ];
 
 function App() {
@@ -17,6 +17,7 @@ function App() {
         <main className="flex-1 lg:p-6 overflow-auto">
           <Routes>
             <Route path="/" element={<CasePage />} />
+            <Route path="/cases/" element={<CasePage />} />
             <Route path="/cases/:id" element={<CasePage />} />
           </Routes>
         </main>
