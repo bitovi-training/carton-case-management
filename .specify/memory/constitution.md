@@ -38,7 +38,7 @@ All features must be properly tested, with testing as a core part of development
 
 All UI components must follow the established development workflow:
 
-- **Component Library Usage (STRICTLY ENFORCED)**: All component changes and additions MUST use the existing component library (Shadcn UI) and its functionalities - never create custom implementations when library components exist
+- **Component Library Usage (STRICTLY ENFORCED)**: All component changes and additions MUST follow this hierarchy: (1) Use existing components from `packages/client/src/ui/` first, (2) If needed component doesn't exist locally, add it from Shadcn UI component registry, (3) Only create custom components when Shadcn UI does not provide that functionality. All new components added to the ui library must adhere to the Figma design system specifications for that component type.
 - **Storybook Required**: Every new component must have a corresponding `.stories.tsx` file
 - **Story Coverage**: Stories must demonstrate all component variants, states, and props
 - **Isolated Development**: Components must be testable in isolation with prop overrides for data dependencies
