@@ -13,20 +13,13 @@ export interface HeaderProps {
 }
 
 function CartonLogo({ size = 34 }: { size?: number }) {
-  return (
-    <img
-      src={CartonLogoSvg}
-      alt="Carton Case Management"
-      width={size}
-      height={size}
-    />
-  );
+  return <img src={CartonLogoSvg} alt="Carton Case Management" width={size} height={size} />;
 }
 
 export function Header({ className, userInitials = 'AM', onAvatarClick }: HeaderProps) {
   return (
     <header
-      className={`w-full bg-[hsl(var(--header-bg))] flex items-center justify-between px-6 py-4 ${className || ''}`}
+      className={`w-full bg-[#002a2d] flex items-center justify-between px-6 py-4 ${className || ''}`}
       aria-label="Main navigation"
     >
       <Link
@@ -36,7 +29,7 @@ export function Header({ className, userInitials = 'AM', onAvatarClick }: Header
       >
         <CartonLogo />
         <span className="text-white text-xl font-semibold">
-          Carton<span className="hidden md:inline"> Case Management</span>
+          Carton<span className="hidden lg:inline"> Case Management</span>
         </span>
       </Link>
 

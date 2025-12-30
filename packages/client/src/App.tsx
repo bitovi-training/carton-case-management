@@ -10,11 +10,11 @@ const menuItems = [
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-screen bg-[#dfe2e2] flex flex-col">
       <Header />
-      <div className="md:flex">
-        <MenuList items={menuItems} />
-        <main className="flex-1 p-6">
+      <MenuList items={menuItems} />
+      <div className="flex flex-1 overflow-hidden lg:pl-[68px]">
+        <main className="flex-1 lg:p-6 overflow-auto">
           <Routes>
             <Route path="/" element={<CasePage />} />
             <Route path="/cases/:id" element={<CasePage />} />

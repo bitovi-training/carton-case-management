@@ -13,7 +13,7 @@ export function CaseEssentialDetails({ caseData }: CaseEssentialDetailsProps) {
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
-    <div className="w-full md:w-[200px] flex flex-col gap-3">
+    <div className="w-full lg:w-[200px] flex flex-col gap-3">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex items-center justify-between py-4 w-full text-left"

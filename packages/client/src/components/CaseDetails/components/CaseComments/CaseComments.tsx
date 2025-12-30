@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { trpc } from '@/lib/trpc';
+import { Textarea } from '@/components/ui/textarea';
 
 type CaseCommentsProps = {
   caseData: {
@@ -87,26 +88,24 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 lg:flex-1 lg:min-h-0">
       <h2 className="text-base font-semibold">Comments</h2>
       <form onSubmit={handleSubmit}>
-        <div className="border border-gray-200 rounded-lg p-2 h-20 bg-white shadow-sm">
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            className="w-full h-full resize-none border-none outline-none text-sm"
-            placeholder="Add a comment..."
-            disabled={createCommentMutation.isPending}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-              }
-            }}
-          />
-        </div>
+        <Textarea
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          className="min-h-[80px] resize-none"
+          placeholder="Add a comment..."
+          disabled={createCommentMutation.isPending}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit(e);
+            }
+          }}
+        />
       </form>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 md:overflow-y-auto md:flex-1 md:min-h-0">
         {caseData.comments && caseData.comments.length > 0 ? (
           caseData.comments.map((comment) => (
             <div key={comment.id} className="flex flex-col gap-2 py-2">
