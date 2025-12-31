@@ -4,6 +4,7 @@ import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/ui/textarea';
 import { Button } from '@/ui/button';
 import { StatusDropdown } from '../../../StatusDropdown';
+import { EditableTitle } from '../../../EditableTitle';
 import type { CaseInformationProps } from './types';
 
 export function CaseInformation({ caseId, caseData, onMenuClick }: CaseInformationProps) {
@@ -19,10 +20,17 @@ export function CaseInformation({ caseId, caseData, onMenuClick }: CaseInformati
       setIsEditing(false);
     },
     onError: (error) => {
-      console.error('Failed to update case description:', error);
+      console.error('Failed to update case:', error);
       alert('Failed to save changes. Please try again.');
     },
   });
+
+  const handleTitleSave = (newTitle: string) => {
+    updateCase.mutate({
+      id: caseId,
+      title: newTitle,
+    });
+  };
 
   const handleSave = () => {
     if (editedDescription.trim() === '') {
@@ -55,7 +63,13 @@ export function CaseInformation({ caseId, caseData, onMenuClick }: CaseInformati
           <List size={16} className="text-gray-700" />
         </Button>
         <div className="flex flex-col gap-1 flex-1 min-w-0">
-          <h1 className="text-xl font-semibold truncate">{caseData.title}</h1>
+          <EditableTitle
+            value={caseData.title}
+            onSave={handleTitleSave}
+            isLoading={updateCase.isPending}
+            className="text-xl font-semibold truncate"
+            inputClassName="text-xl font-semibold"
+          />
           <p className="text-base font-semibold text-gray-600">#{caseData.caseNumber}</p>
         </div>
       </div>
@@ -68,7 +82,13 @@ export function CaseInformation({ caseId, caseData, onMenuClick }: CaseInformati
       {/* Desktop: Title + Status on same line */}
       <div className="hidden lg:flex items-start justify-between gap-4">
         <div className="flex flex-col gap-2 flex-1 min-w-0">
-          <h1 className="text-3xl font-semibold">{caseData.title}</h1>
+          <EditableTitle
+            value={caseData.title}
+            onSave={handleTitleSave}
+            isLoading={updateCase.isPending}
+            className="text-3xl font-semibold"
+            inputClassName="text-3xl font-semibold"
+          />
           <p className="text-xl text-gray-600">#{caseData.caseNumber}</p>
         </div>
         <StatusDropdown caseId={caseId} currentStatus={caseData.status} />
