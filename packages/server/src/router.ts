@@ -33,6 +33,22 @@ export const appRouter = router({
     }),
   }),
 
+  customer: router({
+    list: publicProcedure.query(async ({ ctx }) => {
+      return ctx.prisma.customer.findMany({
+        select: {
+          id: true,
+          name: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        orderBy: {
+          name: 'asc',
+        },
+      });
+    }),
+  }),
+
   case: router({
     list: publicProcedure
       .input(
@@ -50,6 +66,12 @@ export const appRouter = router({
             ...(input?.assignedTo && { assignedTo: input.assignedTo }),
           },
           include: {
+            customer: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
             creator: {
               select: {
                 id: true,
@@ -74,6 +96,12 @@ export const appRouter = router({
       return ctx.prisma.case.findUnique({
         where: { id: input.id },
         include: {
+          customer: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
           creator: {
             select: {
               id: true,
@@ -112,8 +140,8 @@ export const appRouter = router({
           description: z.string().min(1),
           createdBy: z.string(),
           assignedTo: z.string().optional(),
-          caseNumber: z.string(),
-          customerName: z.string(),
+          customerId: z.string(),
+          priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -128,7 +156,8 @@ export const appRouter = router({
           title: z.string().optional(),
           description: z.string().optional(),
           status: z.enum(['TO_DO', 'IN_PROGRESS', 'COMPLETED', 'CLOSED']).optional(),
-          customerName: z.string().optional(),
+          priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+          customerId: z.string().optional(),
           assigneeId: z.string().optional(),
         })
       )

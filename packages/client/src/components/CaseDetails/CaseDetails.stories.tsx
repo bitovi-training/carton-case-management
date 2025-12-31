@@ -7,9 +7,13 @@ import { CaseDetails } from './CaseDetails';
 const mockCase = {
   id: '1',
   title: 'Customer Login Issue',
-  description: 'Customer reports being unable to log in to their account. Error message: "Invalid credentials" appears even with correct password.',
+  description:
+    'Customer reports being unable to log in to their account. Error message: "Invalid credentials" appears even with correct password.',
   status: 'IN_PROGRESS',
-  customerName: 'Acme Corp',
+  customer: {
+    id: '1',
+    name: 'Acme Corp',
+  },
   creator: {
     id: '1',
     name: 'John Doe',
@@ -38,7 +42,8 @@ const mockCase = {
     },
     {
       id: '2',
-      content: 'Found the issue - password reset token had expired. Sending new reset link to customer.',
+      content:
+        'Found the issue - password reset token had expired. Sending new reset link to customer.',
       caseId: '1',
       authorId: '2',
       author: {

@@ -35,7 +35,7 @@ export function CaseDetails({ onMenuClick }: CaseDetailsProps) {
       {/* Mobile Layout */}
       <div className="flex flex-col w-full lg:hidden gap-4 overflow-y-auto flex-1">
         <CaseInformation caseId={caseData.id} caseData={caseData} onMenuClick={onMenuClick} />
-        <CaseEssentialDetails caseData={caseData} />
+        <CaseEssentialDetails caseId={caseData.id} caseData={caseData} />
         <CaseComments caseData={caseData} />
       </div>
 
@@ -47,7 +47,7 @@ export function CaseDetails({ onMenuClick }: CaseDetailsProps) {
           <CaseComments caseData={caseData} />
         </div>
         <div className="h-[9px]" />
-        <CaseEssentialDetails caseData={caseData} />
+        <CaseEssentialDetails caseId={caseData.id} caseData={caseData} />
       </div>
     </div>
   );

@@ -6,10 +6,9 @@ import { StatusDropdown } from './StatusDropdown';
 const mockCase = {
   id: '1',
   title: 'Test Case',
-  caseNumber: 'CASE-001',
   status: 'TO_DO',
   description: 'Test description',
-  customerName: 'Test Customer',
+  customer: { id: '1', name: 'Test Customer' },
   creator: { id: '1', name: 'John Doe', email: 'john@example.com' },
   assignee: { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
   createdAt: new Date('2024-01-15'),
@@ -31,7 +30,9 @@ const meta = {
           });
         }),
         http.post('/trpc/case.update', async ({ request }) => {
-          const body = await request.json() as { status?: 'TO_DO' | 'IN_PROGRESS' | 'COMPLETED' | 'CLOSED' };
+          const body = (await request.json()) as {
+            status?: 'TO_DO' | 'IN_PROGRESS' | 'COMPLETED' | 'CLOSED';
+          };
           return HttpResponse.json({
             result: {
               data: {

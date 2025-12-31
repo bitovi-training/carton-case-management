@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { trpc } from '@/lib/trpc';
 import { CaseList } from '@/components/CaseList';
 import { CaseDetails } from '@/components/CaseDetails';
+import { CreateCasePage } from '@/pages/CreateCasePage';
 import { Sheet } from '@/ui/sheet';
 
 export function CasePage() {
@@ -14,7 +15,12 @@ export function CasePage() {
 
   useEffect(() => {
     // If we're on / or /cases/ without an ID and we have cases, redirect to first case
-    if (!id && cases && cases.length > 0 && (location.pathname === '/' || location.pathname === '/cases/')) {
+    if (
+      !id &&
+      cases &&
+      cases.length > 0 &&
+      (location.pathname === '/' || location.pathname === '/cases/')
+    ) {
       navigate(`/cases/${cases[0].id}`, { replace: true });
     }
   }, [id, cases, navigate, location.pathname]);
@@ -25,7 +31,11 @@ export function CasePage() {
         <div className="hidden lg:block">
           <CaseList />
         </div>
-        <CaseDetails onMenuClick={() => setIsSheetOpen(true)} />
+        {id === 'new' ? (
+          <CreateCasePage />
+        ) : (
+          <CaseDetails onMenuClick={() => setIsSheetOpen(true)} />
+        )}
       </div>
 
       {/* Mobile Sheet */}

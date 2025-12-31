@@ -18,7 +18,10 @@ const mockCaseData = {
   title: 'Test Case Title',
   description: 'Test case description',
   status: 'OPEN',
-  customerName: 'John Customer',
+  customer: {
+    id: '1',
+    name: 'John Customer',
+  },
   creator: { id: '1', name: 'John Doe', email: 'john@example.com' },
   assignee: { id: '2', name: 'Jane Doe', email: 'jane@example.com' },
   createdAt: new Date('2024-01-01').toISOString(),

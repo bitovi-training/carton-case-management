@@ -6,22 +6,19 @@ import { CaseInformation } from './CaseInformation';
 describe('CaseInformation', () => {
   it('renders without crashing', () => {
     const mockCaseData = {
+      id: '1',
       title: 'Test Case',
-      caseNumber: 'CASE-001',
       status: 'TO_DO' as const,
       description: 'Test description',
+      createdAt: new Date('2024-01-15').toISOString(),
     };
-    
-    renderWithTrpc(
-      <CaseInformation 
-        caseId="1" 
-        caseData={mockCaseData}
-      />
-    );
-    
+
+    renderWithTrpc(<CaseInformation caseId="1" caseData={mockCaseData} />);
+
     expect(screen.getAllByText('Test Case').length).toBeGreaterThan(0);
+    // Case number is now computed from id and createdAt: #CAS-240115-{last 8 chars of id}
     const caseNumbers = screen.getAllByText((content, element) => {
-      return element?.textContent === '#CASE-001';
+      return element?.textContent?.startsWith('#CAS-240115') || false;
     });
     expect(caseNumbers.length).toBeGreaterThan(0);
   });

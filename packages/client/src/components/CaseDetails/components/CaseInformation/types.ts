@@ -3,10 +3,11 @@ import type { CaseStatus } from '../../../StatusDropdown/types';
 export type CaseInformationProps = {
   caseId: string;
   caseData: {
+    id: string;
     title: string;
-    caseNumber: string;
     status: CaseStatus;
     description: string;
+    createdAt: Date | string;
   };
   onMenuClick?: () => void;
 };

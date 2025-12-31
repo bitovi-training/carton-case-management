@@ -6,9 +6,9 @@ import { CaseInformation } from './CaseInformation';
 
 const mockCaseData = {
   title: 'Customer Login Issue',
-  caseNumber: 'CASE-001',
   status: 'IN_PROGRESS' as const,
-  description: 'Customer reports being unable to log in to their account. Error message: "Invalid credentials" appears even with correct password. This has been happening since yesterday afternoon.',
+  description:
+    'Customer reports being unable to log in to their account. Error message: "Invalid credentials" appears even with correct password. This has been happening since yesterday afternoon.',
 };
 
 const meta: Meta<typeof CaseInformation> = {
@@ -76,7 +76,8 @@ export const CompletedStatus: Story = {
     caseData: {
       ...mockCaseData,
       status: 'COMPLETED',
-      description: 'This issue has been resolved. Customer can now successfully log in to their account.',
+      description:
+        'This issue has been resolved. Customer can now successfully log in to their account.',
     },
   },
 };
@@ -86,7 +87,8 @@ export const LongDescription: Story = {
     caseId: '1',
     caseData: {
       ...mockCaseData,
-      description: 'Customer reports being unable to log in to their account. Error message: "Invalid credentials" appears even with correct password. This has been happening since yesterday afternoon. We have verified that the user\'s account is active and not locked. The password reset functionality was tested and is working correctly. Investigation into server logs shows no unusual activity. Customer has tried multiple browsers with the same result. We suspect this might be related to a recent update to the authentication system.',
+      description:
+        'Customer reports being unable to log in to their account. Error message: "Invalid credentials" appears even with correct password. This has been happening since yesterday afternoon. We have verified that the user\'s account is active and not locked. The password reset functionality was tested and is working correctly. Investigation into server logs shows no unusual activity. Customer has tried multiple browsers with the same result. We suspect this might be related to a recent update to the authentication system.',
     },
   },
 };

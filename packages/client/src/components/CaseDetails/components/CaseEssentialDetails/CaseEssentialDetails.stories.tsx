@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { CaseEssentialDetails } from './CaseEssentialDetails';
 
 const mockCaseData = {
-  customerName: 'Acme Corp',
+  customer: { name: 'Acme Corp' },
   createdAt: new Date('2024-01-15T10:00:00Z').toISOString(),
   updatedAt: new Date('2024-01-16T14:30:00Z').toISOString(),
   assignee: {

@@ -3,8 +3,10 @@ import { List } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/ui/textarea';
 import { Button } from '@/ui/button';
+import { formatCaseNumber } from '@carton/shared';
 import { StatusDropdown } from '../../../StatusDropdown';
 import { EditableTitle } from '../../../EditableTitle';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/ui/tooltip';
 import type { CaseInformationProps } from './types';
 
 export function CaseInformation({ caseId, caseData, onMenuClick }: CaseInformationProps) {
@@ -70,7 +72,9 @@ export function CaseInformation({ caseId, caseData, onMenuClick }: CaseInformati
             className="text-xl font-semibold truncate"
             inputClassName="text-xl font-semibold"
           />
-          <p className="text-base font-semibold text-gray-600">#{caseData.caseNumber}</p>
+          <p className="text-base font-semibold text-gray-600">
+            {formatCaseNumber(caseData.id, caseData.createdAt)}
+          </p>
         </div>
       </div>
 
@@ -89,7 +93,9 @@ export function CaseInformation({ caseId, caseData, onMenuClick }: CaseInformati
             className="text-3xl font-semibold"
             inputClassName="text-3xl font-semibold"
           />
-          <p className="text-xl text-gray-600">#{caseData.caseNumber}</p>
+          <p className="text-xl text-gray-600">
+            {formatCaseNumber(caseData.id, caseData.createdAt)}
+          </p>
         </div>
         <StatusDropdown caseId={caseId} currentStatus={caseData.status} />
       </div>
@@ -99,12 +105,21 @@ export function CaseInformation({ caseId, caseData, onMenuClick }: CaseInformati
         <h2 className="text-base font-semibold">Case Description</h2>
 
         {!isEditing ? (
-          <p
-            className="text-sm text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
-            onClick={() => setIsEditing(true)}
-          >
-            {caseData.description}
-          </p>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <p
+                  className="text-sm text-gray-700 cursor-pointer hover:bg-gray-100 p-2 rounded transition-colors"
+                  onClick={() => setIsEditing(true)}
+                >
+                  {caseData.description}
+                </p>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Click to edit</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         ) : (
           <div className="flex flex-col">
             <Textarea

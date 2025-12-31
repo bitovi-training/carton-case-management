@@ -60,12 +60,12 @@ async function main() {
   // Create demo cases with comments
   const case1 = await prisma.case.create({
     data: {
-      caseNumber: 'CAS-242314-2124',
       title: 'Insurance Claim Dispute',
       description:
         'Sarah Johnson is a single mother of two children seeking housing assistance after losing her apartment due to job loss. She currently has temporary housing but needs permanent housing within 60 days. Her income is below the threshold for the Housing First program.',
       customerId: sarahJohnson.id,
       status: 'TO_DO',
+      priority: 'HIGH',
       createdBy: alexMorgan.id,
       assignedTo: alexMorgan.id,
     },
@@ -93,12 +93,12 @@ async function main() {
 
   const case2 = await prisma.case.create({
     data: {
-      caseNumber: 'CAS-242315-2125',
       title: 'Policy Coverage Inquiry',
       description:
         'Customer inquiring about coverage details for their home insurance policy. Specifically asking about flood damage coverage and deductible amounts.',
       customerId: michaelChen.id,
       status: 'IN_PROGRESS',
+      priority: 'MEDIUM',
       createdBy: jordanDoe.id,
       assignedTo: taylorSmith.id,
     },
@@ -124,12 +124,12 @@ async function main() {
 
   const case3 = await prisma.case.create({
     data: {
-      caseNumber: 'CAS-242316-2126',
       title: 'Premium Adjustment Request',
       description:
         'Customer requesting premium adjustment after installing new security system. Eligibility for discount needs to be verified.',
       customerId: emilyRodriguez.id,
       status: 'TO_DO',
+      priority: 'LOW',
       createdBy: taylorSmith.id,
       assignedTo: jordanDoe.id,
     },

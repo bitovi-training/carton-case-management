@@ -1,9 +1,26 @@
 import { useState } from 'react';
 import { Button } from '@/ui/button';
+import { EditablePriority } from '@/components/EditablePriority';
+import { trpc } from '@/lib/trpc';
 import type { CaseEssentialDetailsProps } from './types';
 
-export function CaseEssentialDetails({ caseData }: CaseEssentialDetailsProps) {
+export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const trpcUtils = trpc.useUtils();
+
+  const updateCaseMutation = trpc.case.update.useMutation({
+    onSuccess: () => {
+      trpcUtils.case.getById.invalidate({ id: caseId });
+      trpcUtils.case.list.invalidate();
+    },
+  });
+
+  const handlePriorityChange = (newPriority: string) => {
+    updateCaseMutation.mutate({
+      id: caseId,
+      priority: newPriority as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT',
+    });
+  };
 
   return (
     <div className="w-full lg:w-[200px] flex flex-col gap-3">
@@ -33,7 +50,16 @@ export function CaseEssentialDetails({ caseData }: CaseEssentialDetailsProps) {
         <>
           <div className="flex flex-col gap-1">
             <p className="text-xs text-gray-600">Customer Name</p>
-            <p className="text-sm font-medium">{caseData.customerName}</p>
+            <p className="text-sm font-medium">{caseData.customer.name}</p>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-xs text-gray-600">Priority</p>
+            <EditablePriority
+              value={caseData.priority || 'MEDIUM'}
+              onSave={handlePriorityChange}
+              isLoading={updateCaseMutation.isPending}
+              className="text-sm font-medium"
+            />
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-xs text-gray-600">Date Opened</p>

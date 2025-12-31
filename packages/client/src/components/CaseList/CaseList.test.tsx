@@ -17,7 +17,6 @@ const mockCases = [
   {
     id: '1',
     title: 'First Case',
-    caseNumber: 'CASE-001',
     description: 'First case description',
     status: 'OPEN',
     creator: { id: '1', name: 'John Doe', email: 'john@example.com' },
@@ -28,7 +27,6 @@ const mockCases = [
   {
     id: '2',
     title: 'Second Case',
-    caseNumber: 'CASE-002',
     description: 'Second case description',
     status: 'IN_PROGRESS',
     creator: { id: '1', name: 'John Doe', email: 'john@example.com' },
@@ -212,7 +210,6 @@ describe('CaseList', () => {
     const longCase = {
       id: '3',
       title: 'Very Long Case Title That Should Be Truncated',
-      caseNumber: 'CASE-003-VERY-LONG-NUMBER',
       description: 'Description',
       status: 'OPEN',
       creator: { id: '1', name: 'John Doe', email: 'john@example.com' },

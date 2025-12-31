@@ -30,6 +30,8 @@ TypeScript 5.x / Node.js 22+: Follow standard conventions
 - No tsx or ts files should have inline comments.
 - All styling should be done using Tailwind CSS classes in an external CSS file.
 - Responsive designing should be implemented using Tailwind CSS utilities.
+- **Always prioritize using Shadcn UI components over native HTML elements** (e.g., use Shadcn Select instead of `<select>`, Shadcn Input instead of `<input>`, etc.). Install new Shadcn components as needed using `npx shadcn@latest add [component-name]`.
+- Shadcn components should be installed to `packages/client/src/ui/` directory and exported via `packages/client/src/ui/index.ts`.
 
 ## Recent Changes
 

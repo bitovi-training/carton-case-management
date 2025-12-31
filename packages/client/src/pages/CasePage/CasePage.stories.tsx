@@ -8,10 +8,10 @@ const mockCases = [
   {
     id: '1',
     title: 'Customer Login Issue',
-    caseNumber: 'CASE-001',
     status: 'IN_PROGRESS',
-    description: 'Customer reports being unable to log in to their account. Error message: "Invalid credentials" appears even with correct password.',
-    customerName: 'Acme Corp',
+    description:
+      'Customer reports being unable to log in to their account. Error message: "Invalid credentials" appears even with correct password.',
+    customer: { id: '1', name: 'Acme Corp' },
     creator: { id: '1', name: 'John Doe', email: 'john@example.com' },
     assignee: { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
     createdAt: new Date('2024-01-15T10:00:00Z'),
@@ -32,7 +32,8 @@ const mockCases = [
       },
       {
         id: '2',
-        content: 'Found the issue - password reset token had expired. Sending new reset link to customer.',
+        content:
+          'Found the issue - password reset token had expired. Sending new reset link to customer.',
         caseId: '1',
         authorId: '2',
         author: {
@@ -48,10 +49,9 @@ const mockCases = [
   {
     id: '2',
     title: 'Payment Processing Error',
-    caseNumber: 'CASE-002',
     status: 'TO_DO',
     description: 'Payment fails at checkout step. Customer receives generic error message.',
-    customerName: 'Tech Solutions Inc',
+    customer: { id: '2', name: 'Tech Solutions Inc' },
     creator: { id: '1', name: 'John Doe', email: 'john@example.com' },
     assignee: null,
     createdAt: new Date('2024-01-16T08:00:00Z'),
@@ -61,10 +61,9 @@ const mockCases = [
   {
     id: '3',
     title: 'Feature Request: Dark Mode',
-    caseNumber: 'CASE-003',
     status: 'COMPLETED',
     description: 'User requesting dark mode option for better night-time viewing experience.',
-    customerName: 'Global Systems',
+    customer: { id: '3', name: 'Global Systems' },
     creator: { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
     assignee: { id: '1', name: 'John Doe', email: 'john@example.com' },
     createdAt: new Date('2024-01-10T09:00:00Z'),

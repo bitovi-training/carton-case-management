@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from 'react';
 import { Check, X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/ui/input';
 import { Button } from '@/ui/button';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/ui/tooltip';
 
 interface EditableTitleProps {
   value: string;
@@ -60,12 +61,21 @@ export function EditableTitle({
 
   if (!isEditing) {
     return (
-      <div
-        className={`cursor-pointer rounded px-2 -mx-2 py-1 -my-1 transition-colors hover:bg-gray-100 ${className}`}
-        onClick={() => setIsEditing(true)}
-      >
-        {value}
-      </div>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              className={`cursor-pointer rounded px-2 -mx-2 py-1 -my-1 transition-colors hover:bg-gray-100 ${className}`}
+              onClick={() => setIsEditing(true)}
+            >
+              {value}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Click to edit</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     );
   }
 

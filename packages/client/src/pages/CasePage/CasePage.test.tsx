@@ -16,7 +16,6 @@ const mockCases = [
   {
     id: '1',
     title: 'First Case',
-    caseNumber: 'CASE-001',
     description: 'First case description',
     status: 'OPEN',
     creator: { id: '1', name: 'John Doe', email: 'john@example.com' },
@@ -27,7 +26,6 @@ const mockCases = [
   {
     id: '2',
     title: 'Second Case',
-    caseNumber: 'CASE-002',
     description: 'Second case description',
     status: 'IN_PROGRESS',
     creator: { id: '1', name: 'John Doe', email: 'john@example.com' },
@@ -40,10 +38,9 @@ const mockCases = [
 const mockCaseData = {
   id: '1',
   title: 'First Case',
-  caseNumber: 'CASE-001',
   description: 'First case description',
   status: 'OPEN',
-  customerName: 'John Customer',
+  customer: { id: '1', name: 'John Customer' },
   creator: { id: '1', name: 'John Doe', email: 'john@example.com' },
   assignee: { id: '2', name: 'Jane Doe', email: 'jane@example.com' },
   createdAt: new Date('2024-01-01').toISOString(),

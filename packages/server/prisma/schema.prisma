@@ -17,6 +17,13 @@ enum CaseStatus {
   CLOSED
 }
 
+enum CasePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -40,16 +47,16 @@ model Customer {
 }
 
 model Case {
-  id          String     @id @default(uuid())
-  caseNumber  String     @unique
+  id          String       @id @default(uuid())
   title       String
   description String
   customerId  String
-  status      CaseStatus @default(TO_DO)
+  status      CaseStatus   @default(TO_DO)
+  priority    CasePriority @default(MEDIUM)
   createdBy   String
   assignedTo  String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   customer Customer  @relation(fields: [customerId], references: [id])
   creator  User      @relation("CreatedBy", fields: [createdBy], references: [id])
