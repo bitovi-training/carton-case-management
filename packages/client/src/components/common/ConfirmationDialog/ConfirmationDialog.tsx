@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,41 +9,49 @@ import {
   AlertDialogTitle,
 } from '@/components/ui';
 
-export interface DeleteCaseDialogProps {
+export interface ConfirmationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
-  caseTitle: string;
-  isDeleting?: boolean;
+  title: string;
+  description: string;
+  confirmText?: string;
+  cancelText?: string;
+  confirmClassName?: string;
+  isLoading?: boolean;
+  loadingText?: string;
 }
 
-export function DeleteCaseDialog({
+export function ConfirmationDialog({
   open,
   onOpenChange,
   onConfirm,
-  caseTitle,
-  isDeleting = false,
-}: DeleteCaseDialogProps) {
+  title,
+  description,
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
+  confirmClassName = '',
+  isLoading = false,
+  loadingText,
+}: ConfirmationDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Case</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete "{caseTitle}"? This action cannot be undone.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>{cancelText}</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
               onConfirm();
             }}
-            disabled={isDeleting}
-            className="bg-red-600 hover:bg-red-700"
+            disabled={isLoading}
+            className={confirmClassName}
           >
-            {isDeleting ? 'Deleting...' : 'Delete'}
+            {isLoading ? loadingText || confirmText : confirmText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

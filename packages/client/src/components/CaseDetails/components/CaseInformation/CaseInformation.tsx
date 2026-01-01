@@ -4,8 +4,8 @@ import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { formatCaseNumber, type CaseStatus, CASE_STATUS_OPTIONS } from '@carton/shared';
-import { EditableTitle } from '../../../EditableTitle';
-import { EditableSelect } from '../../../EditableSelect';
+import { EditableTitle } from '@/components/common/EditableTitle';
+import { EditableSelect } from '@/components/common/EditableSelect';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui';
-import { DeleteCaseDialog } from '@/components/DeleteCaseDialog';
+import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
 import { useNavigate } from 'react-router-dom';
 import type { CaseInformationProps } from './types';
 
@@ -239,12 +239,16 @@ export function CaseInformation({ caseId, caseData, onMenuClick }: CaseInformati
         </div>
       </div>
 
-      <DeleteCaseDialog
+      <ConfirmationDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={handleDeleteConfirm}
-        caseTitle={caseData.title}
-        isDeleting={deleteCase.isPending}
+        title="Delete Case"
+        description={`Are you sure you want to delete ${caseData.title}? This action cannot be undone.`}
+        confirmText="Delete"
+        confirmClassName="bg-red-600 hover:bg-red-700"
+        isLoading={deleteCase.isPending}
+        loadingText="Deleting..."
       />
     </>
   );

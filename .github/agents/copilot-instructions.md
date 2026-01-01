@@ -30,8 +30,29 @@ TypeScript 5.x / Node.js 22+: Follow standard conventions
 - No tsx or ts files should have inline comments.
 - All styling should be done using Tailwind CSS classes in an external CSS file.
 - Responsive designing should be implemented using Tailwind CSS utilities.
-- **Always prioritize using Shadcn UI components over native HTML elements** (e.g., use Shadcn Select instead of `<select>`, Shadcn Input instead of `<input>`, etc.). Install new Shadcn components as needed using `npx shadcn@latest add [component-name]`.
-- Shadcn components should be installed to `packages/client/src/ui/` directory and exported via `packages/client/src/ui/index.ts`.
+
+### Component Architecture
+
+- **Component Structure**: Follow the recursive modlet pattern (as demonstrated by CaseDetails component)
+- **Component Testing & Documentation**:
+  - Every component must have accompanying tests (`.test.tsx` files)
+  - Every component should have Storybook stories (`.stories.tsx` files) for documentation and visual testing
+  - Tests should cover main functionality, edge cases, and user interactions
+- **Shadcn UI Components**:
+  - Always prioritize using Shadcn UI components over native HTML elements (e.g., use Shadcn Select instead of `<select>`, Shadcn Input instead of `<input>`, etc.)
+  - If a needed component is not available, install the Shadcn equivalent using `npx shadcn@latest add [component-name]`
+  - Shadcn components should be installed to `packages/client/src/components/ui/` directory and exported via `packages/client/src/components/ui/index.ts`
+- **Custom Components**: If a custom component must be built on top of underlying Shadcn components (e.g., EditableSelect, ConfirmationDialog), it should go in `packages/client/src/components/common/`
+
+### UX Patterns
+
+- **Creating**: Use dedicated create pages (not modals) for creating new entities
+- **Editing**: Implement "click to edit" functionality on view pages with inline editing
+- **Deleting**: Always use a confirmation modal (ConfirmationDialog) before deleting entities
+
+### Data Layer
+
+- **Prisma/tRPC**: Always configure cascading deletes (`onDelete: Cascade`) in Prisma schema when an entity has related data that should be removed when the parent is deleted
 
 ## Recent Changes
 

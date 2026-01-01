@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { EditableSelect } from '@/components/EditableSelect';
+import { EditableSelect } from '@/components/common/EditableSelect';
 import { trpc } from '@/lib/trpc';
 import { type CasePriority, CASE_PRIORITY_OPTIONS } from '@carton/shared';
 import type { CaseEssentialDetailsProps } from './types';
