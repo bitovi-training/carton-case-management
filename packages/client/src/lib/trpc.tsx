@@ -15,7 +15,7 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
           queries: {
             staleTime: 1000 * 60 * 5,
             gcTime: 1000 * 60 * 10,
-            retry: 3,
+            retry: false,
             refetchOnWindowFocus: true,
           },
         },
@@ -26,6 +26,12 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
       links: [
         httpBatchLink({
           url: '/trpc',
+          fetch(url, options) {
+            return fetch(url, {
+              ...options,
+              credentials: 'include',
+            });
+          },
         }),
       ],
     })

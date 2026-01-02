@@ -88,16 +88,6 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
             />
           </div>
           <div className="flex flex-col gap-1">
-            <p className="text-xs text-gray-600">Date Opened</p>
-            <p className="text-sm font-medium">
-              {new Date(caseData.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </p>
-          </div>
-          <div className="flex flex-col gap-1">
             <p className="text-xs text-gray-600">Assigned To</p>
             <EditableSelect
               value={caseData.assignedTo || ''}
@@ -111,6 +101,20 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
             />
           </div>
           <div className="flex flex-col gap-1">
+            <p className="text-xs text-gray-600">Date Opened</p>
+            <p className="text-sm font-medium">
+              {new Date(caseData.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </p>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-xs text-gray-600">Created By</p>
+            <p className="text-sm font-medium">{caseData.creator.name}</p>
+          </div>
+          <div className="flex flex-col gap-1">
             <p className="text-xs text-gray-600">Last Updated</p>
             <p className="text-sm font-medium">
               {new Date(caseData.updatedAt).toLocaleDateString('en-US', {
@@ -119,6 +123,10 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
                 day: 'numeric',
               })}
             </p>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-xs text-gray-600">Updated By</p>
+            <p className="text-sm font-medium">{caseData.updater.name}</p>
           </div>
         </>
       )}

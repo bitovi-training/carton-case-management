@@ -1,10 +1,40 @@
 import { z } from 'zod';
 import { router, publicProcedure } from './trpc.js';
 import { formatDate, casePrioritySchema, caseStatusSchema } from '@carton/shared';
+import { TRPCError } from '@trpc/server';
 
 export const appRouter = router({
   health: publicProcedure.query(() => {
     return { status: 'ok', timestamp: new Date().toISOString(), formatted: formatDate(new Date()) };
+  }),
+
+  auth: router({
+    me: publicProcedure.query(async ({ ctx }) => {
+      if (!ctx.userId) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Not authenticated',
+        });
+      }
+
+      const user = await ctx.prisma.user.findUnique({
+        where: { id: ctx.userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+        },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'User not found',
+        });
+      }
+
+      return user;
+    }),
   }),
 
   user: router({
@@ -79,6 +109,13 @@ export const appRouter = router({
                 email: true,
               },
             },
+            updater: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
             assignee: {
               select: {
                 id: true,
@@ -103,6 +140,13 @@ export const appRouter = router({
             },
           },
           creator: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          updater: {
             select: {
               id: true,
               name: true,
@@ -138,15 +182,25 @@ export const appRouter = router({
         z.object({
           title: z.string().min(1),
           description: z.string().min(1),
-          createdBy: z.string(),
           assignedTo: z.string().optional(),
           customerId: z.string(),
           priority: casePrioritySchema.optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated',
+          });
+        }
+
         return ctx.prisma.case.create({
-          data: input,
+          data: {
+            ...input,
+            createdBy: ctx.userId,
+            updatedBy: ctx.userId,
+          },
         });
       }),
     update: publicProcedure
@@ -162,11 +216,19 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated',
+          });
+        }
+
         const { id, ...data } = input;
         return ctx.prisma.case.update({
           where: { id },
           data: {
             ...data,
+            updatedBy: ctx.userId,
             updatedAt: new Date(),
           },
         });
@@ -185,12 +247,21 @@ export const appRouter = router({
         z.object({
           caseId: z.string(),
           content: z.string().min(1),
-          authorId: z.string(),
         })
       )
       .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated',
+          });
+        }
+
         return ctx.prisma.comment.create({
-          data: input,
+          data: {
+            ...input,
+            authorId: ctx.userId,
+          },
           include: {
             author: {
               select: {

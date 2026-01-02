@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
+export const FIRST_USER_EMAIL = 'alex.morgan@carton.com';
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -16,7 +18,7 @@ async function main() {
   // Create demo users (staff members who use the app)
   const alexMorgan = await prisma.user.create({
     data: {
-      email: 'alex.morgan@example.com',
+      email: FIRST_USER_EMAIL,
       name: 'Alex Morgan',
       password: 'hashed_password_here', // In production, use bcrypt
     },
@@ -24,7 +26,7 @@ async function main() {
 
   const jordanDoe = await prisma.user.create({
     data: {
-      email: 'jordan.doe@example.com',
+      email: 'jordan.doe@carton.com',
       name: 'Jordan Doe',
       password: 'hashed_password_here',
     },
@@ -32,7 +34,7 @@ async function main() {
 
   const taylorSmith = await prisma.user.create({
     data: {
-      email: 'taylor.smith@example.com',
+      email: 'taylor.smith@carton.com',
       name: 'Taylor Smith',
       password: 'hashed_password_here',
     },
@@ -73,6 +75,7 @@ async function main() {
       status: 'TO_DO',
       priority: 'HIGH',
       createdBy: alexMorgan.id,
+      updatedBy: alexMorgan.id,
       assignedTo: alexMorgan.id,
       createdAt: new Date('2025-12-28T09:30:00'),
       updatedAt: new Date('2025-12-28T09:30:00'),
@@ -108,6 +111,7 @@ async function main() {
       status: 'IN_PROGRESS',
       priority: 'MEDIUM',
       createdBy: jordanDoe.id,
+      updatedBy: taylorSmith.id,
       assignedTo: taylorSmith.id,
       createdAt: new Date('2025-12-25T14:20:00'),
       updatedAt: new Date('2025-12-25T14:20:00'),
@@ -141,6 +145,7 @@ async function main() {
       status: 'TO_DO',
       priority: 'LOW',
       createdBy: taylorSmith.id,
+      updatedBy: jordanDoe.id,
       assignedTo: jordanDoe.id,
       createdAt: new Date('2025-12-22T11:15:00'),
       updatedAt: new Date('2025-12-22T11:15:00'),
@@ -174,6 +179,7 @@ async function main() {
       status: 'IN_PROGRESS',
       priority: 'HIGH',
       createdBy: alexMorgan.id,
+      updatedBy: alexMorgan.id,
       assignedTo: alexMorgan.id,
       createdAt: new Date('2025-12-30T08:45:00'),
       updatedAt: new Date('2025-12-30T08:45:00'),
@@ -198,6 +204,7 @@ async function main() {
       status: 'COMPLETED',
       priority: 'MEDIUM',
       createdBy: jordanDoe.id,
+      updatedBy: taylorSmith.id,
       assignedTo: taylorSmith.id,
       createdAt: new Date('2025-12-20T13:00:00'),
       updatedAt: new Date('2025-12-20T13:00:00'),
@@ -231,6 +238,7 @@ async function main() {
       status: 'TO_DO',
       priority: 'LOW',
       createdBy: jordanDoe.id,
+      updatedBy: jordanDoe.id,
       assignedTo: null,
       createdAt: new Date('2025-12-18T10:30:00'),
       updatedAt: new Date('2025-12-18T10:30:00'),

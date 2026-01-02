@@ -70,7 +70,6 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
     createCommentMutation.mutate({
       caseId: caseData.id,
       content: newComment.trim(),
-      authorId: currentUser.id,
     });
   };
 

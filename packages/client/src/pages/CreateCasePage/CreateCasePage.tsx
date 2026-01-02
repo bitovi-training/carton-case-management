@@ -72,15 +72,12 @@ export function CreateCasePage() {
       return;
     }
 
-    const createdBy = users?.[0]?.id || '';
-
     createCase.mutate({
       title,
       description,
       customerId,
       assignedTo: assignedTo || undefined,
       priority,
-      createdBy,
     });
   };
 
