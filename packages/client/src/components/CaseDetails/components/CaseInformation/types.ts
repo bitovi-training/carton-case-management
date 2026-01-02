@@ -1,4 +1,4 @@
-import type { CaseStatus } from '../../../StatusDropdown/types';
+import type { CaseStatus } from '@carton/shared';
 
 export type CaseInformationProps = {
   caseId: string;

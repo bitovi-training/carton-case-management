@@ -10,8 +10,12 @@ describe('CaseEssentialDetails', () => {
       customerId: '1',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      assignee: { id: '2', name: 'Test Assignee' },
+      assignee: { id: '2', name: 'Test Assignee', email: 'assignee@test.com' },
       assignedTo: '2',
+      creator: { id: '3', name: 'Test Creator', email: 'creator@test.com' },
+      createdBy: '3',
+      updater: { id: '4', name: 'Test Updater', email: 'updater@test.com' },
+      updatedBy: '4',
     };
 
     renderWithTrpc(<CaseEssentialDetails caseId="1" caseData={mockCaseData} />);

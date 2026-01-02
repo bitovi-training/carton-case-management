@@ -3,13 +3,22 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
 import { TrpcProvider } from '@/lib/trpc';
 import { CaseDetails } from './CaseDetails';
+import type { inferProcedureOutput } from '@trpc/server';
+import type { AppRouter } from '@carton/server/src/router';
 
-const mockCase = {
+type CaseByIdOutput = inferProcedureOutput<AppRouter['case']['getById']>;
+
+const mockCase: NonNullable<CaseByIdOutput> = {
   id: '1',
   title: 'Customer Login Issue',
   description:
     'Customer reports being unable to log in to their account. Error message: "Invalid credentials" appears even with correct password.',
   status: 'IN_PROGRESS',
+  priority: 'MEDIUM',
+  customerId: '1',
+  createdBy: '1',
+  updatedBy: '2',
+  assignedTo: '2',
   customer: {
     id: '1',
     name: 'Acme Corp',
@@ -20,6 +29,11 @@ const mockCase = {
     email: 'john@example.com',
   },
   assignee: {
+    id: '2',
+    name: 'Jane Smith',
+    email: 'jane@example.com',
+  },
+  updater: {
     id: '2',
     name: 'Jane Smith',
     email: 'jane@example.com',
@@ -57,6 +71,44 @@ const mockCase = {
   ],
 };
 
+const mockCustomers = [
+  {
+    id: '1',
+    name: 'Acme Corp',
+    createdAt: new Date('2024-01-01T00:00:00Z'),
+    updatedAt: new Date('2024-01-01T00:00:00Z'),
+  },
+  {
+    id: '2',
+    name: 'TechCorp Inc',
+    createdAt: new Date('2024-01-02T00:00:00Z'),
+    updatedAt: new Date('2024-01-02T00:00:00Z'),
+  },
+  {
+    id: '3',
+    name: 'Global Systems',
+    createdAt: new Date('2024-01-03T00:00:00Z'),
+    updatedAt: new Date('2024-01-03T00:00:00Z'),
+  },
+];
+
+const mockUsers = [
+  {
+    id: '1',
+    name: 'John Doe',
+    email: 'john@example.com',
+    createdAt: new Date('2024-01-01T00:00:00Z'),
+    updatedAt: new Date('2024-01-01T00:00:00Z'),
+  },
+  {
+    id: '2',
+    name: 'Jane Smith',
+    email: 'jane@example.com',
+    createdAt: new Date('2024-01-02T00:00:00Z'),
+    updatedAt: new Date('2024-01-02T00:00:00Z'),
+  },
+];
+
 const meta: Meta<typeof CaseDetails> = {
   title: 'Components/CaseDetails',
   component: CaseDetails,
@@ -64,18 +116,38 @@ const meta: Meta<typeof CaseDetails> = {
     layout: 'padded',
     msw: {
       handlers: [
-        http.get('/trpc/case.getById', () => {
+        http.get('*/trpc/case.getById*', () => {
           return HttpResponse.json({
             result: {
               data: mockCase,
             },
           });
         }),
-        http.post('/trpc/case.getById', () => {
+        http.post('*/trpc/case.getById*', () => {
           return HttpResponse.json({
             result: {
               data: mockCase,
             },
+          });
+        }),
+        http.get('*/trpc/customer.list*', () => {
+          return HttpResponse.json({
+            result: { data: mockCustomers },
+          });
+        }),
+        http.post('*/trpc/customer.list*', () => {
+          return HttpResponse.json({
+            result: { data: mockCustomers },
+          });
+        }),
+        http.get('*/trpc/user.list*', () => {
+          return HttpResponse.json({
+            result: { data: mockUsers },
+          });
+        }),
+        http.post('*/trpc/user.list*', () => {
+          return HttpResponse.json({
+            result: { data: mockUsers },
           });
         }),
       ],

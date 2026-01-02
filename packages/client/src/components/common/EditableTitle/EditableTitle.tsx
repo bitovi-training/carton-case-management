@@ -6,7 +6,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/comp
 
 interface EditableTitleProps {
   value: string;
-  onSave: (newValue: string) => void;
+  onSave: (newValue: string) => void | Promise<void>;
   className?: string;
   inputClassName?: string;
   isLoading?: boolean;
@@ -34,13 +34,13 @@ export function EditableTitle({
     setEditedValue(value);
   }, [value]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const trimmedValue = editedValue.trim();
     if (trimmedValue === '' || trimmedValue === value) {
       handleCancel();
       return;
     }
-    onSave(trimmedValue);
+    await onSave(trimmedValue);
     setIsEditing(false);
   };
 

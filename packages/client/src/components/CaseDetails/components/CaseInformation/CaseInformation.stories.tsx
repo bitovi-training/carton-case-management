@@ -3,12 +3,15 @@ import { MemoryRouter } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
 import { TrpcProvider } from '@/lib/trpc';
 import { CaseInformation } from './CaseInformation';
+import type { CaseInformationProps } from './types';
 
-const mockCaseData = {
+const mockCaseData: CaseInformationProps['caseData'] = {
+  id: 'case-123',
   title: 'Customer Login Issue',
   status: 'IN_PROGRESS' as const,
   description:
     'Customer reports being unable to log in to their account. Error message: "Invalid credentials" appears even with correct password. This has been happening since yesterday afternoon.',
+  createdAt: new Date('2024-01-15T10:00:00Z').toISOString(),
 };
 
 const meta: Meta<typeof CaseInformation> = {
