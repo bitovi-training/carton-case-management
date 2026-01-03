@@ -70,9 +70,11 @@ describe('CaseList', () => {
       expect(screen.getByText('First Case')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('CASE-001')).toBeInTheDocument();
+    // Format: #CAS-YYMMDD-{last8chars}
+    // 2024-01-01 in local timezone might be 2023-12-31 UTC
+    expect(screen.getByText('#CAS-231231-1')).toBeInTheDocument();
     expect(screen.getByText('Second Case')).toBeInTheDocument();
-    expect(screen.getByText('CASE-002')).toBeInTheDocument();
+    expect(screen.getByText('#CAS-240102-2')).toBeInTheDocument();
   });
 
   it('renders error state when API call fails', async () => {

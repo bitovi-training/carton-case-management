@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import type { Request, Response, NextFunction } from 'express';
-import { FIRST_USER_EMAIL } from '../../prisma/seed';
+import { FIRST_USER_EMAIL } from '../../prisma/constants.js';
 
 const prisma = new PrismaClient();
 

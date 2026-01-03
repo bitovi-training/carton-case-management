@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-
-export const FIRST_USER_EMAIL = 'alex.morgan@carton.com';
+import { FIRST_USER_EMAIL } from './constants.js';
 
 const prisma = new PrismaClient();
 

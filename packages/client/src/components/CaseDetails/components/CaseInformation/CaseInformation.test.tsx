@@ -10,16 +10,13 @@ describe('CaseInformation', () => {
       title: 'Test Case',
       status: 'TO_DO' as const,
       description: 'Test description',
-      createdAt: new Date('2024-01-15').toISOString(),
+      createdAt: new Date(2024, 0, 15).toISOString(), // Using local date: January 15, 2024
     };
 
     renderWithTrpc(<CaseInformation caseId="1" caseData={mockCaseData} />);
 
     expect(screen.getAllByText('Test Case').length).toBeGreaterThan(0);
-    // Case number is now computed from id and createdAt: #CAS-240115-{last 8 chars of id}
-    const caseNumbers = screen.getAllByText((content, element) => {
-      return element?.textContent?.startsWith('#CAS-240115') || false;
-    });
-    expect(caseNumbers.length).toBeGreaterThan(0);
+    // Case number is formatted as #CAS-YYMMDD-{last 8 chars of id}
+    expect(screen.getAllByText('#CAS-240115-1').length).toBeGreaterThan(0);
   });
 });

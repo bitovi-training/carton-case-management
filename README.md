@@ -93,6 +93,31 @@ If not using devcontainer:
    npm run dev:server  # Server on port 3001
    ```
 
+## Authentication
+
+This application uses a simplified authentication system for development purposes. There is no real backend authentication - instead, it automatically logs you in as a mock user.
+
+**Default User**: Alex Morgan (alex.morgan@carton.com)
+
+**Testing as Different Users**: To test the application as a different user, set the `MOCK_USER_EMAIL` environment variable in `packages/server/.env`:
+
+```env
+MOCK_USER_EMAIL=jordan.doe@carton.com
+```
+
+The available users are seeded in the database. You can view them by running `npm run db:studio` in the server package or checking the [seed.ts](packages/server/prisma/seed.ts) file.
+
+### How It Works
+
+The server uses an Express middleware ([autoLogin.ts](packages/server/src/middleware/autoLogin.ts)) that runs on every request:
+
+1. Checks for a `userId` cookie in the request
+2. If no cookie exists or the cookie's user email doesn't match `MOCK_USER_EMAIL`, it looks up the user by email in the database
+3. Sets a new `userId` cookie (HttpOnly, 7-day expiration)
+4. The cookie is automatically included in subsequent requests
+
+When you change `MOCK_USER_EMAIL` and restart the server, the middleware detects the mismatch and issues a new cookie for the new user on the next request. The client doesn't need to do anything - it just sends the cookie automatically.
+
 ## Available Scripts
 
 ### Root Level
@@ -445,9 +470,7 @@ test('displays cases from API', async () => {
     http.post('http://localhost:3000/trpc/case.list', () => {
       return HttpResponse.json({
         result: {
-          data: [
-            { id: '1', title: 'Test Case', description: 'Test', status: 'OPEN' },
-          ],
+          data: [{ id: '1', title: 'Test Case', description: 'Test', status: 'OPEN' }],
         },
       });
     })

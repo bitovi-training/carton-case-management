@@ -5,7 +5,6 @@ import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { appRouter } from './router.js';
 import { createContext } from './context.js';
 import { autoLoginMiddleware } from './middleware/autoLogin.js';
-import { PrismaClient } from '@prisma/client';
 
 export type { AppRouter } from './router.js';
 export type { CaseStatus } from '@prisma/client';

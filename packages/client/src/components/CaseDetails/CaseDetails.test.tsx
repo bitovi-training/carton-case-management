@@ -1,37 +1,37 @@
-import { describe, it, expect, beforeAll, afterEach, afterAll, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { screen, waitFor, render } from '@testing-library/react';
-import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { CaseDetails } from './CaseDetails';
 import { createMemoryRouterWrapper } from '../../test/utils';
 import { Routes, Route } from 'react-router-dom';
 import { ReactElement } from 'react';
-
-const server = setupServer();
-
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+import { server } from '@/../vitest.setup';
 
 const mockCaseData = {
   id: '1',
   title: 'Test Case Title',
   description: 'Test case description',
-  status: 'OPEN',
+  status: 'TO_DO' as const,
+  customerId: '1',
   customer: {
     id: '1',
     name: 'John Customer',
   },
+  createdBy: '1',
   creator: { id: '1', name: 'John Doe', email: 'john@example.com' },
+  assignedTo: '2',
   assignee: { id: '2', name: 'Jane Doe', email: 'jane@example.com' },
-  createdAt: new Date('2024-01-01').toISOString(),
-  updatedAt: new Date('2024-01-02').toISOString(),
+  updatedBy: '1',
+  updater: { id: '1', name: 'John Doe', email: 'john@example.com' },
+  createdAt: new Date(2024, 0, 1).toISOString(),
+  updatedAt: new Date(2024, 0, 2).toISOString(),
   comments: [
     {
       id: '1',
       content: 'Test comment',
+      authorId: '1',
       author: { id: '1', name: 'John Doe', email: 'john@example.com' },
-      createdAt: new Date('2024-01-01').toISOString(),
+      createdAt: new Date(2024, 0, 1).toISOString(),
     },
   ],
 };
@@ -46,17 +46,44 @@ const renderCaseDetailsWithRouter = (caseId = '1', element?: ReactElement) => {
   );
 };
 
+const setupMockHandlers = (caseData: typeof mockCaseData | null = mockCaseData, delay = 0) => {
+  server.use(
+    http.get('/trpc/case.getById*', async () => {
+      if (delay > 0) {
+        await new Promise((resolve) => globalThis.setTimeout(resolve, delay));
+      }
+      return HttpResponse.json({ result: { data: caseData } });
+    }),
+    http.get('/trpc/customer.list,user.list*', () => {
+      return HttpResponse.json([
+        {
+          result: {
+            data: [
+              { id: '1', name: 'John Customer' },
+              { id: '2', name: 'Jane Customer' },
+            ],
+          },
+        },
+        {
+          result: {
+            data: [
+              { id: '1', name: 'John Doe', email: 'john@example.com' },
+              { id: '2', name: 'Jane Doe', email: 'jane@example.com' },
+            ],
+          },
+        },
+      ]);
+    })
+  );
+};
+
 describe('CaseDetails', () => {
+  beforeEach(() => {
+    server.resetHandlers();
+  });
+
   it('renders loading state initially', async () => {
-    server.use(
-      http.get('/trpc/case.getById*', async () => {
-        await new Promise((resolve) => globalThis.setTimeout(resolve, 100));
-        return HttpResponse.json({ result: { data: mockCaseData } });
-      }),
-      http.get('/trpc/user.list*', () => {
-        return HttpResponse.json({ result: { data: [] } });
-      })
-    );
+    setupMockHandlers(mockCaseData, 100);
 
     renderCaseDetailsWithRouter();
 
@@ -68,31 +95,17 @@ describe('CaseDetails', () => {
   });
 
   it('renders case not found message when case does not exist', async () => {
-    server.use(
-      http.get('/trpc/case.getById*', () => {
-        return HttpResponse.json({ result: { data: null } });
-      }),
-      http.get('/trpc/user.list*', () => {
-        return HttpResponse.json({ result: { data: [] } });
-      })
-    );
+    setupMockHandlers(null);
 
     renderCaseDetailsWithRouter();
 
     await waitFor(() => {
-      expect(screen.getByText('Case not found')).toBeInTheDocument();
+      expect(screen.getByText('No case selected')).toBeInTheDocument();
     });
   });
 
   it('renders case information when data loads successfully', async () => {
-    server.use(
-      http.get('/trpc/case.getById*', () => {
-        return HttpResponse.json({ result: { data: mockCaseData } });
-      }),
-      http.get('/trpc/user.list*', () => {
-        return HttpResponse.json({ result: { data: [] } });
-      })
-    );
+    setupMockHandlers();
 
     renderCaseDetailsWithRouter();
 
@@ -102,14 +115,7 @@ describe('CaseDetails', () => {
   });
 
   it('passes caseId to CaseInformation component', async () => {
-    server.use(
-      http.get('/trpc/case.getById*', () => {
-        return HttpResponse.json({ result: { data: mockCaseData } });
-      }),
-      http.get('/trpc/user.list*', () => {
-        return HttpResponse.json({ result: { data: [] } });
-      })
-    );
+    setupMockHandlers();
 
     renderCaseDetailsWithRouter('123');
 
@@ -119,14 +125,7 @@ describe('CaseDetails', () => {
   });
 
   it('passes caseData to child components', async () => {
-    server.use(
-      http.get('/trpc/case.getById*', () => {
-        return HttpResponse.json({ result: { data: mockCaseData } });
-      }),
-      http.get('/trpc/user.list*', () => {
-        return HttpResponse.json({ result: { data: [] } });
-      })
-    );
+    setupMockHandlers();
 
     renderCaseDetailsWithRouter();
 
@@ -138,14 +137,7 @@ describe('CaseDetails', () => {
   it('calls onMenuClick callback when passed to CaseInformation', async () => {
     const handleMenuClick = vi.fn();
 
-    server.use(
-      http.get('/trpc/case.getById*', () => {
-        return HttpResponse.json({ result: { data: mockCaseData } });
-      }),
-      http.get('/trpc/user.list*', () => {
-        return HttpResponse.json({ result: { data: [] } });
-      })
-    );
+    setupMockHandlers();
 
     renderCaseDetailsWithRouter('1', <CaseDetails onMenuClick={handleMenuClick} />);
 
@@ -155,14 +147,7 @@ describe('CaseDetails', () => {
   });
 
   it('renders mobile layout with correct order', async () => {
-    server.use(
-      http.get('/trpc/case.getById*', () => {
-        return HttpResponse.json({ result: { data: mockCaseData } });
-      }),
-      http.get('/trpc/user.list*', () => {
-        return HttpResponse.json({ result: { data: [] } });
-      })
-    );
+    setupMockHandlers();
 
     const { container } = renderCaseDetailsWithRouter();
 
@@ -175,14 +160,7 @@ describe('CaseDetails', () => {
   });
 
   it('renders desktop layout with correct structure', async () => {
-    server.use(
-      http.get('/trpc/case.getById*', () => {
-        return HttpResponse.json({ result: { data: mockCaseData } });
-      }),
-      http.get('/trpc/user.list*', () => {
-        return HttpResponse.json({ result: { data: [] } });
-      })
-    );
+    setupMockHandlers();
 
     const { container } = renderCaseDetailsWithRouter();
 
@@ -195,11 +173,7 @@ describe('CaseDetails', () => {
   });
 
   it('does not fetch case data when id is not provided', () => {
-    server.use(
-      http.get('/trpc/case.getById*', () => {
-        return HttpResponse.json({ result: { data: mockCaseData } });
-      })
-    );
+    setupMockHandlers();
 
     const Wrapper = createMemoryRouterWrapper(['/case']);
     render(
@@ -224,6 +198,9 @@ describe('CaseDetails', () => {
           },
           { status: 500 }
         );
+      }),
+      http.get('/trpc/customer.list,user.list*', () => {
+        return HttpResponse.json([{ result: { data: [] } }, { result: { data: [] } }]);
       })
     );
 
@@ -233,6 +210,6 @@ describe('CaseDetails', () => {
       expect(screen.queryByText(/Loading case details/i)).not.toBeInTheDocument();
     });
 
-    expect(screen.getByText('Case not found')).toBeInTheDocument();
+    expect(screen.getByText('No case selected')).toBeInTheDocument();
   });
 });
