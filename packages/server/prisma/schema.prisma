@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum CaseStatus {
+  TO_DO
+  IN_PROGRESS
+  COMPLETED
+  CLOSED
+}
+
+enum CasePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdCases  Case[]    @relation("CreatedBy")
+  updatedCases  Case[]    @relation("UpdatedBy")
+  assignedCases Case[]    @relation("AssignedTo")
+  comments      Comment[]
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cases Case[]
+}
+
+model Case {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  customerId  String
+  status      CaseStatus   @default(TO_DO)
+  priority    CasePriority @default(MEDIUM)
+  createdBy   String
+  updatedBy   String
+  assignedTo  String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  customer Customer  @relation(fields: [customerId], references: [id])
+  creator  User      @relation("CreatedBy", fields: [createdBy], references: [id])
+  updater  User      @relation("UpdatedBy", fields: [updatedBy], references: [id])
+  assignee User?     @relation("AssignedTo", fields: [assignedTo], references: [id])
+  comments Comment[]
+
+  @@index([customerId])
+  @@index([createdBy])
+  @@index([updatedBy])
+  @@index([assignedTo])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  caseId    String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  case   Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([caseId])
+  @@index([authorId])
+}

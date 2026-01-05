@@ -1,0 +1,573 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { appRouter } from './router.js';
+import type { Context } from './context.js';
+import { TRPCError } from '@trpc/server';
+
+describe('appRouter', () => {
+  let mockPrisma: any;
+  let mockContext: Context;
+
+  beforeEach(() => {
+    mockPrisma = {
+      user: {
+        findUnique: vi.fn(),
+        findMany: vi.fn(),
+      },
+      customer: {
+        findMany: vi.fn(),
+      },
+      case: {
+        findMany: vi.fn(),
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
+      },
+      comment: {
+        create: vi.fn(),
+      },
+    };
+
+    mockContext = {
+      prisma: mockPrisma,
+      userId: undefined,
+    } as Context;
+  });
+
+  describe('health', () => {
+    it('returns ok status with timestamp', async () => {
+      const caller = appRouter.createCaller(mockContext);
+      const result = await caller.health();
+
+      expect(result.status).toBe('ok');
+      expect(result.timestamp).toBeDefined();
+      expect(typeof result.timestamp).toBe('string');
+      expect(result.formatted).toBeDefined();
+    });
+  });
+
+  describe('auth', () => {
+    describe('me', () => {
+      it('returns user data when authenticated', async () => {
+        const mockUser = {
+          id: 'user-1',
+          email: 'test@example.com',
+          name: 'Test User',
+        };
+
+        mockContext.userId = 'user-1';
+        mockPrisma.user.findUnique.mockResolvedValue(mockUser);
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.auth.me();
+
+        expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+          where: { id: 'user-1' },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
+        });
+        expect(result).toEqual(mockUser);
+      });
+
+      it('throws UNAUTHORIZED when not authenticated', async () => {
+        mockContext.userId = undefined;
+
+        const caller = appRouter.createCaller(mockContext);
+
+        await expect(caller.auth.me()).rejects.toThrow(TRPCError);
+        await expect(caller.auth.me()).rejects.toMatchObject({
+          code: 'UNAUTHORIZED',
+        });
+      });
+
+      it('throws NOT_FOUND when user does not exist', async () => {
+        mockContext.userId = 'user-1';
+        mockPrisma.user.findUnique.mockResolvedValue(null);
+
+        const caller = appRouter.createCaller(mockContext);
+
+        await expect(caller.auth.me()).rejects.toThrow(TRPCError);
+        await expect(caller.auth.me()).rejects.toMatchObject({
+          code: 'NOT_FOUND',
+        });
+      });
+    });
+  });
+
+  describe('user', () => {
+    describe('list', () => {
+      it('returns all users', async () => {
+        const mockUsers = [
+          {
+            id: 'user-1',
+            email: 'user1@example.com',
+            name: 'User 1',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          {
+            id: 'user-2',
+            email: 'user2@example.com',
+            name: 'User 2',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ];
+
+        mockPrisma.user.findMany.mockResolvedValue(mockUsers);
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.user.list();
+
+        expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+        expect(result).toEqual(mockUsers);
+      });
+    });
+
+    describe('getById', () => {
+      it('returns user by id', async () => {
+        const mockUser = {
+          id: 'user-1',
+          email: 'test@example.com',
+          name: 'Test User',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        mockPrisma.user.findUnique.mockResolvedValue(mockUser);
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.user.getById({ id: 'user-1' });
+
+        expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+          where: { id: 'user-1' },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+        expect(result).toEqual(mockUser);
+      });
+    });
+  });
+
+  describe('customer', () => {
+    describe('list', () => {
+      it('returns all customers ordered by name', async () => {
+        const mockCustomers = [
+          {
+            id: 'customer-1',
+            name: 'Customer A',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          {
+            id: 'customer-2',
+            name: 'Customer B',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ];
+
+        mockPrisma.customer.findMany.mockResolvedValue(mockCustomers);
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.customer.list();
+
+        expect(mockPrisma.customer.findMany).toHaveBeenCalledWith({
+          select: {
+            id: true,
+            name: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          orderBy: {
+            name: 'asc',
+          },
+        });
+        expect(result).toEqual(mockCustomers);
+      });
+    });
+  });
+
+  describe('case', () => {
+    describe('list', () => {
+      it('returns all cases without filters', async () => {
+        const mockCases = [
+          {
+            id: 'case-1',
+            title: 'Test Case',
+            customer: { id: 'customer-1', name: 'Customer A' },
+            creator: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
+            updater: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
+            assignee: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
+          },
+        ];
+
+        mockPrisma.case.findMany.mockResolvedValue(mockCases);
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.case.list();
+
+        expect(mockPrisma.case.findMany).toHaveBeenCalledWith({
+          where: {},
+          include: {
+            customer: {
+              select: { id: true, name: true },
+            },
+            creator: {
+              select: { id: true, name: true, email: true },
+            },
+            updater: {
+              select: { id: true, name: true, email: true },
+            },
+            assignee: {
+              select: { id: true, name: true, email: true },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        });
+        expect(result).toEqual(mockCases);
+      });
+
+      it('filters cases by status', async () => {
+        mockPrisma.case.findMany.mockResolvedValue([]);
+
+        const caller = appRouter.createCaller(mockContext);
+        await caller.case.list({ status: 'TO_DO' });
+
+        expect(mockPrisma.case.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { status: 'TO_DO' },
+          })
+        );
+      });
+
+      it('filters cases by assignedTo', async () => {
+        mockPrisma.case.findMany.mockResolvedValue([]);
+
+        const caller = appRouter.createCaller(mockContext);
+        await caller.case.list({ assignedTo: 'user-1' });
+
+        expect(mockPrisma.case.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { assignedTo: 'user-1' },
+          })
+        );
+      });
+
+      it('filters cases by both status and assignedTo', async () => {
+        mockPrisma.case.findMany.mockResolvedValue([]);
+
+        const caller = appRouter.createCaller(mockContext);
+        await caller.case.list({ status: 'IN_PROGRESS', assignedTo: 'user-1' });
+
+        expect(mockPrisma.case.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { status: 'IN_PROGRESS', assignedTo: 'user-1' },
+          })
+        );
+      });
+    });
+
+    describe('getById', () => {
+      it('returns case with comments', async () => {
+        const mockCase = {
+          id: 'case-1',
+          title: 'Test Case',
+          customer: { id: 'customer-1', name: 'Customer A' },
+          creator: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
+          updater: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
+          assignee: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
+          comments: [
+            {
+              id: 'comment-1',
+              content: 'Test comment',
+              author: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
+            },
+          ],
+        };
+
+        mockPrisma.case.findUnique.mockResolvedValue(mockCase);
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.case.getById({ id: 'case-1' });
+
+        expect(mockPrisma.case.findUnique).toHaveBeenCalledWith({
+          where: { id: 'case-1' },
+          include: {
+            customer: {
+              select: { id: true, name: true },
+            },
+            creator: {
+              select: { id: true, name: true, email: true },
+            },
+            updater: {
+              select: { id: true, name: true, email: true },
+            },
+            assignee: {
+              select: { id: true, name: true, email: true },
+            },
+            comments: {
+              include: {
+                author: {
+                  select: { id: true, name: true, email: true },
+                },
+              },
+              orderBy: { createdAt: 'desc' },
+            },
+          },
+        });
+        expect(result).toEqual(mockCase);
+      });
+    });
+
+    describe('create', () => {
+      it('creates a case when authenticated', async () => {
+        const input = {
+          title: 'New Case',
+          description: 'Description',
+          customerId: 'customer-1',
+          priority: 'MEDIUM' as const,
+        };
+
+        const mockCreatedCase = {
+          id: 'case-1',
+          ...input,
+          createdBy: 'user-1',
+          updatedBy: 'user-1',
+        };
+
+        mockContext.userId = 'user-1';
+        mockPrisma.case.create.mockResolvedValue(mockCreatedCase);
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.case.create(input);
+
+        expect(mockPrisma.case.create).toHaveBeenCalledWith({
+          data: {
+            ...input,
+            createdBy: 'user-1',
+            updatedBy: 'user-1',
+          },
+        });
+        expect(result).toEqual(mockCreatedCase);
+      });
+
+      it('throws UNAUTHORIZED when not authenticated', async () => {
+        mockContext.userId = undefined;
+
+        const caller = appRouter.createCaller(mockContext);
+
+        await expect(
+          caller.case.create({
+            title: 'New Case',
+            description: 'Description',
+            customerId: 'customer-1',
+          })
+        ).rejects.toThrow(TRPCError);
+        await expect(
+          caller.case.create({
+            title: 'New Case',
+            description: 'Description',
+            customerId: 'customer-1',
+          })
+        ).rejects.toMatchObject({
+          code: 'UNAUTHORIZED',
+        });
+      });
+
+      it('creates case with optional assignedTo', async () => {
+        const input = {
+          title: 'New Case',
+          description: 'Description',
+          customerId: 'customer-1',
+          assignedTo: 'user-2',
+        };
+
+        mockContext.userId = 'user-1';
+        mockPrisma.case.create.mockResolvedValue({ id: 'case-1', ...input });
+
+        const caller = appRouter.createCaller(mockContext);
+        await caller.case.create(input);
+
+        expect(mockPrisma.case.create).toHaveBeenCalledWith({
+          data: {
+            ...input,
+            createdBy: 'user-1',
+            updatedBy: 'user-1',
+          },
+        });
+      });
+    });
+
+    describe('update', () => {
+      it('updates a case when authenticated', async () => {
+        const input = {
+          id: 'case-1',
+          title: 'Updated Title',
+          status: 'IN_PROGRESS' as const,
+        };
+
+        const mockUpdatedCase = {
+          ...input,
+          updatedBy: 'user-1',
+          updatedAt: expect.any(Date),
+        };
+
+        mockContext.userId = 'user-1';
+        mockPrisma.case.update.mockResolvedValue(mockUpdatedCase);
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.case.update(input);
+
+        expect(mockPrisma.case.update).toHaveBeenCalledWith({
+          where: { id: 'case-1' },
+          data: {
+            title: 'Updated Title',
+            status: 'IN_PROGRESS',
+            updatedBy: 'user-1',
+            updatedAt: expect.any(Date),
+          },
+        });
+        expect(result).toEqual(mockUpdatedCase);
+      });
+
+      it('throws UNAUTHORIZED when not authenticated', async () => {
+        mockContext.userId = undefined;
+
+        const caller = appRouter.createCaller(mockContext);
+
+        await expect(
+          caller.case.update({
+            id: 'case-1',
+            title: 'Updated Title',
+          })
+        ).rejects.toThrow(TRPCError);
+        await expect(
+          caller.case.update({
+            id: 'case-1',
+            title: 'Updated Title',
+          })
+        ).rejects.toMatchObject({
+          code: 'UNAUTHORIZED',
+        });
+      });
+
+      it('updates case with nullable assignedTo', async () => {
+        mockContext.userId = 'user-1';
+        mockPrisma.case.update.mockResolvedValue({});
+
+        const caller = appRouter.createCaller(mockContext);
+        await caller.case.update({
+          id: 'case-1',
+          assignedTo: null,
+        });
+
+        expect(mockPrisma.case.update).toHaveBeenCalledWith({
+          where: { id: 'case-1' },
+          data: {
+            assignedTo: null,
+            updatedBy: 'user-1',
+            updatedAt: expect.any(Date),
+          },
+        });
+      });
+    });
+
+    describe('delete', () => {
+      it('deletes a case', async () => {
+        const mockDeletedCase = { id: 'case-1' };
+        mockPrisma.case.delete.mockResolvedValue(mockDeletedCase);
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.case.delete({ id: 'case-1' });
+
+        expect(mockPrisma.case.delete).toHaveBeenCalledWith({
+          where: { id: 'case-1' },
+        });
+        expect(result).toEqual(mockDeletedCase);
+      });
+    });
+  });
+
+  describe('comment', () => {
+    describe('create', () => {
+      it('creates a comment when authenticated', async () => {
+        const input = {
+          caseId: 'case-1',
+          content: 'Test comment',
+        };
+
+        const mockCreatedComment = {
+          id: 'comment-1',
+          ...input,
+          authorId: 'user-1',
+          author: {
+            id: 'user-1',
+            name: 'Test User',
+            email: 'test@example.com',
+          },
+        };
+
+        mockContext.userId = 'user-1';
+        mockPrisma.comment.create.mockResolvedValue(mockCreatedComment);
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.comment.create(input);
+
+        expect(mockPrisma.comment.create).toHaveBeenCalledWith({
+          data: {
+            ...input,
+            authorId: 'user-1',
+          },
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        });
+        expect(result).toEqual(mockCreatedComment);
+      });
+
+      it('throws UNAUTHORIZED when not authenticated', async () => {
+        mockContext.userId = undefined;
+
+        const caller = appRouter.createCaller(mockContext);
+
+        await expect(
+          caller.comment.create({
+            caseId: 'case-1',
+            content: 'Test comment',
+          })
+        ).rejects.toThrow(TRPCError);
+        await expect(
+          caller.comment.create({
+            caseId: 'case-1',
+            content: 'Test comment',
+          })
+        ).rejects.toMatchObject({
+          code: 'UNAUTHORIZED',
+        });
+      });
+    });
+  });
+});

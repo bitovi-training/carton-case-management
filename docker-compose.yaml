@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3001:3001'
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:./prisma/dev.db
+      - MOCK_USER_EMAIL=${MOCK_USER_EMAIL:-alex.morgan@carton.com}
+    volumes:
+      - app-data:/app/packages/server/prismagit
+
+volumes:
+  app-data:
