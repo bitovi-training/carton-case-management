@@ -2,9 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { appRouter } from './router.js';
 import type { Context } from './context.js';
 import { TRPCError } from '@trpc/server';
+import type { PrismaClient } from '@prisma/client';
+import type { DeepMockProxy } from 'vitest';
+
+type MockPrisma = DeepMockProxy<PrismaClient>;
 
 describe('appRouter', () => {
-  let mockPrisma: any;
+  let mockPrisma: MockPrisma;
   let mockContext: Context;
 
   beforeEach(() => {
