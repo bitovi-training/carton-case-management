@@ -92,6 +92,20 @@ export function CustomerInformation({
     });
   };
 
+  const handleUsernameSave = (newUsername: string) => {
+    updateCustomer.mutate({
+      id: customerId,
+      username: newUsername,
+    });
+  };
+
+  const handleEmailSave = (newEmail: string) => {
+    updateCustomer.mutate({
+      id: customerId,
+      email: newEmail,
+    });
+  };
+
   const handleDeleteConfirm = () => {
     deleteCustomer.mutate({ id: customerId });
   };
@@ -154,7 +168,16 @@ export function CustomerInformation({
                 inputClassName="text-2xl font-semibold"
               />
             </div>
-            <p className="text-sm text-gray-600">@{customerData.username}</p>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-gray-600">@</span>
+              <EditableTitle
+                value={customerData.username}
+                onSave={handleUsernameSave}
+                isLoading={updateCustomer.isPending}
+                className="text-sm text-gray-600"
+                inputClassName="text-sm"
+              />
+            </div>
           </div>
         </div>
 
@@ -177,7 +200,16 @@ export function CustomerInformation({
                 inputClassName="text-2xl font-semibold"
               />
             </div>
-            <p className="text-sm text-gray-600">@{customerData.username}</p>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-gray-600">@</span>
+              <EditableTitle
+                value={customerData.username}
+                onSave={handleUsernameSave}
+                isLoading={updateCustomer.isPending}
+                className="text-sm text-gray-600"
+                inputClassName="text-sm"
+              />
+            </div>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -211,7 +243,13 @@ export function CustomerInformation({
 
           <div>
             <p className="text-sm font-medium text-gray-500 mb-1">Email Address</p>
-            <p className="text-base">{customerData.email}</p>
+            <EditableTitle
+              value={customerData.email}
+              onSave={handleEmailSave}
+              isLoading={updateCustomer.isPending}
+              className="text-base"
+              inputClassName="text-base"
+            />
           </div>
 
           <div>
