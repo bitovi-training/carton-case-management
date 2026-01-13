@@ -15,7 +15,7 @@ export function CustomerList({ onCustomerClick }: CustomerListProps) {
       <div className="flex flex-col gap-2 w-full lg:w-[200px]">
         <Button
           onClick={() => navigate('/customers/new')}
-          className="w-full mb-2 bg-[#00848b] hover:bg-[#006d73] text-white"
+          className="w-full mb-2 bg-[#f4f5f5] hover:bg-[#e5e7e7] text-[#192627]"
         >
           Create New Customer
         </Button>
@@ -37,7 +37,7 @@ export function CustomerList({ onCustomerClick }: CustomerListProps) {
       <div className="flex flex-col gap-4 w-full lg:w-[200px] p-4">
         <Button
           onClick={() => navigate('/customers/new')}
-          className="w-full mb-2 bg-[#00848b] hover:bg-[#006d73] text-white"
+          className="w-full mb-2 bg-[#f4f5f5] hover:bg-[#e5e7e7] text-[#192627]"
         >
           Create New Customer
         </Button>
@@ -57,7 +57,7 @@ export function CustomerList({ onCustomerClick }: CustomerListProps) {
       <div className="flex flex-col gap-2 w-full lg:w-[200px] p-4">
         <Button
           onClick={() => navigate('/customers/new')}
-          className="w-full mb-2 bg-[#00848b] hover:bg-[#006d73] text-white"
+          className="w-full mb-2 bg-[#f4f5f5] hover:bg-[#e5e7e7] text-[#192627]"
         >
           Create New Customer
         </Button>
@@ -72,7 +72,7 @@ export function CustomerList({ onCustomerClick }: CustomerListProps) {
     <div className="flex flex-col gap-2 w-full lg:w-[200px]">
       <Button
         onClick={() => navigate('/customers/new')}
-        className="w-full mb-2 bg-[#00848b] hover:bg-[#006d73] text-white"
+        className="w-full mb-2 bg-[#f4f5f5] hover:bg-[#e5e7e7] text-[#192627]"
       >
         Create New Customer
       </Button>
@@ -80,7 +80,7 @@ export function CustomerList({ onCustomerClick }: CustomerListProps) {
         <span className="text-sm font-medium">Filters</span>
         <ListFilter size={16} className="text-gray-500" />
       </div>
-      {customers?.map((customer: { id: string; name: string }) => {
+      {customers?.map((customer: { id: string; firstName: string; lastName: string }) => {
         const isActive = customer.id === activeId;
         return (
           <Link
@@ -91,7 +91,7 @@ export function CustomerList({ onCustomerClick }: CustomerListProps) {
               isActive ? 'bg-[#e8feff]' : 'hover:bg-gray-100'
             }`}
           >
-            <p className="text-sm font-medium text-[#00848b] w-full truncate">{customer.name}</p>
+            <p className="text-sm font-medium text-[#00848b] w-full truncate">{customer.firstName} {customer.lastName}</p>
           </Link>
         );
       })}

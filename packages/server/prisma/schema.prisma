@@ -40,7 +40,8 @@ model User {
 
 model Customer {
   id               String   @id @default(uuid())
-  name             String
+  firstName        String
+  lastName         String
   username         String   @unique
   email            String   @unique
   dateJoined       DateTime @default(now())

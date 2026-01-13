@@ -68,7 +68,8 @@ export const appRouter = router({
       return ctx.prisma.customer.findMany({
         select: {
           id: true,
-          name: true,
+          firstName: true,
+          lastName: true,
           username: true,
           email: true,
           dateJoined: true,
@@ -77,7 +78,7 @@ export const appRouter = router({
           updatedAt: true,
         },
         orderBy: {
-          name: 'asc',
+          lastName: 'asc',
         },
       });
     }),
@@ -86,7 +87,8 @@ export const appRouter = router({
         where: { id: input.id },
         select: {
           id: true,
-          name: true,
+          firstName: true,
+          lastName: true,
           username: true,
           email: true,
           dateJoined: true,
@@ -121,7 +123,8 @@ export const appRouter = router({
     create: publicProcedure
       .input(
         z.object({
-          name: z.string().min(1),
+          firstName: z.string().min(1),
+          lastName: z.string().min(1),
           username: z.string().min(1),
           email: z.string().email(),
         })
@@ -135,7 +138,8 @@ export const appRouter = router({
       .input(
         z.object({
           id: z.string(),
-          name: z.string().optional(),
+          firstName: z.string().optional(),
+          lastName: z.string().optional(),
           username: z.string().optional(),
           email: z.string().email().optional(),
           satisfactionRate: z.number().min(0).max(5).nullable().optional(),
@@ -175,7 +179,8 @@ export const appRouter = router({
             customer: {
               select: {
                 id: true,
-                name: true,
+                firstName: true,
+                lastName: true,
               },
             },
             creator: {
@@ -212,7 +217,8 @@ export const appRouter = router({
           customer: {
             select: {
               id: true,
-              name: true,
+              firstName: true,
+              lastName: true,
             },
           },
           creator: {

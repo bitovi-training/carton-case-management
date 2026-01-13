@@ -17,10 +17,11 @@ interface CustomerInformationProps {
   customerId: string;
   customerData: {
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     username: string;
     email: string;
-    dateJoined: Date;
+    dateJoined: Date | string;
     satisfactionRate: number | null;
   };
   onMenuClick?: () => void;
@@ -77,10 +78,17 @@ export function CustomerInformation({
     },
   });
 
-  const handleNameSave = (newName: string) => {
+  const handleFirstNameSave = (newFirstName: string) => {
     updateCustomer.mutate({
       id: customerId,
-      name: newName,
+      firstName: newFirstName,
+    });
+  };
+
+  const handleLastNameSave = (newLastName: string) => {
+    updateCustomer.mutate({
+      id: customerId,
+      lastName: newLastName,
     });
   };
 
@@ -130,13 +138,22 @@ export function CustomerInformation({
             <List size={16} className="text-gray-700" />
           </Button>
           <div className="flex flex-col gap-1 flex-1 min-w-0">
-            <EditableTitle
-              value={customerData.name}
-              onSave={handleNameSave}
-              isLoading={updateCustomer.isPending}
-              className="text-2xl font-semibold truncate"
-              inputClassName="text-2xl font-semibold"
-            />
+            <div className="flex items-center gap-2">
+              <EditableTitle
+                value={customerData.firstName}
+                onSave={handleFirstNameSave}
+                isLoading={updateCustomer.isPending}
+                className="text-2xl font-semibold truncate"
+                inputClassName="text-2xl font-semibold"
+              />
+              <EditableTitle
+                value={customerData.lastName}
+                onSave={handleLastNameSave}
+                isLoading={updateCustomer.isPending}
+                className="text-2xl font-semibold truncate"
+                inputClassName="text-2xl font-semibold"
+              />
+            </div>
             <p className="text-sm text-gray-600">@{customerData.username}</p>
           </div>
         </div>
@@ -144,13 +161,22 @@ export function CustomerInformation({
         {/* Desktop: Title + More menu */}
         <div className="hidden lg:flex items-start justify-between w-full">
           <div className="flex flex-col gap-1 flex-1 min-w-0">
-            <EditableTitle
-              value={customerData.name}
-              onSave={handleNameSave}
-              isLoading={updateCustomer.isPending}
-              className="text-2xl font-semibold truncate"
-              inputClassName="text-2xl font-semibold"
-            />
+            <div className="flex items-center gap-2">
+              <EditableTitle
+                value={customerData.firstName}
+                onSave={handleFirstNameSave}
+                isLoading={updateCustomer.isPending}
+                className="text-2xl font-semibold truncate"
+                inputClassName="text-2xl font-semibold"
+              />
+              <EditableTitle
+                value={customerData.lastName}
+                onSave={handleLastNameSave}
+                isLoading={updateCustomer.isPending}
+                className="text-2xl font-semibold truncate"
+                inputClassName="text-2xl font-semibold"
+              />
+            </div>
             <p className="text-sm text-gray-600">@{customerData.username}</p>
           </div>
           <DropdownMenu>

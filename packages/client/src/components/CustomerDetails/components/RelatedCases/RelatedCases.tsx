@@ -9,7 +9,7 @@ interface RelatedCasesProps {
     title: string;
     status: string;
     priority: string;
-    createdAt: Date;
+    createdAt: string;
   }>;
 }
 
@@ -55,7 +55,7 @@ export function RelatedCases({ cases }: RelatedCasesProps) {
               <Link
                 key={caseItem.id}
                 to={`/cases/${caseItem.id}`}
-                className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className="p-3 hover:bg-gray-50 transition-colors"
               >
                 <p className="text-sm font-medium text-[#00848b] truncate mb-1">
                   {caseItem.title}

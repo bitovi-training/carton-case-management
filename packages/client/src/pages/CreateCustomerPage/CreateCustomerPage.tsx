@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 type ValidationErrors = {
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   username?: string;
   email?: string;
 };
@@ -13,7 +14,8 @@ type ValidationErrors = {
 export function CreateCustomerPage() {
   const navigate = useNavigate();
   const utils = trpc.useUtils();
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
@@ -32,8 +34,12 @@ export function CreateCustomerPage() {
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
 
-    if (!name.trim()) {
-      errors.name = 'Customer name is required';
+    if (!firstName.trim()) {
+      errors.firstName = 'First name is required';
+    }
+
+    if (!lastName.trim()) {
+      errors.lastName = 'Last name is required';
     }
 
     if (!username.trim()) {
@@ -60,14 +66,15 @@ export function CreateCustomerPage() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    setTouched(new Set(['name', 'username', 'email']));
+    setTouched(new Set(['firstName', 'lastName', 'username', 'email']));
 
     if (!validateForm()) {
       return;
     }
 
     createCustomer.mutate({
-      name,
+      firstName,
+      lastName,
       username,
       email,
     });
@@ -78,24 +85,46 @@ export function CreateCustomerPage() {
       <h1 className="text-2xl font-bold mb-6">Create New Customer</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-        <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-medium">
-            Full Name *
-          </label>
-          <Input
-            id="name"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              if (touched.has('name')) validateForm();
-            }}
-            onBlur={() => handleBlur('name')}
-            placeholder="Enter customer name"
-            className={touched.has('name') && validationErrors.name ? 'border-red-500' : ''}
-          />
-          {touched.has('name') && validationErrors.name && (
-            <p className="text-sm text-red-600">{validationErrors.name}</p>
-          )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label htmlFor="firstName" className="text-sm font-medium">
+              First Name *
+            </label>
+            <Input
+              id="firstName"
+              value={firstName}
+              onChange={(e) => {
+                setFirstName(e.target.value);
+                if (touched.has('firstName')) validateForm();
+              }}
+              onBlur={() => handleBlur('firstName')}
+              placeholder="Enter first name"
+              className={touched.has('firstName') && validationErrors.firstName ? 'border-red-500' : ''}
+            />
+            {touched.has('firstName') && validationErrors.firstName && (
+              <p className="text-sm text-red-600">{validationErrors.firstName}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="lastName" className="text-sm font-medium">
+              Last Name *
+            </label>
+            <Input
+              id="lastName"
+              value={lastName}
+              onChange={(e) => {
+                setLastName(e.target.value);
+                if (touched.has('lastName')) validateForm();
+              }}
+              onBlur={() => handleBlur('lastName')}
+              placeholder="Enter last name"
+              className={touched.has('lastName') && validationErrors.lastName ? 'border-red-500' : ''}
+            />
+            {touched.has('lastName') && validationErrors.lastName && (
+              <p className="text-sm text-red-600">{validationErrors.lastName}</p>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2">

@@ -42,7 +42,8 @@ async function main() {
   // Create demo customers (people who cases are about)
   const sarahJohnson = await prisma.customer.create({
     data: {
-      name: 'Sarah Johnson',
+      firstName: 'Sarah',
+      lastName: 'Johnson',
       username: 'sarah-johnson',
       email: 'sarahjohnson42@gmail.com',
       satisfactionRate: 4.5,
@@ -52,7 +53,8 @@ async function main() {
 
   const johnSorenson = await prisma.customer.create({
     data: {
-      name: 'John Sorenson',
+      firstName: 'John',
+      lastName: 'Sorenson',
       username: 'jsorenson',
       email: 'john.sorenson@email.com',
       satisfactionRate: 4.0,
@@ -62,7 +64,8 @@ async function main() {
 
   const aliceSmith = await prisma.customer.create({
     data: {
-      name: 'Alice Smith',
+      firstName: 'Alice',
+      lastName: 'Smith',
       username: 'asmith',
       email: 'alice.smith@example.com',
       satisfactionRate: 5.0,
@@ -72,7 +75,8 @@ async function main() {
 
   const bobWilliams = await prisma.customer.create({
     data: {
-      name: 'Bob Williams',
+      firstName: 'Bob',
+      lastName: 'Williams',
       username: 'bwilliams',
       email: 'bob.w@test.com',
       satisfactionRate: 3.5,
@@ -82,7 +86,8 @@ async function main() {
 
   const emilyBrown = await prisma.customer.create({
     data: {
-      name: 'Emily Brown',
+      firstName: 'Emily',
+      lastName: 'Brown',
       username: 'ebrown',
       email: 'emily.brown@mail.com',
       satisfactionRate: 4.0,
