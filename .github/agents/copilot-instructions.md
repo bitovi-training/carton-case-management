@@ -2,6 +2,25 @@
 
 Auto-generated from all feature plans. Last updated: 2025-12-24
 
+## Skills
+
+This project uses Agent Skills for specialized workflows. See `.github/skills/`:
+
+| Skill | Purpose |
+|-------|---------|
+| `cross-package-types` | Type flow between shared, server, and client packages |
+| `create-skill` | How to create new Agent Skills for this project |
+
+## Package-Specific Instructions
+
+Each package has detailed instructions in `.github/instructions/`:
+
+| File | Applies To | Purpose |
+|------|-----------|---------|
+| `shared.instructions.md` | `packages/shared/**` | Prisma schema, generated types, browser-safe utilities |
+| `server.instructions.md` | `packages/server/**` | tRPC router, API definitions, database operations |
+| `client.instructions.md` | `packages/client/**` | React components, UI, tRPC client usage |
+
 ## Active Technologies
 
 - TypeScript 5.x (via Node.js runtime in devcontainer) + React 18, Vite, tRPC, React Query, Shadcn UI, Tailwind CSS (002-header-menu-components)
@@ -67,7 +86,13 @@ TypeScript 5.x / Node.js 22+: Follow standard conventions
 - **Database Operations in Server**: Database file (`dev.db`), seed script, and constants live in `packages/server/db/`
 - **Prisma Client Import**: Server imports Prisma Client from `@carton/shared`, e.g., `import { prisma } from '@carton/shared'`
 - **Zod Schemas from Prisma**: Use auto-generated Zod schemas from `@carton/shared` for validation - do not manually duplicate Prisma enums
-- **Database Commands**: `npm run db:generate --workspace=packages/shared` for types, `npm run db:seed --workspace=packages/server` for data
+- **Database Commands** (all run from project root):
+  - `npm run db:generate` - Generate Prisma Client and Zod types
+  - `npm run db:push` - Push schema changes to the database
+  - `npm run db:seed` - Seed the database with test data
+  - `npm run db:setup` - Combined push + seed (use for initial setup or reset)
+  - `npm run db:studio` - Open Prisma Studio to browse data
+- **Environment Config**: Single `.env` file at project root with `DATABASE_URL` pointing to `packages/server/db/dev.db`
 - **Cascading Deletes**: Always configure cascading deletes (`onDelete: Cascade`) in Prisma schema when an entity has related data that should be removed when the parent is deleted
 
 ## Recent Changes

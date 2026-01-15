@@ -2,8 +2,8 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { trpc } from '@/lib/trpc';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { formatCaseNumber } from '@carton/shared';
-import type { CaseListProps } from './types';
+import { formatCaseNumber } from '@carton/shared/client';
+import type { CaseListProps, CaseListItem } from './types';
 
 export function CaseList({ onCaseClick }: CaseListProps) {
   const { id: activeId } = useParams<{ id: string }>();
@@ -75,7 +75,7 @@ export function CaseList({ onCaseClick }: CaseListProps) {
       >
         Create Case
       </Button>
-      {cases?.map((caseItem) => {
+      {cases?.map((caseItem: CaseListItem) => {
         const isActive = caseItem.id === activeId;
         return (
           <Link

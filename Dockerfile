@@ -13,8 +13,8 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build all packages
-RUN npm run build
+# Generate Prisma client and build all packages
+RUN npx prisma generate --schema=packages/shared/prisma/schema.prisma && npm run build
 
 # Production image
 FROM node:24-alpine
@@ -28,12 +28,17 @@ COPY packages/shared/package*.json ./packages/shared/
 # Install production dependencies only
 RUN npm ci --workspace=packages/server --workspace=packages/shared --omit=dev
 
-# Copy built artifacts
+# Copy built artifacts and source files for tsx
 COPY --from=builder /app/packages/server/dist ./packages/server/dist
+COPY --from=builder /app/packages/server/src ./packages/server/src
 COPY --from=builder /app/packages/server/db ./packages/server/db
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/packages/shared/src ./packages/shared/src
 COPY --from=builder /app/packages/shared/prisma ./packages/shared/prisma
 COPY --from=builder /app/packages/client/dist ./packages/client/dist
+
+# Copy Prisma client generated during build (with all generators)
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Copy static client build to be served
 COPY --from=builder /app/packages/client/dist /app/public
@@ -41,7 +46,5 @@ COPY --from=builder /app/packages/client/dist /app/public
 ENV NODE_ENV=production
 EXPOSE 5173 3001 6006 9323
 
-WORKDIR /app/packages/server
-
 # Setup database at startup, then start the server
-CMD sh -c "npm run db:push && npm run db:seed && npm run start"
+CMD sh -c "cd /app && npx prisma db push --schema=packages/shared/prisma/schema.prisma --skip-generate && cd /app/packages/server && npm run start:prod"
