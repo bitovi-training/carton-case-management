@@ -24,4 +24,3 @@ When the user provides Figma links:
 
 4. **Map designs to user stories** - associate each Figma link with the user story it supports
 
-Make sure to use MCP tools to load data from any figma file or jira ticket.
