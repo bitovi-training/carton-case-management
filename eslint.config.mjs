@@ -7,6 +7,9 @@ import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 
 export default [
+  {
+    ignores: ['**/generated/**'],
+  },
   eslint.configs.recommended,
   {
     files: ['**/*.{ts,tsx,js,jsx}'],

@@ -8,9 +8,9 @@ services:
       - '5173:5173' # Client for E2E tests
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=file:./prisma/test.db
+      - DATABASE_URL=file:./packages/server/db/test.db
     # Setup database and start both client and server in dev mode
-    command: sh -c "cd packages/server && npm run db:push && cd ../.. && npm run dev"
+    command: sh -c "npm run db:push && npm run dev"
 
   tests:
     build:
@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile.test
     environment:
       - NODE_ENV=test
-      - DATABASE_URL=file:./prisma/test.db
+      - DATABASE_URL=file:./packages/server/db/test.db
       - BASE_URL=http://app:5173
     depends_on:
       app:

@@ -3,7 +3,7 @@ import { List, MoreVertical, Trash } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { formatCaseNumber, type CaseStatus, CASE_STATUS_OPTIONS } from '@carton/shared';
+import { formatCaseNumber, type CaseStatus, CASE_STATUS_OPTIONS } from '@carton/shared/client';
 import { EditableTitle } from '@/components/common/EditableTitle';
 import { EditableSelect } from '@/components/common/EditableSelect';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
