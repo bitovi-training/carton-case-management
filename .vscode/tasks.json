@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Storybook Dev",
+			"type": "shell",
+			"command": "cd packages/client && npm run storybook",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}
