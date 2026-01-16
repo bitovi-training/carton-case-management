@@ -172,8 +172,8 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         return ctx.prisma.case.findMany({
           where: {
-            ...(input?.status && { status: input.status }),
-            ...(input?.assignedTo && { assignedTo: input.assignedTo }),
+            ...(input?.status ? { status: input.status } : {}),
+            ...(input?.assignedTo ? { assignedTo: input.assignedTo } : {}),
           },
           include: {
             customer: {

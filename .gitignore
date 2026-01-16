@@ -20,6 +20,7 @@ build/
 .next/
 out/
 storybook-static/
+.temp/
 
 # Environment files
 .env
@@ -34,6 +35,9 @@ storybook-static/
 *.db-journal
 *.sqlite
 *.sqlite3
+
+# Generated code (Prisma Zod types)
+packages/shared/src/generated/
 
 # Logs
 logs

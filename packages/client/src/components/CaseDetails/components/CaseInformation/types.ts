@@ -1,4 +1,4 @@
-import type { CaseStatus } from '@carton/shared';
+import type { CaseStatus } from '@carton/shared/client';
 
 export type CaseInformationProps = {
   caseId: string;

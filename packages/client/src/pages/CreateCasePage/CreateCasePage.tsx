@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { type CasePriority, CASE_PRIORITY_OPTIONS } from '@carton/shared';
+import { type CasePriority, CASE_PRIORITY_OPTIONS } from '@carton/shared/client';
 
 type ValidationErrors = {
   title?: string;
