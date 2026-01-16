@@ -296,6 +296,11 @@ export const NegativeValue: Story = {
  * Multiple currency fields in a form-like layout
  */
 export const MultipleCurrencies: Story = {
+  args: {
+    label: 'Subtotal',
+    value: 89.99,
+    onSave: fn().mockResolvedValue(undefined),
+  },
   render: function MultipleCurrenciesStory() {
     const [prices, setPrices] = useState({
       subtotal: 89.99,

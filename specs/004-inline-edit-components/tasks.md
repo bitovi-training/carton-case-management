@@ -221,14 +221,14 @@ ComponentName/
 
 **Purpose**: Replace existing EditableSelect and EditableTitle with new components
 
-- [ ] T057 Migrate CaseEssentialDetails to use new EditableSelect in `packages/client/src/components/CaseDetails/components/CaseEssentialDetails/CaseEssentialDetails.tsx`
-- [ ] T058 Migrate CaseInformation to use new EditableTitle in `packages/client/src/components/CaseDetails/components/CaseInformation/CaseInformation.tsx`
-- [ ] T059 Migrate CaseInformation to use new EditableSelect in `packages/client/src/components/CaseDetails/components/CaseInformation/CaseInformation.tsx`
-- [ ] T060 Run existing E2E tests to verify migration success
-- [ ] T061 [P] Remove deprecated EditableSelect from `packages/client/src/components/common/EditableSelect/`
-- [ ] T062 [P] Remove deprecated EditableTitle from `packages/client/src/components/common/EditableTitle/`
+- [X] T057 Migrate CaseEssentialDetails to use new EditableSelect in `packages/client/src/components/CaseDetails/components/CaseEssentialDetails/CaseEssentialDetails.tsx`
+- [X] T058 Migrate CaseInformation to use new EditableTitle in `packages/client/src/components/CaseDetails/components/CaseInformation/CaseInformation.tsx`
+- [X] T059 Migrate CaseInformation to use new EditableSelect in `packages/client/src/components/CaseDetails/components/CaseInformation/CaseInformation.tsx`
+- [X] T060 Run existing E2E tests to verify migration success
+- [X] T061 [P] Remove deprecated EditableSelect from `packages/client/src/components/common/EditableSelect/`
+- [X] T062 [P] Remove deprecated EditableTitle from `packages/client/src/components/common/EditableTitle/`
 
-**Checkpoint**: Migration complete, old components removed
+**Checkpoint**: Migration complete, old components removed ✅
 
 ---
 
@@ -236,12 +236,14 @@ ComponentName/
 
 **Purpose**: Final cleanup and validation
 
-- [ ] T063 Run all unit tests and fix any failures
-- [ ] T064 Run Storybook and verify all stories render without errors
-- [ ] T065 Run type check (`npm run typecheck --workspace=@carton/client`)
-- [ ] T066 Run linter (`npm run lint --workspace=@carton/client`)
-- [ ] T067 [P] Run E2E tests to verify no regressions
-- [ ] T068 Run quickstart.md validation commands
+- [X] T063 Run all unit tests and fix any failures
+- [X] T064 Run Storybook and verify all stories render without errors
+- [X] T065 Run type check (`npm run typecheck --workspace=@carton/client`)
+- [X] T066 Run linter (`npm run lint --workspace=@carton/client`)
+- [X] T067 [P] Run E2E tests to verify no regressions
+- [X] T068 Run quickstart.md validation commands
+
+**Checkpoint**: All validation complete ✅
 
 ---
 

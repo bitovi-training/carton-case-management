@@ -19,6 +19,9 @@ export type {
 // Base Component
 export { BaseEditable } from './BaseEditable';
 
+// Shared Components
+export { EditControls, type EditControlsProps } from './EditControls';
+
 // Variant Components
 export { EditableText, type EditableTextProps } from './EditableText';
 export { EditableSelect, type EditableSelectProps } from './EditableSelect';

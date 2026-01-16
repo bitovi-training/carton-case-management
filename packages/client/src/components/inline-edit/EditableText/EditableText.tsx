@@ -8,11 +8,10 @@
  */
 import * as React from 'react';
 import { useState, useCallback } from 'react';
-import { Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { BaseEditable } from '../BaseEditable';
+import { EditControls } from '../EditControls';
 import type { ZodSchema } from 'zod';
 import type { RenderEditModeProps } from '../types';
 
@@ -106,34 +105,11 @@ function EditModeRenderer({
           'rounded-lg', // 8px border-radius
           'px-3 py-[7.5px]', // 12px horizontal, 7.5px vertical
           'text-sm tracking-[0.07px] leading-[21px]', // paragraph/small
-          'shadow-sm' // xs shadow
+          'shadow-xs' // 0px 1px 2px rgba(0,0,0,0.05)
         )}
       />
       {/* Controls - absolute positioned to float over content below */}
-      <div className="absolute right-0 top-full mt-1 flex items-start justify-end gap-1 z-10">
-        {/* Save button - Figma: ghost, 36px min size, 8px radius */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="min-h-9 min-w-9 rounded-lg p-2 bg-background shadow-sm"
-          onClick={() => onSave(localValue)}
-          aria-label="Save"
-        >
-          <Check className="h-4 w-4 text-green-600" />
-        </Button>
-        {/* Cancel button - Figma: ghost, 36px min size, 8px radius */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="min-h-9 min-w-9 rounded-lg p-2 bg-background shadow-sm"
-          onClick={onCancel}
-          aria-label="Cancel"
-        >
-          <X className="h-4 w-4 text-red-500" />
-        </Button>
-      </div>
+      <EditControls onSave={() => onSave(localValue)} onCancel={onCancel} />
     </div>
   );
 }

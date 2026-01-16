@@ -208,7 +208,7 @@ describe('EditableTextarea', () => {
 
     it('shows saving indicator during save', async () => {
       const onSave = vi.fn(
-        () => new Promise((resolve) => setTimeout(resolve, 100))
+        (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 100))
       );
       render(<EditableTextarea {...defaultProps} onSave={onSave} />);
 

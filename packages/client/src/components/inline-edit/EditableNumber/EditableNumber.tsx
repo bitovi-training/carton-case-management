@@ -8,11 +8,10 @@
  */
 import * as React from 'react';
 import { useState, useCallback } from 'react';
-import { Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { BaseEditable } from '../BaseEditable';
+import { EditControls } from '../EditControls';
 import type { ZodSchema } from 'zod';
 import type { RenderEditModeProps } from '../types';
 
@@ -144,43 +143,7 @@ function EditModeRenderer({
       />
 
       {/* Controls - absolute positioned to float over content below */}
-      <div className="absolute right-0 top-full mt-1 flex gap-1 items-start justify-end z-10">
-        {/* Save button (check) */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={handleSaveClick}
-          className={cn(
-            'min-h-9 min-w-9', // 36px
-            'p-2', // 8px
-            'rounded-lg',
-            'bg-background shadow-sm',
-            'text-green-600 hover:text-green-700 hover:bg-green-50'
-          )}
-          aria-label="Save"
-        >
-          <Check className="h-4 w-4" />
-        </Button>
-
-        {/* Cancel button (x) */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={onCancel}
-          className={cn(
-            'min-h-9 min-w-9', // 36px
-            'p-2', // 8px
-            'rounded-lg',
-            'bg-background shadow-sm',
-            'text-red-600 hover:text-red-700 hover:bg-red-50'
-          )}
-          aria-label="Cancel"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
+      <EditControls onSave={handleSaveClick} onCancel={onCancel} />
     </div>
   );
 }

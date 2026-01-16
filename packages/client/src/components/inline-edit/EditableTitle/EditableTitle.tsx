@@ -353,8 +353,7 @@ export function EditableTitle({
       <h1
         className={titleClasses}
         tabIndex={readonly ? -1 : 0}
-        role="button"
-        aria-label={`Edit title: ${value || placeholder}`}
+        aria-label={readonly ? undefined : `Click to edit: ${value || placeholder}`}
         aria-readonly={readonly}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}

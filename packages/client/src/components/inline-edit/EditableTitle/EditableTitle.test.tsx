@@ -48,7 +48,7 @@ describe('EditableTitle', () => {
       const user = userEvent.setup();
       render(<EditableTitle {...defaultProps} />);
 
-      const title = screen.getByRole('button', { name: /edit title/i });
+      const title = screen.getByRole('heading', { level: 1 });
       await user.click(title);
 
       expect(screen.getByRole('textbox', { name: /edit title/i })).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe('EditableTitle', () => {
       const user = userEvent.setup();
       render(<EditableTitle {...defaultProps} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       expect(screen.getByRole('textbox')).toHaveValue('Insurance Claim Dispute');
     });
@@ -67,7 +67,7 @@ describe('EditableTitle', () => {
       const user = userEvent.setup();
       render(<EditableTitle {...defaultProps} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       expect(screen.getByRole('button', { name: /save title/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /cancel editing/i })).toBeInTheDocument();
@@ -77,7 +77,7 @@ describe('EditableTitle', () => {
       const user = userEvent.setup();
       render(<EditableTitle {...defaultProps} />);
 
-      const title = screen.getByRole('button', { name: /edit title/i });
+      const title = screen.getByRole('heading', { level: 1 });
       title.focus();
       await user.keyboard('{Enter}');
 
@@ -88,7 +88,7 @@ describe('EditableTitle', () => {
       const user = userEvent.setup();
       render(<EditableTitle {...defaultProps} />);
 
-      const title = screen.getByRole('button', { name: /edit title/i });
+      const title = screen.getByRole('heading', { level: 1 });
       title.focus();
       await user.keyboard(' ');
 
@@ -102,7 +102,7 @@ describe('EditableTitle', () => {
       const onSave = vi.fn().mockResolvedValue(undefined);
       render(<EditableTitle {...defaultProps} onSave={onSave} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       const input = screen.getByRole('textbox');
       await user.clear(input);
@@ -120,7 +120,7 @@ describe('EditableTitle', () => {
       const onSave = vi.fn().mockResolvedValue(undefined);
       render(<EditableTitle {...defaultProps} onSave={onSave} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       const input = screen.getByRole('textbox');
       await user.clear(input);
@@ -137,7 +137,7 @@ describe('EditableTitle', () => {
       const onSave = vi.fn().mockResolvedValue(undefined);
       render(<EditableTitle {...defaultProps} onSave={onSave} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       const input = screen.getByRole('textbox');
       await user.clear(input);
@@ -154,7 +154,7 @@ describe('EditableTitle', () => {
       const onSave = vi.fn().mockResolvedValue(undefined);
       render(<EditableTitle {...defaultProps} onSave={onSave} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
       await user.click(screen.getByRole('button', { name: /save title/i }));
 
       expect(onSave).not.toHaveBeenCalled();
@@ -166,7 +166,7 @@ describe('EditableTitle', () => {
       const user = userEvent.setup();
       render(<EditableTitle {...defaultProps} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
       await user.click(screen.getByRole('button', { name: /cancel editing/i }));
 
       expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
@@ -176,7 +176,7 @@ describe('EditableTitle', () => {
       const user = userEvent.setup();
       render(<EditableTitle {...defaultProps} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
       await user.keyboard('{Escape}');
 
       expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
@@ -186,7 +186,7 @@ describe('EditableTitle', () => {
       const user = userEvent.setup();
       render(<EditableTitle {...defaultProps} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       const input = screen.getByRole('textbox');
       await user.clear(input);
@@ -201,7 +201,7 @@ describe('EditableTitle', () => {
       const onSave = vi.fn().mockResolvedValue(undefined);
       render(<EditableTitle {...defaultProps} onSave={onSave} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       const input = screen.getByRole('textbox');
       await user.clear(input);
@@ -218,7 +218,7 @@ describe('EditableTitle', () => {
       const validate = vi.fn().mockReturnValue('Title is required');
       render(<EditableTitle {...defaultProps} validate={validate} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       const input = screen.getByRole('textbox');
       await user.clear(input);
@@ -235,7 +235,7 @@ describe('EditableTitle', () => {
         <EditableTitle {...defaultProps} onSave={onSave} validate={validate} />
       );
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       const input = screen.getByRole('textbox');
       await user.clear(input);
@@ -249,7 +249,7 @@ describe('EditableTitle', () => {
       const validate = vi.fn().mockReturnValue('Title is required');
       render(<EditableTitle {...defaultProps} validate={validate} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       const input = screen.getByRole('textbox');
       await user.clear(input);
@@ -269,7 +269,7 @@ describe('EditableTitle', () => {
       const onSave = vi.fn().mockRejectedValue(new Error('Network error'));
       render(<EditableTitle {...defaultProps} onSave={onSave} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       const input = screen.getByRole('textbox');
       await user.clear(input);
@@ -286,7 +286,7 @@ describe('EditableTitle', () => {
       const onSave = vi.fn().mockRejectedValue(new Error('Network error'));
       render(<EditableTitle {...defaultProps} onSave={onSave} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       const input = screen.getByRole('textbox');
       await user.clear(input);
@@ -337,7 +337,7 @@ describe('EditableTitle', () => {
         />
       );
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       expect(onEditingChange).toHaveBeenCalledWith(true);
     });
@@ -347,7 +347,7 @@ describe('EditableTitle', () => {
     it('shows hover background on mouse enter', () => {
       render(<EditableTitle {...defaultProps} />);
 
-      const title = screen.getByRole('button', { name: /edit title/i });
+      const title = screen.getByRole('heading', { level: 1 });
       fireEvent.mouseEnter(title);
 
       expect(title).toHaveClass('bg-gray-200');
@@ -356,7 +356,7 @@ describe('EditableTitle', () => {
     it('removes hover background on mouse leave', () => {
       render(<EditableTitle {...defaultProps} />);
 
-      const title = screen.getByRole('button', { name: /edit title/i });
+      const title = screen.getByRole('heading', { level: 1 });
       fireEvent.mouseEnter(title);
       fireEvent.mouseLeave(title);
 
@@ -368,7 +368,7 @@ describe('EditableTitle', () => {
     it('has correct role and aria attributes', () => {
       render(<EditableTitle {...defaultProps} />);
 
-      const title = screen.getByRole('button', { name: /edit title/i });
+      const title = screen.getByRole('heading', { level: 1 });
       expect(title).toHaveAttribute('aria-readonly', 'false');
     });
 
@@ -378,7 +378,7 @@ describe('EditableTitle', () => {
 
       await user.tab();
       expect(
-        screen.getByRole('button', { name: /edit title/i })
+        screen.getByRole('heading', { level: 1 })
       ).toHaveFocus();
     });
 
@@ -387,7 +387,7 @@ describe('EditableTitle', () => {
       const validate = vi.fn().mockReturnValue('Title is required');
       render(<EditableTitle {...defaultProps} validate={validate} />);
 
-      await user.click(screen.getByRole('button', { name: /edit title/i }));
+      await user.click(screen.getByRole('heading', { level: 1 }));
 
       const input = screen.getByRole('textbox');
       await user.clear(input);

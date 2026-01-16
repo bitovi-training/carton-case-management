@@ -251,7 +251,7 @@ export function BaseEditable<T>({
 
   // Style classes based on Figma design specs
   const containerClasses = cn(
-    'flex flex-col gap-1', // 4px gap
+    'flex flex-col', // No gap between label and content per Figma
     'w-full', // Fill container - parent controls width
     className
   );
@@ -266,10 +266,11 @@ export function BaseEditable<T>({
 
   const contentClasses = cn(
     'text-sm', // 14px
+    'font-medium', // Inter Medium (500)
     'text-foreground', // #020617
     'tracking-[0.07px]',
     'leading-[21px]',
-    'px-1 py-0.5', // Always have padding to prevent layout shift
+    'px-1 py-2', // 4px horizontal, 8px vertical padding
     'rounded', // 4px border-radius
     'transition-colors duration-150',
     'cursor-pointer',

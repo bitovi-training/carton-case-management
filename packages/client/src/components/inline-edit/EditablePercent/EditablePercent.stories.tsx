@@ -284,6 +284,11 @@ export const NegativeValue: Story = {
  * Multiple percent fields in a form-like layout
  */
 export const MultiplePercentages: Story = {
+  args: {
+    label: 'Discount',
+    value: 10,
+    onSave: fn().mockResolvedValue(undefined),
+  },
   render: function MultiplePercentagesStory() {
     const [rates, setRates] = useState({
       discount: 10,
