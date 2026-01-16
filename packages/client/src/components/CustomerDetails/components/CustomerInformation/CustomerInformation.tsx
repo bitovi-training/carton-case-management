@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { List, MoreVertical, Trash, Star } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
-import { EditableTitle } from '@/components/common/EditableTitle';
+import { EditableTitle } from '@/components/inline-edit';
 import { format } from 'date-fns';
 import {
   DropdownMenu,
@@ -78,29 +78,29 @@ export function CustomerInformation({
     },
   });
 
-  const handleFirstNameSave = (newFirstName: string) => {
-    updateCustomer.mutate({
+  const handleFirstNameSave = async (newFirstName: string): Promise<void> => {
+    await updateCustomer.mutateAsync({
       id: customerId,
       firstName: newFirstName,
     });
   };
 
-  const handleLastNameSave = (newLastName: string) => {
-    updateCustomer.mutate({
+  const handleLastNameSave = async (newLastName: string): Promise<void> => {
+    await updateCustomer.mutateAsync({
       id: customerId,
       lastName: newLastName,
     });
   };
 
-  const handleUsernameSave = (newUsername: string) => {
-    updateCustomer.mutate({
+  const handleUsernameSave = async (newUsername: string): Promise<void> => {
+    await updateCustomer.mutateAsync({
       id: customerId,
       username: newUsername,
     });
   };
 
-  const handleEmailSave = (newEmail: string) => {
-    updateCustomer.mutate({
+  const handleEmailSave = async (newEmail: string): Promise<void> => {
+    await updateCustomer.mutateAsync({
       id: customerId,
       email: newEmail,
     });
@@ -156,16 +156,12 @@ export function CustomerInformation({
               <EditableTitle
                 value={customerData.firstName}
                 onSave={handleFirstNameSave}
-                isLoading={updateCustomer.isPending}
                 className="text-2xl font-semibold truncate"
-                inputClassName="text-2xl font-semibold"
               />
               <EditableTitle
                 value={customerData.lastName}
                 onSave={handleLastNameSave}
-                isLoading={updateCustomer.isPending}
                 className="text-2xl font-semibold truncate"
-                inputClassName="text-2xl font-semibold"
               />
             </div>
             <div className="flex items-center gap-1">
@@ -173,9 +169,7 @@ export function CustomerInformation({
               <EditableTitle
                 value={customerData.username}
                 onSave={handleUsernameSave}
-                isLoading={updateCustomer.isPending}
                 className="text-sm text-gray-600"
-                inputClassName="text-sm"
               />
             </div>
           </div>
@@ -188,16 +182,12 @@ export function CustomerInformation({
               <EditableTitle
                 value={customerData.firstName}
                 onSave={handleFirstNameSave}
-                isLoading={updateCustomer.isPending}
                 className="text-2xl font-semibold truncate"
-                inputClassName="text-2xl font-semibold"
               />
               <EditableTitle
                 value={customerData.lastName}
                 onSave={handleLastNameSave}
-                isLoading={updateCustomer.isPending}
                 className="text-2xl font-semibold truncate"
-                inputClassName="text-2xl font-semibold"
               />
             </div>
             <div className="flex items-center gap-1">
@@ -205,9 +195,7 @@ export function CustomerInformation({
               <EditableTitle
                 value={customerData.username}
                 onSave={handleUsernameSave}
-                isLoading={updateCustomer.isPending}
                 className="text-sm text-gray-600"
-                inputClassName="text-sm"
               />
             </div>
           </div>
@@ -246,9 +234,7 @@ export function CustomerInformation({
             <EditableTitle
               value={customerData.email}
               onSave={handleEmailSave}
-              isLoading={updateCustomer.isPending}
               className="text-base"
-              inputClassName="text-base"
             />
           </div>
 
