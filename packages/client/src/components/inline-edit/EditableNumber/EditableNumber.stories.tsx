@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { fn } from '@storybook/test';
 import { EditableNumber } from './EditableNumber';
+import { Label } from '@/components/obra/Label/Label';
 
 const meta: Meta<typeof EditableNumber> = {
   title: 'Components/inline-edit/EditableNumber',
@@ -347,9 +348,9 @@ export const SaveError: Story = {
             checked={shouldFail}
             onChange={(e) => setShouldFail(e.target.checked)}
           />
-          <label htmlFor="shouldFail" className="text-sm text-muted-foreground">
+          <Label htmlFor="shouldFail" className="text-sm text-muted-foreground">
             Simulate network error
-          </label>
+          </Label>
         </div>
       </div>
     );

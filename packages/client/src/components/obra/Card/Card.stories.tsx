@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Card } from './Card';
+import { Label } from '../Label';
 
 const meta: Meta<typeof Card> = {
   component: Card,
@@ -93,15 +94,15 @@ export const ThreeSlotsFullExample: Story = {
     main: (
       <div className="space-y-3">
         <div>
-          <label className="text-sm font-medium">Status:</label>
+          <Label className="text-sm font-medium">Status:</Label>
           <p className="text-sm">In Progress</p>
         </div>
         <div>
-          <label className="text-sm font-medium">Assigned to:</label>
+          <Label className="text-sm font-medium">Assigned to:</Label>
           <p className="text-sm">John Doe</p>
         </div>
         <div>
-          <label className="text-sm font-medium">Description:</label>
+          <Label className="text-sm font-medium">Description:</Label>
           <p className="text-sm text-muted-foreground">
             Customer reported issue with product functionality
           </p>
