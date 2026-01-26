@@ -3,7 +3,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Check, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/obra/Button';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/obra/Input';
 import { EditableState } from '../types';
 
 export interface EditableTitleProps {

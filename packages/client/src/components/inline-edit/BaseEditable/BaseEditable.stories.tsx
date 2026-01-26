@@ -3,7 +3,7 @@ import type { RefObject } from 'react';
 import { useState } from 'react';
 import { BaseEditable } from './BaseEditable';
 import { z } from 'zod';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/obra/Input';
 import { Button } from '@/components/obra/Button';
 import { Check, X } from 'lucide-react';
 import type { RenderEditModeProps } from '../types';

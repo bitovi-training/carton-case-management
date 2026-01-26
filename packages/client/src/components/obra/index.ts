@@ -13,6 +13,9 @@ export type { DialogFooterProps } from './Dialog';
 export { DialogHeader } from './Dialog';
 export type { DialogHeaderProps } from './Dialog';
 
+export { Input } from './Input';
+export type { InputProps } from './Input';
+
 export { Label } from './Label';
 export type { LabelProps } from './Label';
 

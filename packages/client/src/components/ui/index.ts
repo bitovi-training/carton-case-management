@@ -1,4 +1,3 @@
-export { Input } from './input';
 export {
   Select,
   SelectGroup,
