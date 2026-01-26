@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/obra/Button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/obra';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,

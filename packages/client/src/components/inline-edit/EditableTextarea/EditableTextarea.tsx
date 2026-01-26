@@ -11,7 +11,7 @@ import * as React from 'react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Textarea } from '@/components/obra';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/obra/Button';
 import type { ZodSchema } from 'zod';
 

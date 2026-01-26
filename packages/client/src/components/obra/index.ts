@@ -18,17 +18,3 @@ export type { LabelProps } from './Label';
 
 export { Sheet } from './Sheet';
 export type { SheetProps } from './Sheet';
-
-export { Skeleton } from './Skeleton';
-export type { SkeletonProps } from './Skeleton';
-
-export { Textarea } from './Textarea';
-export type { TextareaProps } from './Textarea';
-
-export { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './Tooltip';
-export type {
-  TooltipProviderProps,
-  TooltipProps,
-  TooltipTriggerProps,
-  TooltipContentProps,
-} from './Tooltip';
