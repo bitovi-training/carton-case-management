@@ -36,7 +36,7 @@ export function CustomerDetails({ onMenuClick }: CustomerDetailsProps) {
   return (
     <div className="flex flex-1 flex-col lg:flex-row gap-6 overflow-hidden">
       {/* Main Content */}
-      <div className="flex flex-col flex-1 gap-6 overflow-y-auto">
+      <div className="flex flex-col px-1 flex-1 gap-6 overflow-y-auto">
         <CustomerInformation
           customerId={customerData.id}
           customerData={customerData}
