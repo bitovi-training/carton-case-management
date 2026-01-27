@@ -85,6 +85,7 @@ export function Calendar({
           'inline-flex items-center justify-center whitespace-nowrap',
           'h-12 w-12 p-2',
           'rounded-sm',
+          'text-foreground',
           'font-normal text-[14px] leading-[21px] tracking-[0.07px]',
           'hover:bg-[#e2e8f0] hover:text-foreground hover:rounded-sm',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',

@@ -173,7 +173,7 @@ function EditModeRenderer({
             </span>
           </button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 bg-white text-foreground" align="start">
           <Calendar
             mode="single"
             selected={dateValue}
