@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/obra/Button';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/obra/Input';
 import { Textarea } from '@/components/obra';
 import {
   Select,
@@ -10,7 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/obra/Select';
 import { type CasePriority, CASE_PRIORITY_OPTIONS } from '@carton/shared/client';
 import { Label } from '@/components/obra/Label';
 
@@ -100,7 +100,7 @@ export function CreateCasePage() {
             }}
             onBlur={() => handleBlur('title')}
             placeholder="Enter case title"
-            className={touched.has('title') && validationErrors.title ? 'border-red-500' : ''}
+            error={touched.has('title') && !!validationErrors.title}
           />
           {touched.has('title') && validationErrors.title && (
             <p className="text-sm text-red-600">{validationErrors.title}</p>

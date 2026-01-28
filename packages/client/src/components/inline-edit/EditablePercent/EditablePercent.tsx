@@ -11,7 +11,7 @@ import * as React from 'react';
 import { useState, useCallback } from 'react';
 import { Percent } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/obra/Input';
 import { BaseEditable } from '../BaseEditable';
 import { EditControls } from '../EditControls';
 import type { ZodSchema } from 'zod';

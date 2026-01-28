@@ -3,18 +3,18 @@ import { cn } from '@/lib/utils';
 import * as React from 'react';
 
 export const buttonVariants = cva(
-  'inline-flex items-center justify-center font-semibold tracking-[0.03em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
+  'inline-flex items-center justify-center font-semibold tracking-[0.03em] transition-colors focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
   {
     variants: {
       variant: {
-        primary: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm',
+        primary: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm focus-visible:shadow-[0_0_0_3px_var(--focus-ring,#CBD5E1)]',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm focus-visible:shadow-[0_0_0_3px_var(--focus-ring,#CBD5E1)]',
         outline:
-          'bg-transparent text-foreground border border-border hover:bg-accent hover:text-accent-foreground shadow-xs',
-        ghost: 'bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground',
+          'bg-transparent text-foreground border border-border hover:bg-accent hover:text-accent-foreground shadow-xs focus-visible:shadow-[0_0_0_3px_var(--focus-ring,#CBD5E1)]',
+        ghost: 'bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:shadow-[0_0_0_3px_var(--focus-ring,#CBD5E1)]',
         'ghost-muted':
-          'bg-transparent text-muted-foreground/50 hover:bg-accent hover:text-accent-foreground',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm',
+          'bg-transparent text-muted-foreground/50 hover:bg-accent hover:text-accent-foreground focus-visible:shadow-[0_0_0_3px_var(--focus-ring,#CBD5E1)]',
+        destructive: 'bg-destructive text-white hover:bg-destructive/90 shadow-sm focus-visible:shadow-[0_0_0_3px_var(--focus-ring-error,#FCA5A5)]',
       },
       size: {
         large: 'h-10 px-6 text-sm gap-2',

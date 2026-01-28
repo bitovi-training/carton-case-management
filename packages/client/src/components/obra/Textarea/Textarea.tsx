@@ -30,8 +30,8 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           'shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]',
           roundnessClasses[roundness],
           {"resize-vertical": showResizable, "resize-none": !showResizable},
-          'focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_#cbd5e1]',
-          {"!border-[#ef4444]": error, "!focus-visible:shadow-[0_0_0_3px_#fca5a5]": error},
+          'focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_var(--focus-ring,#CBD5E1)]',
+          {"!border-[#ef4444] focus-visible:!shadow-[0_0_0_3px_var(--focus-ring-error,#FCA5A5)]": error},
           'disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-[#f8fafc] disabled:text-[#94a3b8]',
           className
         )}
