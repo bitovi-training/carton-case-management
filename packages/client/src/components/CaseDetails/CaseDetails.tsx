@@ -42,7 +42,7 @@ export function CaseDetails({ onMenuClick }: CaseDetailsProps) {
 
       {/* Desktop Layout */}
       <div className="hidden lg:flex flex-1 gap-4 overflow-hidden">
-        <div className="flex flex-col flex-1 gap-6 overflow-y-auto">
+        <div className="flex flex-col px-1 flex-1 gap-6 overflow-y-auto">
           <CaseInformation caseId={caseData.id} caseData={caseData} onMenuClick={onMenuClick} />
           <div className="h-[9px]" />
           <CaseComments caseData={caseData} />
