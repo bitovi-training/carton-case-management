@@ -1,0 +1,78 @@
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { Popover, PopoverTrigger, PopoverContent } from './Popover';
+
+describe('Popover', () => {
+  it('renders trigger and content when open', async () => {
+    const user = userEvent.setup();
+    
+    render(
+      <Popover>
+        <PopoverTrigger asChild>
+          <button>Open popover</button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <div>Popover content</div>
+        </PopoverContent>
+      </Popover>
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Open popover' });
+    expect(trigger).toBeInTheDocument();
+
+    expect(screen.queryByText('Popover content')).not.toBeInTheDocument();
+
+    await user.click(trigger);
+
+    expect(screen.getByText('Popover content')).toBeInTheDocument();
+  });
+
+  it('can be controlled', () => {
+    const onOpenChange = vi.fn();
+    
+    render(
+      <Popover open={true} onOpenChange={onOpenChange}>
+        <PopoverTrigger>
+          <button>Open popover</button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <div>Popover content</div>
+        </PopoverContent>
+      </Popover>
+    );
+
+    expect(screen.getByText('Popover content')).toBeInTheDocument();
+  });
+
+  it('applies custom className to content', () => {
+    render(
+      <Popover open={true}>
+        <PopoverTrigger>
+          <button>Open popover</button>
+        </PopoverTrigger>
+        <PopoverContent className="custom-popover">
+          <div>Popover content</div>
+        </PopoverContent>
+      </Popover>
+    );
+
+    const content = screen.getByText('Popover content').parentElement;
+    expect(content).toHaveClass('custom-popover');
+  });
+
+  it('handles asChild prop on trigger', () => {
+    render(
+      <Popover open={true}>
+        <PopoverTrigger asChild>
+          <div data-testid="custom-trigger">Custom trigger</div>
+        </PopoverTrigger>
+        <PopoverContent>
+          <div>Popover content</div>
+        </PopoverContent>
+      </Popover>
+    );
+
+    expect(screen.getByTestId('custom-trigger')).toBeInTheDocument();
+  });
+});

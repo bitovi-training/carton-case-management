@@ -16,7 +16,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from '@/components/obra/Popover';
 import { format, parse, isValid } from 'date-fns';
 import { BaseEditable } from '../BaseEditable';
 import type { ZodSchema } from 'zod';
