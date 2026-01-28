@@ -27,7 +27,6 @@ const meta: Meta<typeof Popover> = {
 export default meta;
 type Story = StoryObj<typeof Popover>;
 
-// Interactive example with state management
 function InteractivePopover() {
   const [open, setOpen] = useState(false);
 
