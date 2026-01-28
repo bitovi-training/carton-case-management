@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { fn } from '@storybook/test';
 import { EditableTextarea } from './EditableTextarea';
 import { z } from 'zod';
+import { Label } from '@/components/obra/Label/Label';
 
 const meta: Meta<typeof EditableTextarea> = {
   title: 'Components/inline-edit/EditableTextarea',
@@ -328,9 +329,9 @@ export const SaveError: Story = {
             checked={shouldFail}
             onChange={(e) => setShouldFail(e.target.checked)}
           />
-          <label htmlFor="shouldFail" className="text-sm text-muted-foreground">
+          <Label htmlFor="shouldFail" className="text-sm text-muted-foreground">
             Simulate network error
-          </label>
+          </Label>
         </div>
       </div>
     );

@@ -1,5 +1,4 @@
 export { Button } from '../obra/Button';
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card';
 export { Skeleton } from './skeleton';
 export { Textarea } from './textarea';
 export { Input } from './input';
@@ -27,7 +26,6 @@ export {
 } from './dropdown-menu';
 export { AlertDialog } from '../obra/AlertDialog';
 export { Calendar } from './calendar';
-export { Label } from './label';
 export {
   Popover,
   PopoverContent,

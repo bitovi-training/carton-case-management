@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { type CasePriority, CASE_PRIORITY_OPTIONS } from '@carton/shared/client';
+import { Label } from '@/components/obra/Label';
 
 type ValidationErrors = {
   title?: string;
@@ -87,9 +88,9 @@ export function CreateCasePage() {
 
       <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
         <div className="space-y-2">
-          <label htmlFor="title" className="text-sm font-medium">
+          <Label htmlFor="title" className="text-sm font-medium">
             Case Title *
-          </label>
+          </Label>
           <Input
             id="title"
             value={title}
@@ -107,9 +108,9 @@ export function CreateCasePage() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="description" className="text-sm font-medium">
+          <Label htmlFor="description" className="text-sm font-medium">
             Case Description *
-          </label>
+          </Label>
           <Textarea
             id="description"
             value={description}
@@ -130,9 +131,9 @@ export function CreateCasePage() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="customer" className="text-sm font-medium">
+          <Label htmlFor="customer" className="text-sm font-medium">
             Customer *
-          </label>
+          </Label>
           <Select
             value={customerId}
             onValueChange={(value) => {
@@ -167,9 +168,9 @@ export function CreateCasePage() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="priority" className="text-sm font-medium">
+          <Label htmlFor="priority" className="text-sm font-medium">
             Priority *
-          </label>
+          </Label>
           <Select
             value={priority}
             onValueChange={(value) => setPriority(value as CasePriority)}
