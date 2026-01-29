@@ -4,12 +4,7 @@ import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/obra/Button';
 import { EditableTitle } from '@/components/inline-edit';
 import { format } from 'date-fns';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '@/components/ui';
+import { MoreOptionsMenu, MenuItem } from '@/components/common/MoreOptionsMenu';
 import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
 import { useNavigate } from 'react-router-dom';
 
@@ -199,8 +194,8 @@ export function CustomerInformation({
               />
             </div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          <MoreOptionsMenu
+            trigger={
               <Button
                 variant="ghost"
                 size="small"
@@ -209,17 +204,17 @@ export function CustomerInformation({
               >
                 <MoreVertical size={20} />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => setIsDeleteDialogOpen(true)}
-                className="text-red-600 focus:text-red-600"
-              >
-                <Trash size={16} className="mr-2" />
-                Delete Customer
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            }
+            align="end"
+          >
+            <MenuItem
+              onClick={() => setIsDeleteDialogOpen(true)}
+              icon={<Trash size={16} className="text-destructive" />}
+              className="text-destructive hover:text-destructive"
+            >
+              Delete Customer
+            </MenuItem>
+          </MoreOptionsMenu>
         </div>
 
         {/* Customer Details */}
@@ -246,23 +241,23 @@ export function CustomerInformation({
 
         {/* Mobile: More menu */}
         <div className="lg:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          <MoreOptionsMenu
+            trigger={
               <Button variant="outline" className="w-full">
                 <MoreVertical size={16} className="mr-2" />
                 More Actions
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-full">
-              <DropdownMenuItem
-                onClick={() => setIsDeleteDialogOpen(true)}
-                className="text-red-600 focus:text-red-600"
-              >
-                <Trash size={16} className="mr-2" />
-                Delete Customer
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            }
+            align="start"
+          >
+            <MenuItem
+              onClick={() => setIsDeleteDialogOpen(true)}
+              icon={<Trash size={16} className="text-destructive" />}
+              className="text-destructive hover:text-destructive"
+            >
+              Delete Customer
+            </MenuItem>
+          </MoreOptionsMenu>
         </div>
       </div>
 

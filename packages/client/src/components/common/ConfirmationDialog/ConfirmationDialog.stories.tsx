@@ -4,7 +4,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 
 const meta = {
-  title: 'Components/ConfirmationDialog',
+  title: 'Components/Common/ConfirmationDialog',
   component: ConfirmationDialog,
   parameters: {
     layout: 'centered',

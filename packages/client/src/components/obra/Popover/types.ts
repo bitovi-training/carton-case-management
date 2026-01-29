@@ -33,4 +33,10 @@ export interface PopoverContentProps {
   sideOffset?: number;
   /** Alignment offset */
   alignOffset?: number;
+  /** Content variant - "Menu" for compact menu style with 8px padding */
+  content?: "Menu";
+  /** Header title - only shown for non-Menu variants */
+  headerTitle?: string;
+  /** Header description - only shown for non-Menu variants */
+  headerDescription?: string;
 }

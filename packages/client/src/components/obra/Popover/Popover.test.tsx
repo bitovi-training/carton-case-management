@@ -75,4 +75,53 @@ describe('Popover', () => {
 
     expect(screen.getByTestId('custom-trigger')).toBeInTheDocument();
   });
+
+  it('shows header for non-Menu variants', () => {
+    render(
+      <Popover open={true}>
+        <PopoverTrigger asChild>
+          <button>Open popover</button>
+        </PopoverTrigger>
+        <PopoverContent headerTitle="Test Title" headerDescription="Test description">
+          <div>Popover content</div>
+        </PopoverContent>
+      </Popover>
+    );
+
+    expect(screen.getByText('Test Title')).toBeInTheDocument();
+    expect(screen.getByText('Test description')).toBeInTheDocument();
+  });
+
+  it('hides header for Menu variant', () => {
+    render(
+      <Popover open={true}>
+        <PopoverTrigger asChild>
+          <button>Open popover</button>
+        </PopoverTrigger>
+        <PopoverContent content="Menu" headerTitle="Test Title" headerDescription="Test description">
+          <div>Popover content</div>
+        </PopoverContent>
+      </Popover>
+    );
+
+    expect(screen.queryByText('Test Title')).not.toBeInTheDocument();
+    expect(screen.queryByText('Test description')).not.toBeInTheDocument();
+    expect(screen.getByText('Popover content')).toBeInTheDocument();
+  });
+
+  it('shows header only when headerTitle is provided for non-Menu variants', () => {
+    render(
+      <Popover open={true}>
+        <PopoverTrigger asChild>
+          <button>Open popover</button>
+        </PopoverTrigger>
+        <PopoverContent headerDescription="Test description">
+          <div>Popover content</div>
+        </PopoverContent>
+      </Popover>
+    );
+
+    expect(screen.queryByText('Test description')).not.toBeInTheDocument();
+    expect(screen.getByText('Popover content')).toBeInTheDocument();
+  });
 });
