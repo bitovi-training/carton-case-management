@@ -11,12 +11,12 @@ import * as React from 'react';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Calendar } from '@/components/ui/calendar';
+import { Calendar } from '@/components/obra/Calendar';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from '@/components/obra/Popover';
 import { format, parse, isValid } from 'date-fns';
 import { BaseEditable } from '../BaseEditable';
 import type { ZodSchema } from 'zod';
@@ -111,9 +111,13 @@ function EditModeRenderer({
   const formattedValue = dateValue ? format(dateValue, displayFormat) : null;
 
   const handleDateSelect = useCallback(
-    (selectedDate: Date | undefined) => {
-      if (!selectedDate) return;
-
+    (value: Date | Date[] | import('react-day-picker').DateRange | undefined) => {
+      // Only handle single date selection for EditableDate
+      if (!value || value instanceof Array || typeof value === 'object' && 'from' in value) {
+        return;
+      }
+      
+      const selectedDate = value as Date;
       hasSelectedRef.current = true;
       // Format date as ISO string for storage
       const isoValue = format(selectedDate, 'yyyy-MM-dd');
@@ -169,12 +173,11 @@ function EditModeRenderer({
             </span>
           </button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 bg-white text-foreground" align="start">
           <Calendar
             mode="single"
             selected={dateValue}
             onSelect={handleDateSelect}
-            initialFocus
           />
         </PopoverContent>
       </Popover>

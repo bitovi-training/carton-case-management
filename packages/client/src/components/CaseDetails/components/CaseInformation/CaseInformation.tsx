@@ -11,12 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/obra/Select';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '@/components/ui';
+import { MoreOptionsMenu, MenuItem } from '@/components/common/MoreOptionsMenu';
 import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
 import { useNavigate } from 'react-router-dom';
 import type { CaseInformationProps } from './types';
@@ -173,22 +168,22 @@ export function CaseInformation({ caseId, caseData, onMenuClick }: CaseInformati
                 ))}
               </SelectContent>
             </Select>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            <MoreOptionsMenu
+              trigger={
                 <Button variant="ghost" size="mini" className="h-8 w-8">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  className="text-red-600 focus:text-red-600"
-                  onClick={() => setIsDeleteDialogOpen(true)}
-                >
-                  <Trash className="mr-2 h-4 w-4" />
-                  Delete Case
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              }
+              align="end"
+            >
+              <MenuItem
+                onClick={() => setIsDeleteDialogOpen(true)}
+                icon={<Trash className="h-4 w-4 text-destructive" />}
+                className="text-destructive hover:text-destructive"
+              >
+                Delete Case
+              </MenuItem>
+            </MoreOptionsMenu>
           </div>
         </div>
 

@@ -46,6 +46,9 @@ export type { SheetProps } from './Sheet';
 export { Skeleton } from './Skeleton';
 export type { SkeletonProps } from './Skeleton';
 
+export { Popover, PopoverTrigger, PopoverContent } from './Popover';
+export type { PopoverProps, PopoverTriggerProps, PopoverContentProps } from './Popover';
+
 export { Textarea } from './Textarea';
 export type { TextareaProps } from './Textarea';
 

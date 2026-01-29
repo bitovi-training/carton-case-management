@@ -1,9 +1,6 @@
 import { Link } from 'react-router-dom';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { MoreOptionsMenu, MenuItem } from '@/components/common/MoreOptionsMenu';
+import { Button } from '@/components/obra/Button';
 import CartonLogoSvg from '@/assets/carton-logo.svg';
 import type { HeaderProps } from './types';
 
@@ -28,18 +25,23 @@ export function Header({ className, userInitials = 'AM', onAvatarClick }: Header
         </span>
       </Link>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--header-bg))]"
-          aria-label="User menu"
-          onClick={onAvatarClick}
-        >
-          {userInitials}
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <div className="p-2 text-sm text-gray-500">No menu items yet</div>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <MoreOptionsMenu
+        trigger={
+          <Button
+            variant="ghost"
+            size="mini"
+            roundness="round"
+            className="w-10 h-10 bg-white text-gray-900 hover:bg-gray-100 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--header-bg))]"
+            aria-label="User menu"
+            onClick={onAvatarClick}
+          >
+            {userInitials}
+          </Button>
+        }
+        align="end"
+      >
+        <MenuItem>No menu items yet</MenuItem>
+      </MoreOptionsMenu>
     </header>
   );
 }

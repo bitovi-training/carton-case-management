@@ -47,7 +47,8 @@ This skill implements React components from analyzed Figma designs. It creates c
 ├─────────────────────────────────────────────────────────────────┤
 │ 6. CODE CONNECT - Create .figma.tsx mapping file               │
 ├─────────────────────────────────────────────────────────────────┤
-│ 7. VERIFY - Run tests, check types, confirm Storybook renders  │
+│ 7. VERIFY - Run tests, check types, confirm Storybook renders  │├─────────────────────────────────────────────────────────────────┤
+│ 8. PLAYWRIGHT VISUAL TEST - Test Storybook against Figma design│
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -138,6 +139,12 @@ manage_todo_list({
       id: 10,
       title: 'Run verification',
       description: 'Run npm test and verify Storybook renders',
+      status: 'not-started'
+    },
+    {
+      id: 11,
+      title: 'Playwright visual testing',
+      description: 'Use Playwright MCP to test Storybook stories against Figma design and verify interactions',
       status: 'not-started'
     }
   ]
@@ -232,6 +239,12 @@ manage_todo_list({
       id: 14,
       title: 'Verify all Storybooks',
       description: 'Check Button and LinkButton stories render correctly',
+      status: 'not-started'
+    }
+    {
+      id: 15,
+      title: 'Playwright visual testing',
+      description: 'Use Playwright MCP to test all stories against Figma design and verify interactions',
       status: 'not-started'
     }
   ]
@@ -732,7 +745,7 @@ export type { ComponentNameProps } from './types';
 
 **After completion:** Mark Step 9 as `completed` in todo list.
 
-### Step 10: Verify Everything
+### Step 10: Verify Tests and Storybook
 
 **Before starting:** Mark Step 10 as `in-progress` in todo list.
 
@@ -776,6 +789,55 @@ Each story should match its corresponding Figma variant.
 
 **After completion:** Mark Step 10 as `completed` in todo list.
 
+### Step 11: Playwright Visual Testing with MCP
+
+**Before starting:** Mark Step 11 as `in-progress` in todo list.
+
+Use Playwright MCP tools to verify each Storybook story matches the Figma design visually and behaviorally.
+
+#### Prerequisites
+- Storybook running (start with `npm run storybook`)
+- Figma screenshot from `mcp_figma_get_screenshot` for reference
+
+#### Test Each Story
+
+For **every story** in the component's `.stories.tsx` file:
+
+1. **Navigate** to the story URL: `{storybook-url}/iframe.html?id={story-id}&viewMode=story`
+2. **Take a snapshot** to get the component structure and element references
+3. **Verify visually** that the rendered component matches the corresponding Figma variant
+4. **Test interactions** appropriate to the story
+
+#### What to Verify
+
+Verify visual and interactive aspects based on the component. Examples:
+
+- **Visual**: Layout, colors, typography, spacing match Figma
+- **Hover**: Background/border changes on hover
+- **Focus**: Focus ring visible with correct styling
+- **Disabled**: Reduced opacity, cursor change, no interaction
+- **Sizing**: Each size variant matches Figma dimensions
+
+#### Component-Specific Behaviors
+
+Beyond visual states, test interactive behaviors appropriate to the component. Examples:
+
+- **Select/Dropdown**: Click opens menu, selecting item closes menu and updates value
+- **Accordion**: Click expands/collapses content
+- **Modal/Dialog**: Opens on trigger, closes on backdrop click or close button
+- **Tabs**: Clicking tab switches content
+
+Determine what behaviors to test based on the component's purpose and the Figma design.
+
+#### Report Results
+
+After testing all stories, document:
+- ✅ Stories that match Figma
+- ⚠️ Any accepted visual differences (add to README "Accepted Design Differences")
+- ❌ Issues found that need fixing
+
+**After completion:** Mark Step 11 as `completed` in todo list.
+
 **Final step:** Provide summary to user only after all todos are marked completed.
 
 ## Output Files Summary
@@ -797,16 +859,29 @@ packages/client/src/components/common/{ComponentName}/
 
 Before marking complete:
 
+### File Structure
 - [ ] All files from modlet pattern exist
 - [ ] README.md has Figma URL and mapping table
+
+### Design Fidelity
 - [ ] Component matches Figma dimensions exactly
 - [ ] Component matches Figma colors exactly
+- [ ] Typography matches Figma (size, weight, line-height)
+- [ ] Spacing/padding matches Figma
+
+### Stories & Variants
 - [ ] All Figma variants have corresponding stories
 - [ ] Responsive behaviors documented and have stories
 - [ ] Code Connect mapping created
+### Unit Tests
 - [ ] Tests pass (`npm run test`)
 - [ ] Types pass (`npm run typecheck`)
-- [ ] Stories render in Storybook
+
+### Playwright Visual Testing
+- [ ] Each story tested in Storybook via Playwright MCP
+- [ ] Visual appearance matches Figma design
+- [ ] Interactive behaviors (hover, focus, disabled) work correctly
+- [ ] Any accepted differences documented in README
 
 ## Related Skills
 

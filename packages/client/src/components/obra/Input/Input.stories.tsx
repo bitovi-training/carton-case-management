@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import * as React from 'react';
 import { Input } from './Input';
-import { Search, X, Mail, Eye, EyeOff } from 'lucide-react';
-import { useState } from 'react';
+import { Search, X, Mail } from 'lucide-react';
 
 const meta: Meta<typeof Input> = {
   component: Input,
