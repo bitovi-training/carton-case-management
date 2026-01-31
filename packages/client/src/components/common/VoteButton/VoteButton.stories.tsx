@@ -3,7 +3,7 @@ import { VoteButton } from './VoteButton';
 
 const meta: Meta<typeof VoteButton> = {
   component: VoteButton,
-  title: 'Common/VoteButton',
+  title: 'Components/Common/VoteButton',
   tags: ['autodocs'],
   parameters: {
     design: {

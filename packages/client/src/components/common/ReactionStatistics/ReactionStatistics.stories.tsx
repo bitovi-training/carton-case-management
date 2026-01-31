@@ -3,7 +3,7 @@ import { ReactionStatistics } from './ReactionStatistics';
 
 const meta: Meta<typeof ReactionStatistics> = {
   component: ReactionStatistics,
-  title: 'Common/ReactionStatistics',
+  title: 'Components/Common/ReactionStatistics',
   tags: ['autodocs'],
   parameters: {
     design: {

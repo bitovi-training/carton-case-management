@@ -3,7 +3,7 @@ import { VoterTooltip } from './VoterTooltip';
 
 const meta: Meta<typeof VoterTooltip> = {
   component: VoterTooltip,
-  title: 'Common/VoterTooltip',
+  title: 'Components/Common/VoterTooltip',
   tags: ['autodocs'],
   parameters: {
     design: {
