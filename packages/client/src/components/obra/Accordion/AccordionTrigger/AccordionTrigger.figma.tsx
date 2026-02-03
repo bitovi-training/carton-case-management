@@ -3,10 +3,10 @@ import { AccordionTrigger } from './AccordionTrigger';
 
 figma.connect(
   AccordionTrigger,
-  'https://www.figma.com/design/MQUbIrlfuM8qnr9XZ7jc82/Obra-shadcn-ui--Carton-?node-id=288-122455',
+  'https://www.figma.com/design/MQUbIrlfuM8qnr9XZ7jc82/Obra-shadcn-ui--Carton-?node-id=66-5034',
   {
     props: {
-      children: figma.textContent('Label'),
+      children: figma.children('*'),
     },
     example: ({ children }) => <AccordionTrigger>{children}</AccordionTrigger>,
   }

@@ -6,7 +6,7 @@ figma.connect(
   'https://www.figma.com/design/MQUbIrlfuM8qnr9XZ7jc82/Obra-shadcn-ui--Carton-?node-id=66-5041',
   {
     props: {
-      children: figma.textContent('*'),
+      children: figma.children('*'),
     },
     example: ({ children }) => <AccordionContent>{children}</AccordionContent>,
   }
