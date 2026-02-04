@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AddRelatedCaseDialog } from './AddRelatedCaseDialog';
+import { AddRelatedCasesDialog } from './AddRelatedCasesDialog';
 
 const mockCases = [
   {
@@ -16,10 +16,10 @@ const mockCases = [
   },
 ];
 
-describe('AddRelatedCaseDialog', () => {
+describe('AddRelatedCasesDialog', () => {
   it('renders when open', () => {
     render(
-      <AddRelatedCaseDialog
+      <AddRelatedCasesDialog
         open={true}
         onOpenChange={vi.fn()}
         cases={mockCases}
@@ -33,7 +33,7 @@ describe('AddRelatedCaseDialog', () => {
 
   it('does not render when closed', () => {
     render(
-      <AddRelatedCaseDialog
+      <AddRelatedCasesDialog
         open={false}
         onOpenChange={vi.fn()}
         cases={mockCases}
@@ -47,7 +47,7 @@ describe('AddRelatedCaseDialog', () => {
 
   it('displays all cases', () => {
     render(
-      <AddRelatedCaseDialog
+      <AddRelatedCasesDialog
         open={true}
         onOpenChange={vi.fn()}
         cases={mockCases}
@@ -62,7 +62,7 @@ describe('AddRelatedCaseDialog', () => {
 
   it('shows selected state correctly', () => {
     render(
-      <AddRelatedCaseDialog
+      <AddRelatedCasesDialog
         open={true}
         onOpenChange={vi.fn()}
         cases={mockCases}
@@ -80,7 +80,7 @@ describe('AddRelatedCaseDialog', () => {
     const user = userEvent.setup();
     const onSelectionChange = vi.fn();
     render(
-      <AddRelatedCaseDialog
+      <AddRelatedCasesDialog
         open={true}
         onOpenChange={vi.fn()}
         cases={mockCases}
@@ -100,7 +100,7 @@ describe('AddRelatedCaseDialog', () => {
     const user = userEvent.setup();
     const onAdd = vi.fn();
     render(
-      <AddRelatedCaseDialog
+      <AddRelatedCasesDialog
         open={true}
         onOpenChange={vi.fn()}
         cases={mockCases}
@@ -116,7 +116,7 @@ describe('AddRelatedCaseDialog', () => {
 
   it('disables add button when no cases selected', () => {
     render(
-      <AddRelatedCaseDialog
+      <AddRelatedCasesDialog
         open={true}
         onOpenChange={vi.fn()}
         cases={mockCases}
@@ -132,7 +132,7 @@ describe('AddRelatedCaseDialog', () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn();
     render(
-      <AddRelatedCaseDialog
+      <AddRelatedCasesDialog
         open={true}
         onOpenChange={onOpenChange}
         cases={mockCases}

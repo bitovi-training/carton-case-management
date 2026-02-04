@@ -3,10 +3,10 @@ import { cn } from '@/lib/utils';
 import { Dialog, DialogFooter, DialogHeader } from '@/components/obra/Dialog';
 import { Button } from '@/components/obra';
 import { RelatedCasesList } from './components/RelatedCasesList';
-import type { AddRelatedCaseDialogProps } from './types';
+import type { AddRelatedCasesDialogProps } from './types';
 import type { RelatedCaseItem } from './components/RelatedCasesList/types';
 
-export function AddRelatedCaseDialog({
+export function AddRelatedCasesDialog({
   open,
   onOpenChange,
   cases,
@@ -14,7 +14,7 @@ export function AddRelatedCaseDialog({
   onSelectionChange,
   onAdd,
   className,
-}: AddRelatedCaseDialogProps) {
+}: AddRelatedCasesDialogProps) {
   const listCases: RelatedCaseItem[] = cases.map((c) => ({
     ...c,
     selected: selectedCases.includes(c.id),

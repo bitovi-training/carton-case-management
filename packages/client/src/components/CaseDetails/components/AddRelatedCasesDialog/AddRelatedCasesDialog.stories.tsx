@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AddRelatedCaseDialog } from './AddRelatedCaseDialog';
+import { AddRelatedCasesDialog } from './AddRelatedCasesDialog';
 
-const meta: Meta<typeof AddRelatedCaseDialog> = {
-  component: AddRelatedCaseDialog,
-  title: 'Components/CaseDetails/AddRelatedCaseDialog',
+const meta: Meta<typeof AddRelatedCasesDialog> = {
+  component: AddRelatedCasesDialog,
+  title: 'Components/CaseDetails/AddRelatedCasesDialog',
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
@@ -15,7 +15,7 @@ const meta: Meta<typeof AddRelatedCaseDialog> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof AddRelatedCaseDialog>;
+type Story = StoryObj<typeof AddRelatedCasesDialog>;
 
 const mockCases = [
   {

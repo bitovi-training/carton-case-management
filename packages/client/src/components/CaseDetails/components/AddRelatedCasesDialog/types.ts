@@ -1,4 +1,4 @@
-export interface AddRelatedCaseDialogProps {
+export interface AddRelatedCasesDialogProps {
   /**
    * Whether the dialog is open
    */

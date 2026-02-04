@@ -1,13 +1,13 @@
 import figma from '@figma/code-connect';
-import { AddRelatedCaseDialog } from './AddRelatedCaseDialog';
+import { AddRelatedCasesDialog } from './AddRelatedCasesDialog';
 
 figma.connect(
-  AddRelatedCaseDialog,
+  AddRelatedCasesDialog,
   'https://www.figma.com/design/7QW0kJ07DcM36mgQUJ5Dtj/Carton-Case-Management?node-id=1043-1742',
   {
     props: {},
     example: () => (
-      <AddRelatedCaseDialog
+      <AddRelatedCasesDialog
         open={true}
         onOpenChange={() => {}}
         cases={[

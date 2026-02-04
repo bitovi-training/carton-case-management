@@ -4,7 +4,7 @@ import type { RelatedCaseItem } from './types';
 
 const meta: Meta<typeof RelatedCasesList> = {
   component: RelatedCasesList,
-  title: 'Components/CaseDetails/AddRelatedCaseDialog/RelatedCasesList',
+  title: 'Components/CaseDetails/AddRelatedCasesDialog/RelatedCasesList',
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
