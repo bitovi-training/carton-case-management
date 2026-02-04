@@ -36,7 +36,7 @@ export interface RelationshipManagerDialogProps {
   /**
    * Callback when add button is clicked
    */
-  onAdd: () => void;
+  onAdd: (selectedIds: string[]) => void;
 
   /** Additional CSS classes */
   className?: string;

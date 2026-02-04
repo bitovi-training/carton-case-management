@@ -8,6 +8,7 @@ figma.connect(
     props: {},
     example: () => (
       <RelationshipManagerList
+        title="Available Cases"
         items={[
           {
             id: '1',

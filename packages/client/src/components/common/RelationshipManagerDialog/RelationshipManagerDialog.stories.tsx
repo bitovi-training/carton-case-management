@@ -47,7 +47,7 @@ export const Default: Story = {
     items: mockItems,
     selectedItems: ['1'],
     onSelectionChange: () => {},
-    onAdd: () => console.log('Add clicked'),
+    onAdd: (selectedIds) => console.log('Add clicked', selectedIds),
   },
 };
 

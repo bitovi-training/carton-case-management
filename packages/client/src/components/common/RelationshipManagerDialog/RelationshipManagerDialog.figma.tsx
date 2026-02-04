@@ -8,6 +8,7 @@ figma.connect(
     props: {},
     example: () => (
       <RelationshipManagerDialog
+        title="Add Related Cases"
         open={true}
         onOpenChange={() => {}}
         items={[
@@ -24,7 +25,7 @@ figma.connect(
         ]}
         selectedItems={['1']}
         onSelectionChange={() => {}}
-        onAdd={() => {}}
+        onAdd={(selectedIds) => console.log(selectedIds)}
       />
     ),
   }

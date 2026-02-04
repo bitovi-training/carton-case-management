@@ -20,6 +20,7 @@ describe('RelationshipManagerDialog', () => {
   it('renders when open', () => {
     render(
       <RelationshipManagerDialog
+        title="Add Related Cases"
         open={true}
         onOpenChange={vi.fn()}
         items={mockItems}
@@ -28,12 +29,13 @@ describe('RelationshipManagerDialog', () => {
         onAdd={vi.fn()}
       />
     );
-    expect(screen.getByText('Add Relationships')).toBeInTheDocument();
+    expect(screen.getByText('Add Related Cases')).toBeInTheDocument();
   });
 
   it('does not render when closed', () => {
     render(
       <RelationshipManagerDialog
+        title="Add Related Cases"
         open={false}
         onOpenChange={vi.fn()}
         items={mockItems}
@@ -48,6 +50,7 @@ describe('RelationshipManagerDialog', () => {
   it('displays all items', () => {
     render(
       <RelationshipManagerDialog
+        title="Add Related Cases"
         open={true}
         onOpenChange={vi.fn()}
         items={mockItems}
@@ -63,6 +66,7 @@ describe('RelationshipManagerDialog', () => {
   it('shows selected state correctly', () => {
     render(
       <RelationshipManagerDialog
+        title="Add Related Cases"
         open={true}
         onOpenChange={vi.fn()}
         items={mockItems}
@@ -81,6 +85,7 @@ describe('RelationshipManagerDialog', () => {
     const onSelectionChange = vi.fn();
     render(
       <RelationshipManagerDialog
+        title="Add Related Cases"
         open={true}
         onOpenChange={vi.fn()}
         items={mockItems}
@@ -101,6 +106,7 @@ describe('RelationshipManagerDialog', () => {
     const onAdd = vi.fn();
     render(
       <RelationshipManagerDialog
+        title="Add Related Cases"
         open={true}
         onOpenChange={vi.fn()}
         items={mockItems}
@@ -117,6 +123,7 @@ describe('RelationshipManagerDialog', () => {
   it('disables add button when no items selected', () => {
     render(
       <RelationshipManagerDialog
+        title="Add Related Cases"
         open={true}
         onOpenChange={vi.fn()}
         items={mockItems}
@@ -133,6 +140,7 @@ describe('RelationshipManagerDialog', () => {
     const onOpenChange = vi.fn();
     render(
       <RelationshipManagerDialog
+        title="Add Related Cases"
         open={true}
         onOpenChange={onOpenChange}
         items={mockItems}

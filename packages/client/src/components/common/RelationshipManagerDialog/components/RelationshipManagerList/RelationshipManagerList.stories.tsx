@@ -47,6 +47,7 @@ const mockItems: RelationshipManagerListItem[] = [
 
 export const Default: Story = {
   args: {
+    title: 'Add Relationships',
     items: mockItems,
     onItemToggle: (id) => console.log('Toggled:', id),
   },
@@ -55,6 +56,7 @@ export const Default: Story = {
 
 export const AllSelected: Story = {
   args: {
+    title: 'Add Relationships',
     items: mockItems.map((item) => ({ ...item, selected: true })),
     onItemToggle: (id) => console.log('Toggled:', id),
   },

@@ -44,7 +44,7 @@ export function RelationshipManagerDialog({
       footer={
         <DialogFooter>
           <Button
-            onClick={onAdd}
+            onClick={() => onAdd(selectedItems)}
             disabled={selectedItems.length === 0}
             className="bg-gray-950 text-white hover:bg-gray-800"
           >
