@@ -9,13 +9,12 @@ This skill ensures existing components are discovered and reused before creating
 
 ## No Component Creation Without Audit
 
-**You are FORBIDDEN from creating any new component file until you have:**
+**You must not create any new component file until you have:**
 
 1. Completed the full audit process below
 2. Output the audit table showing your search results
 3. Confirmed no existing component can serve the same purpose
 
-**If you skip this audit and create a component that duplicates existing functionality, you have failed this task.**
 
 ## When to Use
 
@@ -126,7 +125,7 @@ CodeConnectSnippets confirm component choice:
 <ComponentName prop1="value" prop2="..." />
 ```
 
-**You MUST output this audit table BEFORE creating any component files.**
+**You must output this audit table before creating any component files.**
 
 If you do not output this table, STOP and output it now.
 
@@ -149,7 +148,7 @@ If you do not output this table, STOP and output it now.
 
 **For components marked CREATE:**
 
-**BEFORE creating, you MUST answer these questions:**
+**Before creating, you must answer these questions:**
 
 1. What existing components did you find that are similar?
 2. Why can't any of them be used or extended?
@@ -163,7 +162,7 @@ Only after answering these questions:
 - Then use the newly created component
 
 
-**STOP** if you're about to create a component that:
+Stop if you're about to create a component that:
 
 - Has a generic/common name (Button, Input, Modal, Card, Alert, Dialog, etc.)
 - Serves a common UI purpose (feedback, navigation, form input, layout, interaction)

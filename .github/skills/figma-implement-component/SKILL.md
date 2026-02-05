@@ -52,9 +52,9 @@ This skill implements React components from analyzed Figma designs. It creates c
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## ⚠️ CRITICAL: Use Todo List for Systematic Execution
+## Use Todo List for Systematic Execution
 
-**REQUIRED:** Create a todo list using `manage_todo_list` at the start of implementation to ensure all steps are completed and nothing is skipped.
+Create a todo list using `manage_todo_list` at the start of implementation to ensure all steps are completed and nothing is skipped.
 
 This prevents common failures like:
 - Skipping file creation steps
@@ -71,9 +71,9 @@ This prevents common failures like:
 
 ## Step-by-Step Instructions
 
-### Step 0: Create Todo List (REQUIRED)
+### Step 0: Create Todo List
 
-**MANDATORY FIRST STEP:** Use `manage_todo_list` to create a checklist before starting implementation.
+Use `manage_todo_list` to create a checklist before starting implementation.
 
 **For single component:**
 
@@ -251,7 +251,7 @@ manage_todo_list({
 })
 ```
 
-**Important:** Mark each task as `in-progress` before starting it, complete the work, then mark it `completed` immediately. Do not batch completion updates.
+Mark each task as `in-progress` before starting it, complete the work, then mark it `completed` immediately. Do not batch completion updates.
 
 ### Step 1: Verify Design Analysis Exists
 

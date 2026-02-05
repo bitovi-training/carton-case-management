@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
+import { ComponentProps, useState } from 'react';
 import { Dialog } from './Dialog';
 import { DialogHeader } from './DialogHeader/DialogHeader';
 import { DialogFooter } from './DialogFooter/DialogFooter';
@@ -20,7 +20,7 @@ const meta: Meta<typeof Dialog> = {
 export default meta;
 type Story = StoryObj<typeof Dialog>;
 
-const DialogWrapper = ({ children, ...props }: Omit<React.ComponentProps<typeof Dialog>, 'open' | 'onOpenChange'>) => {
+const DialogWrapper = ({ children, ...props }: Omit<ComponentProps<typeof Dialog>, 'open' | 'onOpenChange'>) => {
   const [open, setOpen] = useState(false);
 
   return (

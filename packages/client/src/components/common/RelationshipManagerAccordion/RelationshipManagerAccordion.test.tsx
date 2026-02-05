@@ -23,7 +23,7 @@ describe('RelationshipManagerAccordion', () => {
   });
 
   it('starts closed by default', () => {
-    const { container } = render(<RelationshipManagerAccordion accordionTitle="Relationships" items={mockItems} />);
+     render(<RelationshipManagerAccordion accordionTitle="Relationships" items={mockItems} />);
     const itemTitle = screen.queryByText('Policy Coverage Inquiry');
     if (itemTitle) {
       expect(itemTitle).not.toBeVisible();
