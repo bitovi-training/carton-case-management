@@ -17,7 +17,7 @@ export const Accordion = React.forwardRef<
     <AccordionPrimitive.Root
       ref={ref}
       className={cn(className)}
-      {...(restProps as any)}
+      {...(restProps as React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>)}
     >
       {items.map((item) => (
         <AccordionPrimitive.Item key={item.value} value={item.value}>
