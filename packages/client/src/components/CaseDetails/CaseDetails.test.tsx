@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { screen, waitFor, render } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { CaseDetails } from './CaseDetails';
