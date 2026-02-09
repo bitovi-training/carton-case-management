@@ -18,12 +18,12 @@ figma.connect(
         Round: 'round',
       }),
       children: figma.textContent('Label'),
-      iconLeft: figma.boolean('Show Icon Left', {
-        true: figma.instance('Icon Left'),
+      iconLeft: figma.boolean('Show icon left', {
+        true: figma.instance('⮑ Icon left'),
         false: undefined,
       }),
-      iconRight: figma.boolean('Show Icon Right', {
-        true: figma.instance('Icon Right'),
+      iconRight: figma.boolean('Show icon right', {
+        true: figma.instance('⮑ Icon right'),
         false: undefined,
       }),
     },
