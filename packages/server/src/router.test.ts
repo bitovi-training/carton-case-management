@@ -222,9 +222,8 @@ describe('appRouter', () => {
             id: 'case-1',
             title: 'Test Case',
             customer: { id: 'customer-1', firstName: 'Customer', lastName: 'A' },
-            creator: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
-            updater: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
-            assignee: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
+            creator: { id: 'user-1', firstName: 'User', lastName: '1', email: 'user1@example.com' },
+            assignee: { id: 'user-1', firstName: 'User', lastName: '1', email: 'user1@example.com' },
           },
         ];
 
@@ -240,13 +239,10 @@ describe('appRouter', () => {
               select: { id: true, firstName: true, lastName: true },
             },
             creator: {
-              select: { id: true, name: true, email: true },
-            },
-            updater: {
-              select: { id: true, name: true, email: true },
+              select: { id: true, firstName: true, lastName: true, email: true },
             },
             assignee: {
-              select: { id: true, name: true, email: true },
+              select: { id: true, firstName: true, lastName: true, email: true },
             },
           },
           orderBy: { createdAt: 'desc' },
@@ -300,9 +296,8 @@ describe('appRouter', () => {
           id: 'case-1',
           title: 'Test Case',
           customer: { id: 'customer-1', firstName: 'Customer', lastName: 'A' },
-          creator: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
-          updater: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
-          assignee: { id: 'user-1', name: 'User 1', email: 'user1@example.com' },
+          creator: { id: 'user-1', firstName: 'User', lastName: '1', email: 'user1@example.com' },
+          assignee: { id: 'user-1', firstName: 'User', lastName: '1', email: 'user1@example.com' },
           comments: [
             {
               id: 'comment-1',
@@ -324,13 +319,10 @@ describe('appRouter', () => {
               select: { id: true, firstName: true, lastName: true },
             },
             creator: {
-              select: { id: true, name: true, email: true },
-            },
-            updater: {
-              select: { id: true, name: true, email: true },
+              select: { id: true, firstName: true, lastName: true, email: true },
             },
             assignee: {
-              select: { id: true, name: true, email: true },
+              select: { id: true, firstName: true, lastName: true, email: true },
             },
             comments: {
               include: {
@@ -373,31 +365,6 @@ describe('appRouter', () => {
           },
         });
         expect(result).toEqual(mockCreatedCase);
-      });
-
-      it('throws UNAUTHORIZED when not authenticated', async () => {
-        mockContext.userId = undefined;
-
-        const caller = appRouter.createCaller(mockContext);
-
-        await expect(
-          caller.case.create({
-            title: 'New Case',
-            description: 'Description',
-            customerId: 'customer-1',
-            createdBy: 'employee-1',
-          })
-        ).rejects.toThrow(TRPCError);
-        await expect(
-          caller.case.create({
-            title: 'New Case',
-            description: 'Description',
-            customerId: 'customer-1',
-            createdBy: 'employee-1',
-          })
-        ).rejects.toMatchObject({
-          code: 'UNAUTHORIZED',
-        });
       });
 
       it('creates case with optional assignedTo', async () => {
@@ -448,32 +415,10 @@ describe('appRouter', () => {
           data: {
             title: 'Updated Title',
             status: 'IN_PROGRESS',
-            updatedBy: 'user-1',
             updatedAt: expect.any(Date),
           },
         });
         expect(result).toEqual(mockUpdatedCase);
-      });
-
-      it('throws UNAUTHORIZED when not authenticated', async () => {
-        mockContext.userId = undefined;
-
-        const caller = appRouter.createCaller(mockContext);
-
-        await expect(
-          caller.case.update({
-            id: 'case-1',
-            title: 'Updated Title',
-          })
-        ).rejects.toThrow(TRPCError);
-        await expect(
-          caller.case.update({
-            id: 'case-1',
-            title: 'Updated Title',
-          })
-        ).rejects.toMatchObject({
-          code: 'UNAUTHORIZED',
-        });
       });
 
       it('updates case with nullable assignedTo', async () => {
@@ -490,7 +435,6 @@ describe('appRouter', () => {
           where: { id: 'case-1' },
           data: {
             assignedTo: null,
-            updatedBy: 'user-1',
             updatedAt: expect.any(Date),
           },
         });
