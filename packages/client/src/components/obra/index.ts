@@ -12,6 +12,9 @@ export type { AlertProps } from './Alert';
 export { AlertDialog } from './AlertDialog';
 export type { AlertDialogProps } from './AlertDialog';
 
+export { Badge } from './Badge';
+export type { BadgeProps } from './Badge';
+
 export { Button, buttonVariants } from './Button';
 export type { ButtonProps } from './Button';
 
