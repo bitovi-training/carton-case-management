@@ -1,4 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/obra';
+import { MultiSelect } from '../MultiSelect';
 import { cn } from '@/lib/utils';
 import type { FiltersListProps } from './types';
 
@@ -11,11 +12,23 @@ export function FiltersList({ filters, title = 'Filters', className }: FiltersLi
       
       <div className="flex flex-col gap-2">
         {filters.map((filter) => {
+          if (filter.multiSelect) {
+            return (
+              <MultiSelect
+                key={filter.id}
+                label={filter.label}
+                options={filter.options}
+                value={Array.isArray(filter.value) ? filter.value : []}
+                onChange={(value) => filter.onChange(value)}
+              />
+            );
+          }
+          
           const displayLabel = filter.count !== undefined ? `${filter.label} (${filter.count})` : filter.label;
           
           return (
             <div key={filter.id} className="flex flex-col gap-0 w-full">
-              <Select value={String(filter.value)} onValueChange={(value) => filter.onChange(value as any)}>
+              <Select value={String(filter.value)} onValueChange={(value) => filter.onChange(value as string)}>
                 <SelectTrigger size="regular" layout="stacked" className="w-full">
                   <div className="flex flex-col items-start w-full">
                     <span className="text-xs font-semibold text-gray-600">{displayLabel}</span>

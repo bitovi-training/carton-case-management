@@ -16,63 +16,64 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 function FiltersListWrapper() {
-  const [customerValue, setCustomerValue] = useState('none');
-  const [statusValue, setStatusValue] = useState('todo');
-  const [priorityValue, setPriorityValue] = useState('none');
-  const [lastUpdatedValue, setLastUpdatedValue] = useState('none');
+  const [customerValue, setCustomerValue] = useState<string[]>([]);
+  const [statusValue, setStatusValue] = useState<string[]>([]);
+  const [priorityValue, setPriorityValue] = useState<string[]>([]);
+  const [lastUpdatedValue, setLastUpdatedValue] = useState<string>('none');
 
   const filters: FilterItem[] = [
     {
       id: 'customer',
       label: 'Customer',
       value: customerValue,
-      count: 0,
+      count: customerValue.length,
+      multiSelect: true,
       options: [
-        { value: 'none', label: 'None selected' },
         { value: 'customer1', label: 'Acme Corp' },
         { value: 'customer2', label: 'Globex Inc' },
         { value: 'customer3', label: 'Initech' },
       ],
-      onChange: setCustomerValue,
+      onChange: (value) => setCustomerValue(value as string[]),
     },
     {
       id: 'status',
       label: 'Status',
       value: statusValue,
-      count: 1,
+      count: statusValue.length,
+      multiSelect: true,
       options: [
-        { value: 'none', label: 'None selected' },
         { value: 'todo', label: 'To Do' },
         { value: 'in-progress', label: 'In Progress' },
         { value: 'done', label: 'Done' },
       ],
-      onChange: setStatusValue,
+      onChange: (value) => setStatusValue(value as string[]),
     },
     {
       id: 'priority',
       label: 'Priority',
       value: priorityValue,
-      count: 0,
+      count: priorityValue.length,
+      multiSelect: true,
       options: [
-        { value: 'none', label: 'None selected' },
         { value: 'low', label: 'Low' },
         { value: 'medium', label: 'Medium' },
         { value: 'high', label: 'High' },
       ],
-      onChange: setPriorityValue,
+      onChange: (value) => setPriorityValue(value as string[]),
     },
     {
       id: 'lastUpdated',
       label: 'Last updated',
       value: lastUpdatedValue,
-      count: 0,
+      count: lastUpdatedValue !== 'none' ? 1 : 0,
+      multiSelect: false,
       options: [
         { value: 'none', label: 'None selected' },
         { value: 'today', label: 'Today' },
         { value: 'week', label: 'This week' },
         { value: 'month', label: 'This month' },
       ],
-      onChange: setLastUpdatedValue,
+      onChange: (value) => setLastUpdatedValue(value as string),
     },
   ];
 

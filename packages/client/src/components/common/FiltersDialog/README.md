@@ -32,6 +32,8 @@ const filters: FilterItem[] = [
   open={isOpen}
   onOpenChange={setIsOpen}
   filters={filters}
+  title="Filter Cases"
+  description="Filter cases by customer, status, priority, and last updated date."
   onApply={() => {
     // Apply filters and close dialog
     applyFilters();
@@ -50,6 +52,7 @@ const filters: FilterItem[] = [
 - `onOpenChange` - Callback when dialog state changes
 - `filters` - Array of filter configurations (see FiltersList)
 - `title` - Title for the filters section (default: "Filters")
+- `description` - Description text for accessibility and context (optional)
 - `onApply` - Callback when Apply button is clicked
 - `onClear` - Callback when Clear button is clicked
 - `className` - Additional CSS classes

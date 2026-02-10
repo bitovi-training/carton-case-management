@@ -16,6 +16,11 @@ export interface DialogHeaderProps {
   title?: string;
 
   /**
+   * Accessible description for screen readers 
+   */
+  description?: string;
+
+  /**
    * Close button click handler
    */
   onClose?: () => void;

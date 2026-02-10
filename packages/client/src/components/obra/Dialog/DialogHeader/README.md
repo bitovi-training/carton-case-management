@@ -59,6 +59,7 @@ https://www.figma.com/design/MQUbIrlfuM8qnr9XZ7jc82/Obra-shadcn-ui--Carton-?node
 |------|------|---------|-------------|
 | `type` | `'Header' \| 'Close Only' \| 'Icon Button Close'` | `'Header'` | Layout variant |
 | `title` | `string` | - | Title text (only shown for type='Header') |
+| `description` | `string` | - | Description text (only shown for type='Header' when provided) |
 | `onClose` | `() => void` | - | Close button click handler |
 | `className` | `string` | - | Additional classes |
 
@@ -72,6 +73,17 @@ import { DialogHeader } from '@/components/obra';
 <DialogHeader 
   type="Header" 
   title="Settings"
+  onClose={() => setIsOpen(false)}
+/>
+```
+
+### With Description
+
+```tsx
+<DialogHeader 
+  type="Header" 
+  title="Filters"
+  description="Filter cases by customer, status, priority, and last updated date."
   onClose={() => setIsOpen(false)}
 />
 ```

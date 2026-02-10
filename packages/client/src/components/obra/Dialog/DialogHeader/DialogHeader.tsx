@@ -1,20 +1,23 @@
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/obra/Button';
+import { DialogTitle } from '../DialogTitle';
+import { DialogDescription } from '../DialogDescription';
 import type { DialogHeaderProps } from './types';
 
-export function DialogHeader({ 
+export function DialogHeader({
   type = 'Header',
   title,
+  description,
   onClose,
-  className 
+  className,
 }: DialogHeaderProps) {
   const isHeader = type === 'Header';
   const isCloseOnly = type === 'Close Only';
   const isIconButtonClose = type === 'Icon Button Close';
 
   return (
-    <div 
+    <div
       className={cn(
         'flex h-[52px] w-full',
         {
@@ -26,9 +29,18 @@ export function DialogHeader({
     >
       {isHeader && (
         <>
-          <h2 className="text-xl font-semibold leading-6 text-foreground">
-            {title || 'Title'}
-          </h2>
+          <div className="flex flex-col gap-1">
+            {title && (
+              <DialogTitle className="text-xl font-semibold leading-6 text-foreground">
+                {title || 'Title'}
+              </DialogTitle>
+            )}
+            {description && (
+              <DialogDescription className="text-sm text-muted-foreground">
+                {description}
+              </DialogDescription>
+            )}
+          </div>
           <button
             type="button"
             onClick={onClose}

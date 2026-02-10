@@ -13,6 +13,9 @@ export type { FiltersDialogProps } from './FiltersDialog';
 export { MoreOptionsMenu } from './MoreOptionsMenu';
 export type { MoreOptionsMenuProps } from './MoreOptionsMenu';
 
+export { MultiSelect } from './MultiSelect';
+export type { MultiSelectProps, MultiSelectOption } from './MultiSelect';
+
 export { ReactionStatistics } from './ReactionStatistics';
 export type { ReactionStatisticsProps } from './ReactionStatistics';
 

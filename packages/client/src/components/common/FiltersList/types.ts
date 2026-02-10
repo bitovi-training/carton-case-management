@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-export interface FilterItem<T = string> {
+export interface FilterItem<T = string | string[]> {
   /**
    * Unique identifier for the filter
    */
@@ -12,7 +12,7 @@ export interface FilterItem<T = string> {
   label: string;
   
   /**
-   * Current value of the filter
+   * Current value of the filter (string for single-select, string[] for multi-select)
    */
   value: T;
   
@@ -20,9 +20,15 @@ export interface FilterItem<T = string> {
    * Options for the select dropdown
    */
   options: Array<{
-    value: T;
+    value: string;
     label: string;
   }>;
+  
+  /**
+   * Whether this filter supports multiple selections
+   * @default false
+   */
+  multiSelect?: boolean;
   
   /**
    * Number of items matching this filter (shown in parentheses)
