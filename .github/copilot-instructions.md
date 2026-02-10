@@ -75,6 +75,7 @@ TypeScript 5.x / Node.js 22+: Follow standard conventions
 - No tsx or ts files should have inline comments.
 - All styling should be done using Tailwind CSS classes in an external CSS file.
 - Responsive designing should be implemented using Tailwind CSS utilities.
+- Extract complex logic into custom hooks when it can be reused or when it bloats the component file.
 
 ### Component Architecture
 
