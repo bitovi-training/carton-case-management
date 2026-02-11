@@ -124,7 +124,7 @@ Output this table before creating any components:
 | Figma Screen | Figma Component | CodeConnect Name | Exact Search | Variation Search | Location | Action |
 |--------------|-----------------|------------------|--------------|------------------|----------|--------|
 | 123-456 | Feature Trigger | FeatureTrigger | NOT FOUND | Found as FeatureButton | common/FeatureButton/ | REUSE |
-| 789-012 | Feature Sheet | FeatureDialog | FOUND | N/A | common/FeatureDialog/ | REUSE |
+| 789-012 | Feature Sheet | FeatureDialog | FOUND | N/A | common/FeatureDialog/ | WRAP |
 | 345-678 | Custom Widget | CustomWidget | NOT FOUND | NOT FOUND | NOT FOUND | CREATE |
 ```
 
@@ -135,14 +135,26 @@ Column definitions:
 - **Exact Search**: Did searching the CodeConnect name find anything?
 - **Variation Search**: What variation/synonym search succeeded?
 - **Location**: Path to existing component
-- **Action**: REUSE or CREATE
+- **Action**: REUSE (use directly), WRAP (create domain wrapper), or CREATE (new component)
+
+**How to determine Action**:
+- **REUSE**: Component is domain-specific or already scoped (e.g., `CaseCard`, `CustomerForm`)
+- **WRAP**: Component is generic/common and needs domain logic (e.g., `FiltersDialog`, `ConfirmationDialog`)
+- **CREATE**: Component doesn't exist after exhaustive search
 
 ### Step 6: Take Action
 
 For components marked REUSE:
-- Import and use the existing component
+- Import and use the existing component directly
 - Adapt props as needed
-- Do not create a wrapper
+- No wrapper needed
+
+For components marked WRAP:
+- Create a domain-specific wrapper in the domain's `components/` folder
+- The wrapper encapsulates domain logic (hooks, state, data fetching)
+- The wrapper passes domain data to the generic component
+- Example: `FeatureGenericComponent` wraps `GenericComponent` + `useFeatureData()`
+- See "Domain Wrapper Components" in copilot-instructions.md for full pattern
 
 For components marked CREATE:
 - Answer these questions first:
@@ -213,11 +225,13 @@ FeatureButton → FOUND at common/FeatureButton/
 Step 5: Audit table
 ```
 | Screen | Component | CodeConnect | Exact | Variation | Location | Action |
-| 789-012 | Feature Sheet | FeatureDialog | FOUND | N/A | common/FeatureDialog/ | REUSE |
+| 789-012 | Feature Panel | GenericDialog | FOUND | N/A | common/GenericDialog/ | WRAP |
 | 123-456 | Feature Trigger | FeatureTrigger | NOT FOUND | FeatureButton | common/FeatureButton/ | REUSE |
 ```
 
-Step 6: Import and use both components
+Step 6: 
+- For GenericDialog: Create FeatureGenericDialog wrapper in Feature domain
+- For FeatureButton: Import and use directly
 
 ### Example 2: Component Already Exists
 
@@ -225,9 +239,42 @@ Figma shows "Notification" → CodeConnect shows `<Alert variant="success" />`
 
 Search "Alert" → Found at obra/Alert/
 
-Action: Reuse Alert, don't create Notification
+Action: REUSE Alert, don't create Notification
 
-### Example 3: Component Missing
+### Example 3: Generic Component Needs Domain Wrapper
+
+Figma shows "Feature Panel" → CodeConnect shows `<GenericDialog />`
+
+Search "GenericDialog" → Found at common/GenericDialog/
+
+Analysis: GenericDialog is generic (accepts any data/config), but FeatureName needs specific:
+- Domain-specific data sources
+- Custom validation logic
+- useFeatureData hook for state management
+
+Action: WRAP
+- Create FeatureGenericDialog in FeatureName/components/
+- Use useFeatureData hook
+- Pass data to GenericDialog
+
+Result:
+```tsx
+// FeatureName/components/FeatureGenericDialog/FeatureGenericDialog.tsx
+export function FeatureGenericDialog({ open, onOpenChange }) {
+  const { data, handleAction, handleClear } = useFeatureData();
+  return (
+    <GenericDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      data={data}
+      onAction={handleAction}
+      onClear={handleClear}
+    />
+  );
+}
+```
+
+### Example 4: Component Missing
 
 Figma shows "Custom Component" → No CodeConnect
 

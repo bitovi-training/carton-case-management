@@ -46,6 +46,7 @@ npm run dev
 1. Open browser DevTools Console
 2. Navigate to the feature
 3. Check for errors (red), warnings (yellow), or unexpected logs
+4. Fix any errors found before proceeding
 
 ### 3. Accessibility Checks
 
@@ -64,7 +65,7 @@ Verify:
 #### Form Inputs
 Verify:
 - All inputs have labels (visible or aria-label)
-- Error states use aria-invalid and aria-describedby
+- Error messages are accessible
 
 ### 4. Automated Tests
 
@@ -74,28 +75,24 @@ npm test
 npm run test:e2e
 ```
 
-## Common Runtime Errors
-
-| Error | Cause | Fix |
-|-------|-------|-----|
-| DialogContent requires a DialogTitle | Missing accessibility | Add `<DialogTitle>` or wrap with VisuallyHidden |
-| Missing Description or aria-describedby | Missing accessibility | Add `<DialogDescription>` or aria-describedby |
-| Select.Item must have a value prop that is not an empty string | Invalid Radix UI usage | Remove `value=""`, use placeholder instead |
-| Cannot read properties of undefined | Missing null checks | Add conditional rendering or optional chaining |
-| Hook called conditionally | React rules violation | Call hooks unconditionally at top level |
-
 ## Quick Checklist
 
+Complete steps in order. Cannot proceed to next step until previous step is documented:
+
 ```markdown
-- [ ] npm run typecheck - no errors
-- [ ] npm run lint - no errors
-- [ ] Browser console - no errors/warnings
-- [ ] Dialogs have title and description
-- [ ] No empty string in Select values
-- [ ] All inputs have labels
+- [ ] npm run typecheck passes
+- [ ] npm run lint passes
+- [ ] npm run dev started
+- [ ] Browser console opened and checked
+- [ ] Browser console output documented:
+      Errors (red): ___
+      Warnings (yellow): ___
+- [ ] Zero browser console errors
 - [ ] npm test passes
-- [ ] npm run test:e2e passes
+- [ ] npm run test:e2e passes (if applicable)
 ```
+
+Validation is complete only when all items above are checked in sequence.
 
 ## Examples
 

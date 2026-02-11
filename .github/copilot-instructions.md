@@ -96,6 +96,33 @@ TypeScript 5.x / Node.js 22+: Follow standard conventions
   - If a needed component is not available, install the Shadcn equivalent using `npx shadcn@latest add [component-name]`
   - Shadcn components should be installed to `packages/client/src/components/ui/` directory and exported via `packages/client/src/components/ui/index.ts`
 - **Custom Components**: If a custom component must be built on top of underlying Shadcn components (e.g., EditableSelect, ConfirmationDialog), it should go in `packages/client/src/components/common/`
+- **Domain Wrapper Components**: When using generic/common components in a specific domain context:
+  - Create a domain-specific wrapper component in the domain's `components/` folder
+  - The wrapper encapsulates domain logic (hooks, state management, data fetching)
+  - The wrapper passes domain data to the generic component
+  - Example structure:
+    ```
+    components/common/GenericComponent/        # Generic, reusable
+    components/FeatureName/
+      components/FeatureGenericComponent/      # Domain wrapper
+    ```
+  - Example implementation:
+    ```tsx
+    // Domain wrapper
+    export function FeatureGenericComponent({ open, onOpenChange }) {
+      const { data, handleAction, handleClear } = useFeatureData();
+      return (
+        <GenericComponent
+          open={open}
+          onOpenChange={onOpenChange}
+          data={data}
+          onAction={handleAction}
+          onClear={handleClear}
+        />
+      );
+    }
+    ```
+  - Benefits: Generic components stay reusable, domain logic stays in domain folders, easier testing, clear separation of concerns
 
 ### UX Patterns
 
