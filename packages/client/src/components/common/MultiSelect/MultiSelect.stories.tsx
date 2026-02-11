@@ -146,6 +146,12 @@ export const AllCustomersSelected: Story = {
 };
 
 export const SizeVariants: Story = {
+  args: {
+    label: 'Customer',
+    options: customerOptions,
+    value: ['sarah-johnson'],
+    onChange: () => {},
+  },
   render: () => (
     <div className="w-[342px] space-y-4">
       <div>
