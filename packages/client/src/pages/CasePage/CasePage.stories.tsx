@@ -8,7 +8,7 @@ import type { AppRouter } from '@carton/server/src/router';
 
 type CaseListOutput = inferProcedureOutput<AppRouter['case']['list']>;
 type CustomerListOutput = inferProcedureOutput<AppRouter['customer']['list']>;
-type EmployeeListOutput = inferProcedureOutput<AppRouter['employee']['list']>;
+type UserListOutput = inferProcedureOutput<AppRouter['user']['list']>;
 
 const mockCustomers: CustomerListOutput = [
   {
@@ -46,7 +46,7 @@ const mockCustomers: CustomerListOutput = [
   },
 ];
 
-const mockEmployees: EmployeeListOutput = [
+const mockUsers: UserListOutput = [
   {
     id: '1',
     firstName: 'John',
@@ -135,8 +135,8 @@ const createHandlers = (getByIdData: (typeof mockCases)[0] | null, listData: typ
             return { result: { data: listData } };
           } else if (proc.includes('customer.list')) {
             return { result: { data: mockCustomers } };
-          } else if (proc.includes('employee.list')) {
-            return { result: { data: mockEmployees } };
+          } else if (proc.includes('user.list')) {
+            return { result: { data: mockUsers } };
           }
           return { result: { data: null } };
         });
@@ -150,8 +150,8 @@ const createHandlers = (getByIdData: (typeof mockCases)[0] | null, listData: typ
         return HttpResponse.json({ result: { data: listData } });
       } else if (path.includes('customer.list')) {
         return HttpResponse.json({ result: { data: mockCustomers } });
-      } else if (path.includes('employee.list')) {
-        return HttpResponse.json({ result: { data: mockEmployees } });
+      } else if (path.includes('user.list')) {
+        return HttpResponse.json({ result: { data: mockUsers } });
       }
     }),
     http.post(/.*\/trpc/, async ({ request }) => {
@@ -167,8 +167,8 @@ const createHandlers = (getByIdData: (typeof mockCases)[0] | null, listData: typ
             return { result: { data: listData } };
           } else if (proc.includes('customer.list')) {
             return { result: { data: mockCustomers } };
-          } else if (proc.includes('employee.list')) {
-            return { result: { data: mockEmployees } };
+          } else if (proc.includes('user.list')) {
+            return { result: { data: mockUsers } };
           }
           return { result: { data: null } };
         });
@@ -183,8 +183,8 @@ const createHandlers = (getByIdData: (typeof mockCases)[0] | null, listData: typ
         return HttpResponse.json({ result: { data: listData } });
       } else if (proc.includes('customer.list')) {
         return HttpResponse.json({ result: { data: mockCustomers } });
-      } else if (proc.includes('employee.list')) {
-        return HttpResponse.json({ result: { data: mockEmployees } });
+      } else if (proc.includes('user.list')) {
+        return HttpResponse.json({ result: { data: mockUsers } });
       }
     }),
   ];
@@ -348,17 +348,17 @@ export const NoCases: Story = {
             },
           });
         }),
-        http.get(/.*\/trpc\/employee\.list/, () => {
+        http.get(/.*\/trpc\/user\.list/, () => {
           return HttpResponse.json({
             result: {
-              data: mockEmployees,
+              data: mockUsers,
             },
           });
         }),
-        http.post(/.*\/trpc\/employee\.list/, () => {
+        http.post(/.*\/trpc\/user\.list/, () => {
           return HttpResponse.json({
             result: {
-              data: mockEmployees,
+              data: mockUsers,
             },
           });
         }),

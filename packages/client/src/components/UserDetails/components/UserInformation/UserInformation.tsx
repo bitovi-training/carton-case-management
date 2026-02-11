@@ -8,9 +8,9 @@ import { MoreOptionsMenu, MenuItem } from '@/components/common/MoreOptionsMenu';
 import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
 import { useNavigate } from 'react-router-dom';
 
-interface EmployeeInformationProps {
-  employeeId: string;
-  employeeData: {
+interface UserInformationProps {
+  userId: string;
+  userData: {
     id: string;
     firstName: string;
     lastName: string;
@@ -20,86 +20,86 @@ interface EmployeeInformationProps {
   };
 }
 
-export function EmployeeInformation({
-  employeeId,
-  employeeData,
-}: EmployeeInformationProps) {
+export function UserInformation({
+  userId,
+  userData,
+}: UserInformationProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
 
   const utils = trpc.useUtils();
-  const updateEmployee = trpc.employee.update.useMutation({
+  const updateUser = trpc.user.update.useMutation({
     onMutate: async (variables) => {
-      await utils.employee.getById.cancel({ id: employeeId });
-      const previousEmployee = utils.employee.getById.getData({ id: employeeId });
+      await utils.user.getById.cancel({ id: userId });
+      const previousUser = utils.user.getById.getData({ id: userId });
 
-      if (previousEmployee) {
-        utils.employee.getById.setData(
-          { id: employeeId },
+      if (previousUser) {
+        utils.user.getById.setData(
+          { id: userId },
           {
-            ...previousEmployee,
+            ...previousUser,
             ...variables,
           }
         );
       }
 
-      return { previousEmployee };
+      return { previousUser };
     },
     onSuccess: () => {
-      utils.employee.getById.invalidate({ id: employeeId });
-      utils.employee.list.invalidate();
+      utils.user.getById.invalidate({ id: userId });
+      utils.user.list.invalidate();
     },
     onError: (error, _variables, context) => {
-      console.error('Failed to update employee:', error);
-      if (context?.previousEmployee) {
-        utils.employee.getById.setData({ id: employeeId }, context.previousEmployee);
+      console.error('Failed to update user:', error);
+      if (context?.previousUser) {
+        utils.user.getById.setData({ id: userId }, context.previousUser);
       }
       alert('Failed to save changes. Please try again.');
     },
   });
 
-  const deleteEmployee = trpc.employee.delete.useMutation({
+  const deleteUser = trpc.user.delete.useMutation({
     onSuccess: () => {
-      utils.employee.list.invalidate();
-      navigate('/employees');
+      utils.user.list.invalidate();
+      navigate('/users');
     },
     onError: (error) => {
-      console.error('Failed to delete employee:', error);
-      alert('Failed to delete employee. Please try again.');
+      console.error('Failed to delete user:', error);
+      alert('Failed to delete user. Please try again.');
       setIsDeleteDialogOpen(false);
     },
   });
 
   const handleFirstNameSave = async (newFirstName: string): Promise<void> => {
-    await updateEmployee.mutateAsync({
-      id: employeeId,
+    await updateUser.mutateAsync({
+      id: userId,
       firstName: newFirstName,
     });
   };
 
   const handleLastNameSave = async (newLastName: string): Promise<void> => {
-    await updateEmployee.mutateAsync({
-      id: employeeId,
+    await updateUser.mutateAsync({
+      id: userId,
       lastName: newLastName,
     });
   };
 
   const handleUsernameSave = async (newUsername: string): Promise<void> => {
-    await updateEmployee.mutateAsync({
-      id: employeeId,
+    await updateUser.mutateAsync({
+      id: userId,
       username: newUsername,
     });
   };
 
   const handleEmailSave = async (newEmail: string): Promise<void> => {
-    await updateEmployee.mutateAsync({
-      id: employeeId,
+    await updateUser.mutateAsync({
+      id: userId,
       email: newEmail,
     });
   };
 
   const handleDeleteConfirm = () => {
-    deleteEmployee.mutate({ id: employeeId });
+    deleteUser.mutate({ id: userId });
   };
 
   return (
@@ -109,12 +109,12 @@ export function EmployeeInformation({
         <div className="flex flex-col gap-1 lg:hidden w-full">
           <div className="flex items-center gap-2">
             <EditableTitle
-              value={employeeData.firstName}
+              value={userData.firstName}
               onSave={handleFirstNameSave}
               className="text-2xl font-semibold truncate"
             />
             <EditableTitle
-              value={employeeData.lastName}
+              value={userData.lastName}
               onSave={handleLastNameSave}
               className="text-2xl font-semibold truncate"
             />
@@ -122,7 +122,7 @@ export function EmployeeInformation({
           <div className="flex items-center gap-1">
             <span className="text-sm text-gray-600">@</span>
             <EditableTitle
-              value={employeeData.username}
+              value={userData.username}
               onSave={handleUsernameSave}
               className="text-sm text-gray-600"
             />
@@ -134,12 +134,12 @@ export function EmployeeInformation({
           <div className="flex flex-col gap-1 flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <EditableTitle
-                value={employeeData.firstName}
+                value={userData.firstName}
                 onSave={handleFirstNameSave}
                 className="text-2xl font-semibold truncate"
               />
               <EditableTitle
-                value={employeeData.lastName}
+                value={userData.lastName}
                 onSave={handleLastNameSave}
                 className="text-2xl font-semibold truncate"
               />
@@ -147,7 +147,7 @@ export function EmployeeInformation({
             <div className="flex items-center gap-1">
               <span className="text-sm text-gray-600">@</span>
               <EditableTitle
-                value={employeeData.username}
+                value={userData.username}
                 onSave={handleUsernameSave}
                 className="text-sm text-gray-600"
               />
@@ -171,21 +171,21 @@ export function EmployeeInformation({
               icon={<Trash size={16} className="text-destructive" />}
               className="text-destructive hover:text-destructive"
             >
-              Delete Employee
+              Delete User
             </MenuItem>
           </MoreOptionsMenu>
         </div>
 
-        {/* Employee Details */}
+        {/* User Details */}
         <div className="flex flex-col gap-4">
           <div>
             <p className="text-sm font-medium text-gray-500 mb-1">Date Joined</p>
-            <p className="text-base">{format(new Date(employeeData.dateJoined), 'M/d/yyyy')}</p>
+            <p className="text-base">{format(new Date(userData.dateJoined), 'M/d/yyyy')}</p>
           </div>
 
           <EditableText
             label="Email Address"
-            value={employeeData.email}
+            value={userData.email}
             onSave={handleEmailSave}
             type="email"
           />
@@ -207,7 +207,7 @@ export function EmployeeInformation({
               icon={<Trash size={16} className="text-destructive" />}
               className="text-destructive hover:text-destructive"
             >
-              Delete Employee
+              Delete User
             </MenuItem>
           </MoreOptionsMenu>
         </div>
@@ -217,11 +217,11 @@ export function EmployeeInformation({
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={handleDeleteConfirm}
-        title="Delete Employee"
-        description="Are you sure you want to delete this employee? This action cannot be undone and will also delete all associated cases."
+        title="Delete User"
+        description="Are you sure you want to delete this user? This action cannot be undone and will also delete all associated cases."
         confirmText="Delete"
         confirmClassName="bg-red-600 hover:bg-red-700"
-        isLoading={deleteEmployee.isPending}
+        isLoading={deleteUser.isPending}
       />
     </>
   );

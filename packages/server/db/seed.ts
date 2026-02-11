@@ -8,77 +8,73 @@ async function main() {
   await prisma.comment.deleteMany();
   await prisma.case.deleteMany();
   await prisma.customer.deleteMany();
-  await prisma.employee.deleteMany();
   await prisma.user.deleteMany();
 
   console.log('Seeding database...');
 
-  // Create demo users (for authentication)
-  const alexMorganUser = await prisma.user.create({
-    data: {
-      email: FIRST_USER_EMAIL,
-      name: 'Alex Morgan',
-      password: 'hashed_password_here', // In production, use bcrypt
-    },
-  });
-
-  // Create demo employees (staff members who create and manage cases)
-  const alexMorgan = await prisma.employee.create({
+  // Create demo users (staff members who create and manage cases)
+  const alexMorgan = await prisma.user.create({
     data: {
       firstName: 'Alex',
       lastName: 'Morgan',
       username: 'alex-morgan',
-      email: 'alex.morgan@carton.com',
+      email: FIRST_USER_EMAIL,
+      password: 'hashed_password_here', // In production, use bcrypt
       dateJoined: new Date('2024-01-15'),
     },
   });
 
-  const sarahJohnsonEmployee = await prisma.employee.create({
+  const sarahJohnson = await prisma.user.create({
     data: {
       firstName: 'Sarah',
       lastName: 'Johnson',
       username: 'sarah-johnson',
       email: 'sarahjohnson42@gmail.com',
+      password: 'hashed_password_here',
       dateJoined: new Date('2025-05-04'),
     },
   });
 
-  const johnSorensonEmployee = await prisma.employee.create({
+  const johnSorenson = await prisma.user.create({
     data: {
       firstName: 'John',
       lastName: 'Sorenson',
       username: 'jsorenson',
       email: 'john.sorenson@email.com',
+      password: 'hashed_password_here',
       dateJoined: new Date('2024-08-15'),
     },
   });
 
-  const aliceSmithEmployee = await prisma.employee.create({
+  const aliceSmith = await prisma.user.create({
     data: {
       firstName: 'Alice',
       lastName: 'Smith',
       username: 'asmith',
       email: 'alice.smith@example.com',
+      password: 'hashed_password_here',
       dateJoined: new Date('2024-03-20'),
     },
   });
 
-  const bobWilliamsEmployee = await prisma.employee.create({
+  const bobWilliams = await prisma.user.create({
     data: {
       firstName: 'Bob',
       lastName: 'Williams',
       username: 'bwilliams',
       email: 'bob.w@test.com',
+      password: 'hashed_password_here',
       dateJoined: new Date('2025-01-10'),
     },
   });
 
-  const emilyBrownEmployee = await prisma.employee.create({
+  const emilyBrown = await prisma.user.create({
     data: {
       firstName: 'Emily',
       lastName: 'Brown',
       username: 'ebrown',
       email: 'emily.brown@mail.com',
+      password: 'hashed_password_here',
       dateJoined: new Date('2024-11-05'),
     },
   });
@@ -160,7 +156,7 @@ async function main() {
       content:
         'Customer is seeking housing assistance after job loss. Currently in temporary housing. Need to contact Housing First program coordinator.',
       caseId: case1.id,
-      authorId: alexMorganUser.id,
+      authorId: alexMorgan.id,
       createdAt: new Date('2025-11-29T11:55:00'),
     },
   });
@@ -170,7 +166,7 @@ async function main() {
       content:
         'Following up on the housing assistance application. Will contact the Housing First program coordinator.',
       caseId: case1.id,
-      authorId: alexMorganUser.id,
+      authorId: alexMorgan.id,
       createdAt: new Date('2025-11-29T14:30:00'),
     },
   });
@@ -183,8 +179,8 @@ async function main() {
       customerId: customerJessicaMiller.id,
       status: 'IN_PROGRESS',
       priority: 'MEDIUM',
-      createdBy: sarahJohnsonEmployee.id,
-      assignedTo: sarahJohnsonEmployee.id,
+      createdBy: sarahJohnson.id,
+      assignedTo: sarahJohnson.id,
       createdAt: new Date('2025-12-25T14:20:00'),
       updatedAt: new Date('2025-12-25T14:20:00'),
     },
@@ -194,7 +190,7 @@ async function main() {
     data: {
       content: 'Reviewed policy documents. Flood coverage is included with a $1,000 deductible.',
       caseId: case2.id,
-      authorId: alexMorganUser.id,
+      authorId: alexMorgan.id,
       createdAt: new Date('2025-12-10T09:15:00'),
     },
   });
@@ -203,7 +199,7 @@ async function main() {
     data: {
       content: 'Sent detailed coverage breakdown to customer via email.',
       caseId: case2.id,
-      authorId: alexMorganUser.id,
+      authorId: alexMorgan.id,
       createdAt: new Date('2025-12-10T10:45:00'),
     },
   });
@@ -216,8 +212,8 @@ async function main() {
       customerId: customerDavidWilson.id,
       status: 'TO_DO',
       priority: 'LOW',
-      createdBy: johnSorensonEmployee.id,
-      assignedTo: johnSorensonEmployee.id,
+      createdBy: johnSorenson.id,
+      assignedTo: johnSorenson.id,
       createdAt: new Date('2025-12-22T11:15:00'),
       updatedAt: new Date('2025-12-22T11:15:00'),
     },
@@ -227,7 +223,7 @@ async function main() {
     data: {
       content: 'Security system details received. Verifying with approved vendors list.',
       caseId: case3.id,
-      authorId: alexMorganUser.id,
+      authorId: alexMorgan.id,
       createdAt: new Date('2025-12-15T13:20:00'),
     },
   });
@@ -236,7 +232,7 @@ async function main() {
     data: {
       content: 'System qualifies for 10% discount. Processing adjustment.',
       caseId: case3.id,
-      authorId: alexMorganUser.id,
+      authorId: alexMorgan.id,
       createdAt: new Date('2025-12-16T11:00:00'),
     },
   });
@@ -260,7 +256,7 @@ async function main() {
     data: {
       content: 'Police report received. Scheduling vehicle inspection for tomorrow.',
       caseId: case4.id,
-      authorId: alexMorganUser.id,
+      authorId: alexMorgan.id,
       createdAt: new Date('2025-12-30T10:20:00'),
     },
   });
@@ -273,8 +269,8 @@ async function main() {
       customerId: customerRobertTaylor.id,
       status: 'COMPLETED',
       priority: 'MEDIUM',
-      createdBy: aliceSmithEmployee.id,
-      assignedTo: aliceSmithEmployee.id,
+      createdBy: aliceSmith.id,
+      assignedTo: aliceSmith.id,
       createdAt: new Date('2025-12-20T13:00:00'),
       updatedAt: new Date('2025-12-20T13:00:00'),
     },
@@ -284,7 +280,7 @@ async function main() {
     data: {
       content: 'Reviewed billing records. Incorrect rate was applied due to system error.',
       caseId: case5.id,
-      authorId: alexMorganUser.id,
+      authorId: alexMorgan.id,
       createdAt: new Date('2025-12-20T14:30:00'),
     },
   });
@@ -293,7 +289,7 @@ async function main() {
     data: {
       content: 'Corrected billing and issued $30 credit to customer account. Case resolved.',
       caseId: case5.id,
-      authorId: alexMorganUser.id,
+      authorId: alexMorgan.id,
       createdAt: new Date('2025-12-20T16:15:00'),
     },
   });
@@ -306,7 +302,7 @@ async function main() {
       customerId: customerMichaelDavis.id,
       status: 'TO_DO',
       priority: 'LOW',
-      createdBy: bobWilliamsEmployee.id,
+      createdBy: bobWilliams.id,
       assignedTo: null,
       createdAt: new Date('2025-12-18T10:30:00'),
       updatedAt: new Date('2025-12-18T10:30:00'),
@@ -315,7 +311,6 @@ async function main() {
 
   console.log('Seeding completed!');
   console.log(`Created ${await prisma.user.count()} users`);
-  console.log(`Created ${await prisma.employee.count()} employees`);
   console.log(`Created ${await prisma.customer.count()} customers`);
   console.log(`Created ${await prisma.case.count()} cases`);
   console.log(`Created ${await prisma.comment.count()} comments`);

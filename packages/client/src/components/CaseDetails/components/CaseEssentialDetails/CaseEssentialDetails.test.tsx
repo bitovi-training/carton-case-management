@@ -7,9 +7,9 @@ import { http, HttpResponse } from 'msw';
 
 describe('CaseEssentialDetails', () => {
   beforeEach(() => {
-    // Mock the batched tRPC query for customer.list and employee.list
+    // Mock the batched tRPC query for customer.list and user.list
     server.use(
-      http.get('/trpc/customer.list,employee.list', () => {
+      http.get('/trpc/customer.list,user.list', () => {
         return HttpResponse.json([
           {
             result: {

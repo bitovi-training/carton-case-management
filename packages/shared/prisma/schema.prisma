@@ -42,14 +42,19 @@ enum CasePriority {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  firstName  String
+  lastName   String
+  username   String   @unique
+  email      String   @unique
+  password   String
+  dateJoined DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  comments Comment[]
+  comments      Comment[]
+  createdCases  Case[]    @relation("UserCreatedBy")
+  assignedCases Case[]    @relation("UserAssignedTo")
 }
 
 model Customer {
@@ -66,20 +71,6 @@ model Customer {
   cases Case[]
 }
 
-model Employee {
-  id         String   @id @default(uuid())
-  firstName  String
-  lastName   String
-  username   String   @unique
-  email      String   @unique
-  dateJoined DateTime @default(now())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  createdCases  Case[] @relation("EmployeeCreatedBy")
-  assignedCases Case[] @relation("EmployeeAssignedTo")
-}
-
 model Case {
   id          String       @id @default(uuid())
   title       String
@@ -92,9 +83,9 @@ model Case {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  customer Customer  @relation(fields: [customerId], references: [id])
-  creator  Employee  @relation("EmployeeCreatedBy", fields: [createdBy], references: [id])
-  assignee Employee? @relation("EmployeeAssignedTo", fields: [assignedTo], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id])
+  creator  User     @relation("UserCreatedBy", fields: [createdBy], references: [id])
+  assignee User?    @relation("UserAssignedTo", fields: [assignedTo], references: [id])
   comments Comment[]
 
   @@index([customerId])

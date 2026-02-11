@@ -4,7 +4,7 @@ import { Header } from './components/Header';
 import { MenuList } from './components/MenuList';
 import { CasePage } from './pages/CasePage';
 import { CustomerPage } from './pages/CustomerPage';
-import { EmployeePage } from './pages/EmployeePage';
+import { UserPage } from './pages/UserPage';
 import { trpc } from './lib/trpc';
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
   
   const menuItems = [
     { id: 'home', label: 'Cases', path: '/cases/', icon: <FolderClosed size={20} />, isActive: location.pathname === '/' || location.pathname.startsWith('/cases') },
-    { id: 'employees', label: 'Employees', path: '/employees/', icon: <Bot size={20} />, isActive: location.pathname.startsWith('/employees') },
+    { id: 'users', label: 'Users', path: '/users/', icon: <Bot size={20} />, isActive: location.pathname.startsWith('/users') },
     { id: 'customers', label: 'Customers', path: '/customers/', icon: <Users size={20} />, isActive: location.pathname.startsWith('/customers') },
   ];
   const { data: user, isLoading, error } = trpc.auth.me.useQuery();
@@ -43,12 +43,8 @@ function App() {
     );
   }
 
-  // Derive initials from user name (e.g., "Alex Morgan" -> "AM")
-  const userInitials = user.name
-    .split(' ')
-    .map((word: string) => word[0])
-    .join('')
-    .toUpperCase();
+  // Derive initials from user first and last name (e.g., "Alex" "Morgan" -> "AM")
+  const userInitials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
 
   return (
     <div className="h-screen bg-[#dfe2e2] flex flex-col">
@@ -60,8 +56,8 @@ function App() {
             <Route path="/" element={<CasePage />} />
             <Route path="/cases/" element={<CasePage />} />
             <Route path="/cases/:id" element={<CasePage />} />
-            <Route path="/employees/" element={<EmployeePage />} />
-            <Route path="/employees/:id" element={<EmployeePage />} />
+            <Route path="/users/" element={<UserPage />} />
+            <Route path="/users/:id" element={<UserPage />} />
             <Route path="/customers/" element={<CustomerPage />} />
             <Route path="/customers/:id" element={<CustomerPage />} />
           </Routes>

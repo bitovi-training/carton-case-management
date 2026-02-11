@@ -10,7 +10,7 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
   const trpcUtils = trpc.useUtils();
 
   const { data: customers } = trpc.customer.list.useQuery();
-  const { data: employees } = trpc.employee.list.useQuery();
+  const { data: users } = trpc.user.list.useQuery();
 
   const updateCaseMutation = trpc.case.update.useMutation({
     onSuccess: () => {
@@ -89,9 +89,9 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
             value={caseData.assignedTo || UNASSIGNED_VALUE}
             options={[
               { value: UNASSIGNED_VALUE, label: 'Unassigned' },
-              ...(employees || []).map((e: { id: string; firstName: string; lastName: string }) => ({ 
-                value: e.id, 
-                label: `${e.firstName} ${e.lastName}` 
+              ...(users || []).map((user: { id: string; firstName: string; lastName: string }) => ({ 
+                value: user.id, 
+                label: `${user.firstName} ${user.lastName}` 
               })),
             ]}
             onSave={handleAssigneeChange}

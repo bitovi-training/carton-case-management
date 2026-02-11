@@ -11,7 +11,7 @@ type ValidationErrors = {
   email?: string;
 };
 
-export function CreateEmployeePage() {
+export function CreateUserPage() {
   const navigate = useNavigate();
   const utils = trpc.useUtils();
   const [firstName, setFirstName] = useState('');
@@ -21,13 +21,13 @@ export function CreateEmployeePage() {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [touched, setTouched] = useState<Set<string>>(new Set());
 
-  const createEmployee = trpc.employee.create.useMutation({
+  const createUser = trpc.user.create.useMutation({
     onSuccess: (data) => {
-      utils.employee.list.invalidate();
-      navigate(`/employees/${data.id}`);
+      utils.user.list.invalidate();
+      navigate(`/users/${data.id}`);
     },
     onError: (error) => {
-      alert(`Failed to create employee: ${error.message}`);
+      alert(`Failed to create user: ${error.message}`);
     },
   });
 
@@ -72,7 +72,7 @@ export function CreateEmployeePage() {
       return;
     }
 
-    createEmployee.mutate({
+    createUser.mutate({
       firstName,
       lastName,
       username,
@@ -82,7 +82,7 @@ export function CreateEmployeePage() {
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 h-full flex-1 overflow-auto">
-      <h1 className="text-2xl font-bold mb-6">Create New Employee</h1>
+      <h1 className="text-2xl font-bold mb-6">Create New User</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
         <div className="space-y-2">
@@ -169,16 +169,16 @@ export function CreateEmployeePage() {
         <div className="flex gap-4">
           <Button
             type="submit"
-            disabled={createEmployee.isPending}
+            disabled={createUser.isPending}
             className="bg-[#00848b] hover:bg-[#006d73] text-white"
           >
-            {createEmployee.isPending ? 'Creating...' : 'Create Employee'}
+            {createUser.isPending ? 'Creating...' : 'Create User'}
           </Button>
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate('/employees')}
-            disabled={createEmployee.isPending}
+            onClick={() => navigate('/users')}
+            disabled={createUser.isPending}
           >
             Cancel
           </Button>

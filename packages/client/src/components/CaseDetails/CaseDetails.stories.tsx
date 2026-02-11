@@ -45,7 +45,8 @@ const mockCase: NonNullable<CaseByIdOutput> = {
       authorId: '2',
       author: {
         id: '2',
-        name: 'Jane Smith',
+        firstName: 'Jane',
+        lastName: 'Smith',
         email: 'jane@example.com',
       },
       createdAt: new Date('2024-01-15T11:00:00Z'),
@@ -59,7 +60,8 @@ const mockCase: NonNullable<CaseByIdOutput> = {
       authorId: '2',
       author: {
         id: '2',
-        name: 'Jane Smith',
+        firstName: 'Jane',
+        lastName: 'Smith',
         email: 'jane@example.com',
       },
       createdAt: new Date('2024-01-16T09:15:00Z'),
@@ -104,7 +106,7 @@ const mockCustomers = [
   },
 ];
 
-const mockEmployees = [
+const mockUsers = [
   {
     id: '1',
     firstName: 'John',
@@ -158,14 +160,14 @@ const meta: Meta<typeof CaseDetails> = {
             result: { data: mockCustomers },
           });
         }),
-        http.get('*/trpc/employee.list*', () => {
+        http.get('*/trpc/user.list*', () => {
           return HttpResponse.json({
-            result: { data: mockEmployees },
+            result: { data: mockUsers },
           });
         }),
-        http.post('*/trpc/employee.list*', () => {
+        http.post('*/trpc/user.list*', () => {
           return HttpResponse.json({
-            result: { data: mockEmployees },
+            result: { data: mockUsers },
           });
         }),
       ],
