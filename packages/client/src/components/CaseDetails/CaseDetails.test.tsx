@@ -21,8 +21,6 @@ const mockCaseData = {
   creator: { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com' },
   assignedTo: '2',
   assignee: { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com' },
-  updatedBy: '1',
-  updater: { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com' },
   createdAt: new Date(2024, 0, 1).toISOString(),
   updatedAt: new Date(2024, 0, 2).toISOString(),
   comments: [

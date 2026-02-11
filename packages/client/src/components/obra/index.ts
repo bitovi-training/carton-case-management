@@ -24,11 +24,20 @@ export type { CardProps } from './Card';
 export { Checkbox } from './Checkbox';
 export type { CheckboxProps } from './Checkbox';
 
+export { Dialog } from './Dialog';
+export type { DialogProps } from './Dialog';
+
 export { DialogFooter } from './Dialog';
 export type { DialogFooterProps } from './Dialog';
 
 export { DialogHeader } from './Dialog';
 export type { DialogHeaderProps } from './Dialog';
+
+export { DialogTitle } from './Dialog';
+export type { DialogTitleProps } from './Dialog';
+
+export { DialogDescription } from './Dialog';
+export type { DialogDescriptionProps } from './Dialog';
 
 export { Input } from './Input';
 export type { InputProps } from './Input';

@@ -434,7 +434,6 @@ describe('appRouter', () => {
 
         const mockUpdatedCase = {
           ...input,
-          updatedBy: 'user-1',
           updatedAt: expect.any(Date),
         };
 
