@@ -27,6 +27,12 @@ describe('appRouter', () => {
       comment: {
         create: vi.fn(),
       },
+      commentVote: {
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
+      },
     };
 
     mockContext = {
@@ -363,6 +369,17 @@ describe('appRouter', () => {
                 author: {
                   select: { id: true, firstName: true, lastName: true, email: true },
                 },
+                votes: {
+                  include: {
+                    user: {
+                      select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                      },
+                    },
+                  },
+                },
               },
               orderBy: { createdAt: 'desc' },
             },
@@ -550,6 +567,128 @@ describe('appRouter', () => {
           caller.comment.create({
             caseId: 'case-1',
             content: 'Test comment',
+          })
+        ).rejects.toMatchObject({
+          code: 'UNAUTHORIZED',
+        });
+      });
+    });
+  });
+
+  describe('commentVote', () => {
+    describe('toggle', () => {
+      it('creates a new upvote when no vote exists', async () => {
+        const input = {
+          commentId: 'comment-1',
+          type: 'UP' as const,
+        };
+
+        mockContext.userId = 'user-1';
+        mockPrisma.commentVote.findUnique.mockResolvedValue(null);
+        mockPrisma.commentVote.create.mockResolvedValue({
+          id: 'vote-1',
+          ...input,
+          userId: 'user-1',
+        });
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.commentVote.toggle(input);
+
+        expect(mockPrisma.commentVote.findUnique).toHaveBeenCalledWith({
+          where: {
+            commentId_userId: {
+              commentId: 'comment-1',
+              userId: 'user-1',
+            },
+          },
+        });
+        expect(mockPrisma.commentVote.create).toHaveBeenCalledWith({
+          data: {
+            commentId: 'comment-1',
+            userId: 'user-1',
+            type: 'UP',
+          },
+        });
+        expect(result).toEqual({ action: 'added', type: 'UP' });
+      });
+
+      it('removes vote when clicking same type', async () => {
+        const input = {
+          commentId: 'comment-1',
+          type: 'UP' as const,
+        };
+
+        const existingVote = {
+          id: 'vote-1',
+          commentId: 'comment-1',
+          userId: 'user-1',
+          type: 'UP' as const,
+        };
+
+        mockContext.userId = 'user-1';
+        mockPrisma.commentVote.findUnique.mockResolvedValue(existingVote);
+        mockPrisma.commentVote.delete.mockResolvedValue(existingVote);
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.commentVote.toggle(input);
+
+        expect(mockPrisma.commentVote.delete).toHaveBeenCalledWith({
+          where: {
+            id: 'vote-1',
+          },
+        });
+        expect(result).toEqual({ action: 'removed', type: 'UP' });
+      });
+
+      it('switches vote when clicking different type', async () => {
+        const input = {
+          commentId: 'comment-1',
+          type: 'DOWN' as const,
+        };
+
+        const existingVote = {
+          id: 'vote-1',
+          commentId: 'comment-1',
+          userId: 'user-1',
+          type: 'UP' as const,
+        };
+
+        mockContext.userId = 'user-1';
+        mockPrisma.commentVote.findUnique.mockResolvedValue(existingVote);
+        mockPrisma.commentVote.update.mockResolvedValue({
+          ...existingVote,
+          type: 'DOWN',
+        });
+
+        const caller = appRouter.createCaller(mockContext);
+        const result = await caller.commentVote.toggle(input);
+
+        expect(mockPrisma.commentVote.update).toHaveBeenCalledWith({
+          where: {
+            id: 'vote-1',
+          },
+          data: {
+            type: 'DOWN',
+          },
+        });
+        expect(result).toEqual({ action: 'switched', type: 'DOWN', previousType: 'UP' });
+      });
+
+      it('throws UNAUTHORIZED when not authenticated', async () => {
+        mockContext.userId = undefined;
+
+        const caller = appRouter.createCaller(mockContext);
+
+        await expect(
+          caller.commentVote.toggle({
+            commentId: 'comment-1',
+            type: 'UP',
+          })
+        ).rejects.toThrow(TRPCError);
+        await expect(
+          caller.commentVote.toggle({
+            commentId: 'comment-1',
+            type: 'UP',
           })
         ).rejects.toMatchObject({
           code: 'UNAUTHORIZED',
