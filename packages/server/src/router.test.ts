@@ -363,6 +363,13 @@ describe('appRouter', () => {
                 author: {
                   select: { id: true, firstName: true, lastName: true, email: true },
                 },
+                votes: {
+                  include: {
+                    comment: {
+                      select: { id: true },
+                    },
+                  },
+                },
               },
               orderBy: { createdAt: 'desc' },
             },
