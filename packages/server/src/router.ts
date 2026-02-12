@@ -313,15 +313,7 @@ export const appRouter = router({
                   email: true,
                 },
               },
-              votes: {
-                include: {
-                  comment: {
-                    select: {
-                      id: true,
-                    },
-                  },
-                },
-              },
+              votes: true,
             },
             orderBy: {
               createdAt: 'desc',
@@ -466,13 +458,6 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         const votes = await ctx.prisma.commentVote.findMany({
           where: { commentId: input.commentId },
-          include: {
-            comment: {
-              select: {
-                id: true,
-              },
-            },
-          },
         });
 
         const upVotes = votes.filter((v) => v.voteType === 'UP');
