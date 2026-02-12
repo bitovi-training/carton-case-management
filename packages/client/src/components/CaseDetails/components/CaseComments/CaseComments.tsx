@@ -98,14 +98,14 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
               id: `temp-${Date.now()}`,
               type: variables.type,
               userId: currentUser.id,
+              commentId: variables.commentId,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
               user: {
                 id: currentUser.id,
                 firstName: currentUser.firstName,
                 lastName: currentUser.lastName,
               },
-              commentId: variables.commentId,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
             });
           }
 

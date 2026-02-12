@@ -33,6 +33,9 @@ describe('CaseComments', () => {
               id: 'vote-1',
               type: 'UP' as const,
               userId: 'user-2',
+              commentId: 'comment-1',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
               user: {
                 id: 'user-2',
                 firstName: 'Jane',
@@ -69,6 +72,9 @@ describe('CaseComments', () => {
               id: 'vote-1',
               type: 'UP' as const,
               userId: 'user-2',
+              commentId: 'comment-1',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
               user: {
                 id: 'user-2',
                 firstName: 'Jane',
@@ -79,6 +85,9 @@ describe('CaseComments', () => {
               id: 'vote-2',
               type: 'UP' as const,
               userId: 'user-3',
+              commentId: 'comment-1',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
               user: {
                 id: 'user-3',
                 firstName: 'Bob',
@@ -89,6 +98,9 @@ describe('CaseComments', () => {
               id: 'vote-3',
               type: 'DOWN' as const,
               userId: 'user-4',
+              commentId: 'comment-1',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
               user: {
                 id: 'user-4',
                 firstName: 'Alice',

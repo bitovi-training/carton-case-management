@@ -10,6 +10,9 @@ export type CaseCommentsProps = {
         id: string;
         type: 'UP' | 'DOWN';
         userId: string;
+        commentId: string;
+        createdAt: string;
+        updatedAt: string;
         user: {
           id: string;
           firstName: string;
