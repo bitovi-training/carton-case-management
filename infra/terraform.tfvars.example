@@ -1,0 +1,38 @@
+# Example Terraform variables file
+# Copy this file to terraform.tfvars and update with your values
+
+aws_region   = "us-east-2"
+project_name = "carton-case-management"
+environment  = "development"
+
+# VPC Configuration
+vpc_cidr = "10.32.127.0/24"
+public_subnet_cidrs = [
+  "10.32.127.0/28",   # us-east-2a
+  "10.32.127.16/28"   # us-east-2b
+]
+private_subnet_cidrs = [
+  "10.32.127.128/28", # us-east-2a
+  "10.32.127.144/28"  # us-east-2b
+]
+availability_zones = ["us-east-2a", "us-east-2b"]
+
+# ECS Configuration
+container_cpu    = 1024
+container_memory = 3072
+
+# Replace with your ECR image URI after pushing to ECR
+container_image = "810329399955.dkr.ecr.us-east-2.amazonaws.com/carton-case-management-app:latest"
+
+# Replace with your SSL certificate ARN
+ssl_certificate_arn = "arn:aws:acm:us-east-2:810329399955:certificate/6b93cae5-23ed-4846-aa6a-0668d0f1bde5"
+
+# Database URL (can be overridden for different environments)
+database_url = "file:./db/dev.db"
+
+# Common tags for all resources
+common_tags = {
+  Project     = "carton-case-management"
+  Environment = "development"
+  ManagedBy   = "terraform"
+}
