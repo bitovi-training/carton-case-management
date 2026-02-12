@@ -129,8 +129,8 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
         utils.case.getById.setData({ id: caseData.id }, context.previousCase);
       }
     },
-    onSettled: () => {
-      // Refetch to sync with server
+    onSuccess: () => {
+      // Refetch after success to sync with server
       utils.case.getById.invalidate({ id: caseData.id });
     },
   });
