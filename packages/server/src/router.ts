@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { router, publicProcedure } from './trpc.js';
-import { formatDate, casePrioritySchema, caseStatusSchema } from '@carton/shared';
+import { formatDate, casePrioritySchema, caseStatusSchema, VoteTypeSchema } from '@carton/shared';
 import { TRPCError } from '@trpc/server';
 
 export const appRouter = router({
@@ -313,6 +313,17 @@ export const appRouter = router({
                   email: true,
                 },
               },
+              votes: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
             },
             orderBy: {
               createdAt: 'desc',
@@ -399,6 +410,130 @@ export const appRouter = router({
             },
           },
         });
+      }),
+  }),
+
+  commentVote: router({
+    vote: publicProcedure
+      .input(
+        z.object({
+          commentId: z.string(),
+          voteType: VoteTypeSchema,
+          isAnonymous: z.boolean().optional().default(false),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Must be logged in to vote',
+          });
+        }
+
+        // Check if user is the comment author (not allowed to vote on own comment)
+        const comment = await ctx.prisma.comment.findUnique({
+          where: { id: input.commentId },
+          select: { authorId: true },
+        });
+
+        if (!comment) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Comment not found',
+          });
+        }
+
+        if (comment.authorId === ctx.userId) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Cannot vote on your own comment',
+          });
+        }
+
+        // Use upsert to handle both create and update cases
+        const vote = await ctx.prisma.commentVote.upsert({
+          where: {
+            commentId_userId: {
+              commentId: input.commentId,
+              userId: ctx.userId,
+            },
+          },
+          create: {
+            commentId: input.commentId,
+            userId: ctx.userId,
+            voteType: input.voteType,
+            isAnonymous: input.isAnonymous,
+          },
+          update: {
+            voteType: input.voteType,
+            isAnonymous: input.isAnonymous,
+          },
+        });
+
+        return vote;
+      }),
+
+    unvote: publicProcedure
+      .input(
+        z.object({
+          commentId: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Must be logged in to unvote',
+          });
+        }
+
+        await ctx.prisma.commentVote.deleteMany({
+          where: {
+            commentId: input.commentId,
+            userId: ctx.userId,
+          },
+        });
+
+        return { success: true };
+      }),
+
+    getByComment: publicProcedure
+      .input(z.object({ commentId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const votes = await ctx.prisma.commentVote.findMany({
+          where: { commentId: input.commentId },
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        });
+
+        // Aggregate votes by type
+        const upVotes = votes.filter((v) => v.voteType === 'UP');
+        const downVotes = votes.filter((v) => v.voteType === 'DOWN');
+
+        return {
+          upVotes: upVotes.map((v) => ({
+            userId: v.userId,
+            isAnonymous: v.isAnonymous,
+            voterName: v.isAnonymous ? 'Anonymous' : `${v.user.firstName} ${v.user.lastName}`,
+          })),
+          downVotes: downVotes.map((v) => ({
+            userId: v.userId,
+            isAnonymous: v.isAnonymous,
+            voterName: v.isAnonymous ? 'Anonymous' : `${v.user.firstName} ${v.user.lastName}`,
+          })),
+          upVoteCount: upVotes.length,
+          downVoteCount: downVotes.length,
+          currentUserVote: ctx.userId
+            ? votes.find((v) => v.userId === ctx.userId)?.voteType
+            : undefined,
+        };
       }),
   }),
 });

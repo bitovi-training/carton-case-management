@@ -2,10 +2,12 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/obra';
+import { CommentItem } from './CommentItem';
 import type { CaseCommentsProps } from './types';
 
 export function CaseComments({ caseData }: CaseCommentsProps) {
   const [newComment, setNewComment] = useState('');
+  const [votingCommentId, setVotingCommentId] = useState<string | null>(null);
   const utils = trpc.useUtils();
 
   // Fetch first user to use as current user (in production this would come from auth)
@@ -35,6 +37,7 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
             lastName: currentUser.lastName,
             email: currentUser.email,
           },
+          votes: [],
         };
 
         utils.case.getById.setData(
@@ -64,6 +67,95 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
     },
   });
 
+  const voteMutation = trpc.commentVote.vote.useMutation({
+    onMutate: async (variables) => {
+      setVotingCommentId(variables.commentId);
+      await utils.case.getById.cancel({ id: caseData.id });
+      const previousCase = utils.case.getById.getData({ id: caseData.id });
+
+      if (previousCase && currentUser) {
+        const updatedComments = previousCase.comments.map((comment) => {
+          if (comment.id !== variables.commentId) return comment;
+
+          // Remove existing vote by current user
+          const filteredVotes = comment.votes.filter((v) => v.userId !== currentUser.id);
+
+          // Add new vote
+          const newVote = {
+            id: `temp-${Date.now()}`,
+            commentId: variables.commentId,
+            userId: currentUser.id,
+            voteType: variables.voteType,
+            isAnonymous: variables.isAnonymous || false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            user: {
+              id: currentUser.id,
+              firstName: currentUser.firstName,
+              lastName: currentUser.lastName,
+            },
+          };
+
+          return {
+            ...comment,
+            votes: [...filteredVotes, newVote],
+          };
+        });
+
+        utils.case.getById.setData(
+          { id: caseData.id },
+          { ...previousCase, comments: updatedComments }
+        );
+      }
+
+      return { previousCase };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousCase) {
+        utils.case.getById.setData({ id: caseData.id }, context.previousCase);
+      }
+    },
+    onSettled: () => {
+      setVotingCommentId(null);
+      utils.case.getById.invalidate({ id: caseData.id });
+    },
+  });
+
+  const unvoteMutation = trpc.commentVote.unvote.useMutation({
+    onMutate: async (variables) => {
+      setVotingCommentId(variables.commentId);
+      await utils.case.getById.cancel({ id: caseData.id });
+      const previousCase = utils.case.getById.getData({ id: caseData.id });
+
+      if (previousCase && currentUser) {
+        const updatedComments = previousCase.comments.map((comment) => {
+          if (comment.id !== variables.commentId) return comment;
+
+          return {
+            ...comment,
+            votes: comment.votes.filter((v) => v.userId !== currentUser.id),
+          };
+        });
+
+        utils.case.getById.setData(
+          { id: caseData.id },
+          { ...previousCase, comments: updatedComments }
+        );
+      }
+
+      return { previousCase };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousCase) {
+        utils.case.getById.setData({ id: caseData.id }, context.previousCase);
+      }
+    },
+    onSettled: () => {
+      setVotingCommentId(null);
+      utils.case.getById.invalidate({ id: caseData.id });
+    },
+  });
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!newComment.trim() || !currentUser) return;
@@ -72,6 +164,26 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
       caseId: caseData.id,
       content: newComment.trim(),
     });
+  };
+
+  const handleVote = (commentId: string, voteType: 'UP' | 'DOWN' | null) => {
+    if (!currentUser) {
+      // TODO: Show login prompt
+      alert('Please log in to vote on comments');
+      return;
+    }
+
+    if (voteType === null) {
+      // Remove vote
+      unvoteMutation.mutate({ commentId });
+    } else {
+      // Add or update vote
+      voteMutation.mutate({
+        commentId,
+        voteType,
+        isAnonymous: false,
+      });
+    }
   };
 
   return (
@@ -95,27 +207,17 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
       <div className="flex flex-col gap-4 md:overflow-y-auto md:flex-1 md:min-h-0">
         {caseData.comments && caseData.comments.length > 0 ? (
           caseData.comments.map((comment) => (
-            <div key={comment.id} className="flex flex-col gap-2 py-2">
-              <div className="flex gap-2 items-center">
-                <div className="w-10 flex items-center justify-center text-sm font-semibold text-gray-900">
-                  {comment.author.firstName[0]}{comment.author.lastName[0]}
-                </div>
-                <div className="flex flex-col">
-                  <p className="text-sm font-medium">{comment.author.firstName} {comment.author.lastName}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(comment.createdAt).toLocaleString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true,
-                    })}
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-700">{comment.content}</p>
-            </div>
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              currentUserId={currentUser?.id || null}
+              onVote={handleVote}
+              isVoting={
+                votingCommentId === comment.id ||
+                voteMutation.isPending ||
+                unvoteMutation.isPending
+              }
+            />
           ))
         ) : (
           <div className="text-sm text-gray-500">No comments yet</div>
