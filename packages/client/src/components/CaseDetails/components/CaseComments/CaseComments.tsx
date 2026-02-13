@@ -107,7 +107,7 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
             updatedVotes = [
               ...updatedVotes,
               {
-                id: `temp-${Date.now()}`,
+                id: crypto.randomUUID(),
                 commentId: variables.commentId,
                 userId: currentUser.id,
                 voteType: variables.voteType,
