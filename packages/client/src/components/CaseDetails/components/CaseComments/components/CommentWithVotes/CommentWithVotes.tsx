@@ -14,7 +14,7 @@ export function CommentWithVotes({ comment }: CommentWithVotesProps) {
       // Snapshot the previous value
       const previousVotes = utils.comment.getVotes.getData({ commentId: comment.id });
 
-      // Optimistically update the cache
+      // Optimistically update the cache (counts only, voters will be synced on refetch)
       if (previousVotes) {
         const currentUserVote = previousVotes.userVote;
         let newVotes = { ...previousVotes };
@@ -23,35 +23,35 @@ export function CommentWithVotes({ comment }: CommentWithVotesProps) {
           // Toggle off: remove vote
           if (variables.voteType === 'UP') {
             newVotes.upVotes = {
+              ...previousVotes.upVotes,
               count: Math.max(0, previousVotes.upVotes.count - 1),
-              voters: previousVotes.upVotes.voters.filter((v) => v.id !== previousVotes.upVotes.voters[0]?.id),
             };
           } else {
             newVotes.downVotes = {
+              ...previousVotes.downVotes,
               count: Math.max(0, previousVotes.downVotes.count - 1),
-              voters: previousVotes.downVotes.voters.filter((v) => v.id !== previousVotes.downVotes.voters[0]?.id),
             };
           }
           newVotes.userVote = null;
         } else if (currentUserVote && currentUserVote !== variables.voteType) {
-          // Change vote: remove from old, add to new
+          // Change vote: decrement old, increment new
           if (currentUserVote === 'UP') {
             newVotes.upVotes = {
+              ...previousVotes.upVotes,
               count: Math.max(0, previousVotes.upVotes.count - 1),
-              voters: previousVotes.upVotes.voters.filter((v) => v.id !== previousVotes.upVotes.voters[0]?.id),
             };
             newVotes.downVotes = {
+              ...previousVotes.downVotes,
               count: previousVotes.downVotes.count + 1,
-              voters: previousVotes.downVotes.voters,
             };
           } else {
             newVotes.downVotes = {
+              ...previousVotes.downVotes,
               count: Math.max(0, previousVotes.downVotes.count - 1),
-              voters: previousVotes.downVotes.voters.filter((v) => v.id !== previousVotes.downVotes.voters[0]?.id),
             };
             newVotes.upVotes = {
+              ...previousVotes.upVotes,
               count: previousVotes.upVotes.count + 1,
-              voters: previousVotes.upVotes.voters,
             };
           }
           newVotes.userVote = variables.voteType;
@@ -59,13 +59,13 @@ export function CommentWithVotes({ comment }: CommentWithVotesProps) {
           // Add new vote
           if (variables.voteType === 'UP') {
             newVotes.upVotes = {
+              ...previousVotes.upVotes,
               count: previousVotes.upVotes.count + 1,
-              voters: previousVotes.upVotes.voters,
             };
           } else {
             newVotes.downVotes = {
+              ...previousVotes.downVotes,
               count: previousVotes.downVotes.count + 1,
-              voters: previousVotes.downVotes.voters,
             };
           }
           newVotes.userVote = variables.voteType;
@@ -83,7 +83,7 @@ export function CommentWithVotes({ comment }: CommentWithVotesProps) {
       }
     },
     onSettled: () => {
-      // Refetch to sync with server
+      // Refetch to sync with server (including updated voters list)
       utils.comment.getVotes.invalidate({ commentId: comment.id });
     },
   });
