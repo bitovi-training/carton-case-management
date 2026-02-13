@@ -1,65 +1,25 @@
-# ECS Cluster
-resource "aws_ecs_cluster" "main" {
-  name = "${var.project_name}-cluster"
-
-  setting {
-    name  = "containerInsights"
-    value = "disabled"
-  }
-
-  tags = {
-    Name = "${var.project_name}-cluster"
-  }
-}
-
-# ECS Cluster Capacity Providers
-resource "aws_ecs_cluster_capacity_providers" "main" {
-  cluster_name = aws_ecs_cluster.main.name
-
-  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
-
-  default_capacity_provider_strategy {
-    capacity_provider = "FARGATE"
-    weight            = 1
-    base              = 0
-  }
-}
-
 # ECS Task Definition
 resource "aws_ecs_task_definition" "main" {
-  family                   = "${var.project_name}-task"
+  family                   = "${var.project_name}-${var.environment}-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = var.container_cpu
   memory                   = var.container_memory
-  execution_role_arn       = aws_iam_role.ecs_task_execution.arn
-  task_role_arn            = aws_iam_role.ecs_task_execution.arn
+  execution_role_arn       = "arn:aws:iam::810329399955:role/ecsTaskExecutionRole"
+  task_role_arn            = "arn:aws:iam::810329399955:role/ecsTaskExecutionRole"
 
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"
   }
 
-  volume {
-    name = "app-data"
-
-    efs_volume_configuration {
-      file_system_id          = aws_efs_file_system.app_data.id
-      transit_encryption      = "ENABLED"
-      transit_encryption_port = 2999
-      authorization_config {
-        access_point_id = aws_efs_access_point.app_data.id
-        iam             = "ENABLED"
-      }
-    }
-  }
-
   container_definitions = jsonencode([
     {
-      name      = "carton-application"
+      name      = "carton-application-${var.environment}"
       image     = var.container_image
       essential = true
       cpu       = 0
+      systemControls = []
 
       portMappings = [
         {
@@ -81,7 +41,7 @@ resource "aws_ecs_task_definition" "main" {
       environment = [
         {
           name  = "DATABASE_URL"
-          value = var.database_url
+          value = "file:./db/dev.db"
         },
         {
           name  = "NODE_ENV"
@@ -89,14 +49,8 @@ resource "aws_ecs_task_definition" "main" {
         }
       ]
 
-      mountPoints = [
-        {
-          sourceVolume  = "app-data"
-          containerPath = "/packages/server/db"
-          readOnly      = false
-        }
-      ]
-
+      mountPoints = []
+      volumesFrom = []
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -105,30 +59,32 @@ resource "aws_ecs_task_definition" "main" {
           "awslogs-stream-prefix" = "ecs"
           "awslogs-create-group"  = "true"
         }
+        secretOptions = []
       }
-
-      dockerLabels = {}
     }
+    
   ])
+  
 }
 
 # ECS Service
 resource "aws_ecs_service" "main" {
-  name            = "${var.project_name}-service"
-  cluster         = aws_ecs_cluster.main.id
+  name            = "${var.project_name}-${var.environment}-service"
+  cluster         = "arn:aws:ecs:us-east-2:810329399955:cluster/carton-case-management-cluster"
   task_definition = aws_ecs_task_definition.main.arn
   desired_count   = 1
   launch_type     = "FARGATE"
+  wait_for_steady_state = false
 
   network_configuration {
-    security_groups  = [aws_security_group.ecs_tasks.id]
-    subnets          = aws_subnet.private[*].id
+    security_groups  = ["sg-0df8cac4b783cd6fc"]
+    subnets          = ["subnet-0decc1bd99c9175cb", "subnet-0c21bfbe6b59df461"]
     assign_public_ip = false
   }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.main.arn
-    container_name   = "carton-application"
+    container_name   = "carton-application-${var.environment}"
     container_port   = 5173
   }
 
@@ -136,10 +92,11 @@ resource "aws_ecs_service" "main" {
 
   depends_on = [
     aws_lb_listener.https,
-    aws_iam_role_policy_attachment.ecs_task_execution_policy
+    #aws_iam_role_policy_attachment.ecs_task_execution_policy
   ]
 
   tags = {
-    Name = "${var.project_name}-service"
+    Name        = "${var.project_name}-${var.environment}-service"
+    Environment = var.environment
   }
 }

@@ -1,10 +1,10 @@
 # Application Load Balancer
 resource "aws_lb" "main" {
-  name               = "${var.project_name}-elb"
+  name               = "${var.project_name}-${var.environment}-elb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = aws_subnet.public[*].id
+  security_groups    = ["sg-0df8cac4b783cd6fc"]
+  subnets            = ["subnet-094f902f20ff8faa7", "subnet-031da644ec62d1978"]
 
   enable_deletion_protection       = false
   enable_cross_zone_load_balancing = true
@@ -12,16 +12,17 @@ resource "aws_lb" "main" {
   ip_address_type                  = "ipv4"
 
   tags = {
-    Name = "${var.project_name}-elb"
+    Name        = "${var.project_name}-${var.environment}-elb"
+    Environment = var.environment
   }
 }
 
 # Target Group
 resource "aws_lb_target_group" "main" {
-  name        = "${var.project_name}-tg"
+  name        = "${var.project_name}-${var.environment}-tg"
   port        = 80
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = "vpc-03c2940272ec870fc"
   target_type = "ip"
 
   health_check {
@@ -45,7 +46,8 @@ resource "aws_lb_target_group" "main" {
   }
 
   tags = {
-    Name = "${var.project_name}-tg"
+    Name        = "${var.project_name}-${var.environment}-tg"
+    Environment = var.environment
   }
 }
 

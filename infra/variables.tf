@@ -7,13 +7,12 @@ variable "aws_region" {
 variable "project_name" {
   description = "Project name used for resource naming"
   type        = string
-  default     = "carton-case-management"
+  default     = "carton-case-mgmt"
 }
 
 variable "environment" {
   description = "Environment name (e.g., dev, staging, prod)"
   type        = string
-  default     = "development"
 }
 
 variable "vpc_cidr" {
@@ -49,7 +48,7 @@ variable "availability_zones" {
 variable "container_image" {
   description = "ECR container image URI"
   type        = string
-  default     = "810329399955.dkr.ecr.us-east-2.amazonaws.com/carton-case-management-app:latest"
+  #default     = "810329399955.dkr.ecr.us-east-2.amazonaws.com/carton-case-management-app:latest"
 }
 
 variable "container_cpu" {
