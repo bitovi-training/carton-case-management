@@ -3,11 +3,88 @@ import { VoteButton } from '@/components/common/VoteButton';
 import type { CommentWithVotesProps } from './types';
 
 export function CommentWithVotes({ comment }: CommentWithVotesProps) {
+  const utils = trpc.useUtils();
   const { data: votesData } = trpc.comment.getVotes.useQuery({ commentId: comment.id });
+  
   const voteMutation = trpc.comment.vote.useMutation({
-    onSuccess: () => {
-      // Invalidate votes query to refetch
-      trpc.useUtils().comment.getVotes.invalidate({ commentId: comment.id });
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await utils.comment.getVotes.cancel({ commentId: comment.id });
+
+      // Snapshot the previous value
+      const previousVotes = utils.comment.getVotes.getData({ commentId: comment.id });
+
+      // Optimistically update the cache
+      if (previousVotes) {
+        const currentUserVote = previousVotes.userVote;
+        let newVotes = { ...previousVotes };
+
+        if (currentUserVote === variables.voteType) {
+          // Toggle off: remove vote
+          if (variables.voteType === 'UP') {
+            newVotes.upVotes = {
+              count: Math.max(0, previousVotes.upVotes.count - 1),
+              voters: previousVotes.upVotes.voters.filter((v) => v.id !== previousVotes.upVotes.voters[0]?.id),
+            };
+          } else {
+            newVotes.downVotes = {
+              count: Math.max(0, previousVotes.downVotes.count - 1),
+              voters: previousVotes.downVotes.voters.filter((v) => v.id !== previousVotes.downVotes.voters[0]?.id),
+            };
+          }
+          newVotes.userVote = null;
+        } else if (currentUserVote && currentUserVote !== variables.voteType) {
+          // Change vote: remove from old, add to new
+          if (currentUserVote === 'UP') {
+            newVotes.upVotes = {
+              count: Math.max(0, previousVotes.upVotes.count - 1),
+              voters: previousVotes.upVotes.voters.filter((v) => v.id !== previousVotes.upVotes.voters[0]?.id),
+            };
+            newVotes.downVotes = {
+              count: previousVotes.downVotes.count + 1,
+              voters: previousVotes.downVotes.voters,
+            };
+          } else {
+            newVotes.downVotes = {
+              count: Math.max(0, previousVotes.downVotes.count - 1),
+              voters: previousVotes.downVotes.voters.filter((v) => v.id !== previousVotes.downVotes.voters[0]?.id),
+            };
+            newVotes.upVotes = {
+              count: previousVotes.upVotes.count + 1,
+              voters: previousVotes.upVotes.voters,
+            };
+          }
+          newVotes.userVote = variables.voteType;
+        } else {
+          // Add new vote
+          if (variables.voteType === 'UP') {
+            newVotes.upVotes = {
+              count: previousVotes.upVotes.count + 1,
+              voters: previousVotes.upVotes.voters,
+            };
+          } else {
+            newVotes.downVotes = {
+              count: previousVotes.downVotes.count + 1,
+              voters: previousVotes.downVotes.voters,
+            };
+          }
+          newVotes.userVote = variables.voteType;
+        }
+
+        utils.comment.getVotes.setData({ commentId: comment.id }, newVotes);
+      }
+
+      return { previousVotes };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      if (context?.previousVotes) {
+        utils.comment.getVotes.setData({ commentId: comment.id }, context.previousVotes);
+      }
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      utils.comment.getVotes.invalidate({ commentId: comment.id });
     },
   });
 
