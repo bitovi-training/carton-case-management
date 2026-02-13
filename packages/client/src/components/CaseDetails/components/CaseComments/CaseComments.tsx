@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/obra';
+import { VoteButton } from '@/components/common/VoteButton';
 import type { CaseCommentsProps } from './types';
 
 export function CaseComments({ caseData }: CaseCommentsProps) {
@@ -35,6 +36,7 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
             lastName: currentUser.lastName,
             email: currentUser.email,
           },
+          votes: [],
         };
 
         utils.case.getById.setData(
@@ -64,6 +66,85 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
     },
   });
 
+  const toggleVoteMutation = trpc.vote.toggle.useMutation({
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await utils.case.getById.cancel({ id: caseData.id });
+
+      // Snapshot previous value
+      const previousCase = utils.case.getById.getData({ id: caseData.id });
+
+      // Optimistically update vote in cache
+      if (previousCase && currentUser) {
+        const updatedComments = previousCase.comments?.map((comment) => {
+          if (comment.id !== variables.commentId) return comment;
+
+          // Find existing vote from current user
+          const existingVoteIndex = comment.votes?.findIndex(
+            (vote) => vote.userId === currentUser.id
+          );
+
+          let updatedVotes = [...(comment.votes || [])];
+
+          if (existingVoteIndex !== undefined && existingVoteIndex >= 0) {
+            const existingVote = updatedVotes[existingVoteIndex];
+            
+            // If same type, remove vote
+            if (existingVote.voteType === variables.voteType) {
+              updatedVotes.splice(existingVoteIndex, 1);
+            } else {
+              // If different type, update vote
+              updatedVotes[existingVoteIndex] = {
+                ...existingVote,
+                voteType: variables.voteType,
+              };
+            }
+          } else {
+            // Add new vote
+            updatedVotes.push({
+              id: `temp-${Date.now()}`,
+              commentId: variables.commentId,
+              userId: currentUser.id,
+              voteType: variables.voteType,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              user: {
+                id: currentUser.id,
+                firstName: currentUser.firstName,
+                lastName: currentUser.lastName,
+              },
+            });
+          }
+
+          return {
+            ...comment,
+            votes: updatedVotes,
+          };
+        });
+
+        utils.case.getById.setData(
+          { id: caseData.id },
+          {
+            ...previousCase,
+            comments: updatedComments,
+          }
+        );
+      }
+
+      return { previousCase };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      if (context?.previousCase) {
+        utils.case.getById.setData({ id: caseData.id }, context.previousCase);
+      }
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      utils.case.getById.invalidate({ id: caseData.id });
+    },
+  });
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!newComment.trim() || !currentUser) return;
@@ -71,6 +152,15 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
     createCommentMutation.mutate({
       caseId: caseData.id,
       content: newComment.trim(),
+    });
+  };
+
+  const handleVote = (commentId: string, voteType: 'UP' | 'DOWN') => {
+    if (!currentUser) return;
+    
+    toggleVoteMutation.mutate({
+      commentId,
+      voteType,
     });
   };
 
@@ -94,29 +184,63 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
       </form>
       <div className="flex flex-col gap-4 md:overflow-y-auto md:flex-1 md:min-h-0">
         {caseData.comments && caseData.comments.length > 0 ? (
-          caseData.comments.map((comment) => (
-            <div key={comment.id} className="flex flex-col gap-2 py-2">
-              <div className="flex gap-2 items-center">
-                <div className="w-10 flex items-center justify-center text-sm font-semibold text-gray-900">
-                  {comment.author.firstName[0]}{comment.author.lastName[0]}
+          caseData.comments.map((comment) => {
+            // Calculate vote counts and check if current user voted
+            const upvotes = comment.votes?.filter((v) => v.voteType === 'UP') || [];
+            const downvotes = comment.votes?.filter((v) => v.voteType === 'DOWN') || [];
+            const userUpvoted = currentUser
+              ? upvotes.some((v) => v.userId === currentUser.id)
+              : false;
+            const userDownvoted = currentUser
+              ? downvotes.some((v) => v.userId === currentUser.id)
+              : false;
+
+            // Get voter names for tooltips
+            const upvoterNames = upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`);
+            const downvoterNames = downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`);
+
+            return (
+              <div key={comment.id} className="flex flex-col gap-2 py-2">
+                <div className="flex gap-2 items-center">
+                  <div className="w-10 flex items-center justify-center text-sm font-semibold text-gray-900">
+                    {comment.author.firstName[0]}{comment.author.lastName[0]}
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-sm font-medium">
+                      {comment.author.firstName} {comment.author.lastName}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(comment.createdAt).toLocaleString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <p className="text-sm font-medium">{comment.author.firstName} {comment.author.lastName}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(comment.createdAt).toLocaleString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true,
-                    })}
-                  </p>
+                <p className="text-sm text-gray-700">{comment.content}</p>
+                <div className="flex gap-4 items-center">
+                  <VoteButton
+                    type="up"
+                    active={userUpvoted}
+                    count={upvotes.length > 0 ? upvotes.length : undefined}
+                    voters={upvoterNames}
+                    onClick={() => handleVote(comment.id, 'UP')}
+                  />
+                  <VoteButton
+                    type="down"
+                    active={userDownvoted}
+                    count={downvotes.length > 0 ? downvotes.length : undefined}
+                    voters={downvoterNames}
+                    onClick={() => handleVote(comment.id, 'DOWN')}
+                  />
                 </div>
               </div>
-              <p className="text-sm text-gray-700">{comment.content}</p>
-            </div>
-          ))
+            );
+          })
         ) : (
           <div className="text-sm text-gray-500">No comments yet</div>
         )}
