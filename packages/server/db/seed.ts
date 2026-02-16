@@ -166,7 +166,7 @@ async function main() {
       content:
         'Following up on the housing assistance application. Will contact the Housing First program coordinator.',
       caseId: case1.id,
-      authorId: alexMorgan.id,
+      authorId: sarahJohnson.id,
       createdAt: new Date('2025-11-29T14:30:00'),
     },
   });
@@ -190,7 +190,7 @@ async function main() {
     data: {
       content: 'Reviewed policy documents. Flood coverage is included with a $1,000 deductible.',
       caseId: case2.id,
-      authorId: alexMorgan.id,
+      authorId: sarahJohnson.id,
       createdAt: new Date('2025-12-10T09:15:00'),
     },
   });
@@ -199,7 +199,7 @@ async function main() {
     data: {
       content: 'Sent detailed coverage breakdown to customer via email.',
       caseId: case2.id,
-      authorId: alexMorgan.id,
+      authorId: emilyBrown.id,
       createdAt: new Date('2025-12-10T10:45:00'),
     },
   });
@@ -223,7 +223,7 @@ async function main() {
     data: {
       content: 'Security system details received. Verifying with approved vendors list.',
       caseId: case3.id,
-      authorId: alexMorgan.id,
+      authorId: johnSorenson.id,
       createdAt: new Date('2025-12-15T13:20:00'),
     },
   });
@@ -232,7 +232,7 @@ async function main() {
     data: {
       content: 'System qualifies for 10% discount. Processing adjustment.',
       caseId: case3.id,
-      authorId: alexMorgan.id,
+      authorId: aliceSmith.id,
       createdAt: new Date('2025-12-16T11:00:00'),
     },
   });
@@ -256,7 +256,7 @@ async function main() {
     data: {
       content: 'Police report received. Scheduling vehicle inspection for tomorrow.',
       caseId: case4.id,
-      authorId: alexMorgan.id,
+      authorId: bobWilliams.id,
       createdAt: new Date('2025-12-30T10:20:00'),
     },
   });
@@ -280,7 +280,7 @@ async function main() {
     data: {
       content: 'Reviewed billing records. Incorrect rate was applied due to system error.',
       caseId: case5.id,
-      authorId: alexMorgan.id,
+      authorId: aliceSmith.id,
       createdAt: new Date('2025-12-20T14:30:00'),
     },
   });
@@ -289,25 +289,11 @@ async function main() {
     data: {
       content: 'Corrected billing and issued $30 credit to customer account. Case resolved.',
       caseId: case5.id,
-      authorId: alexMorgan.id,
+      authorId: johnSorenson.id,
       createdAt: new Date('2025-12-20T16:15:00'),
     },
   });
 
-  const case6 = await prisma.case.create({
-    data: {
-      title: 'Policy Renewal Question',
-      description:
-        'Customer asking about renewal process and whether current coverage limits are still adequate for updated property value.',
-      customerId: customerMichaelDavis.id,
-      status: 'TO_DO',
-      priority: 'LOW',
-      createdBy: bobWilliams.id,
-      assignedTo: null,
-      createdAt: new Date('2025-12-18T10:30:00'),
-      updatedAt: new Date('2025-12-18T10:30:00'),
-    },
-  });
 
   console.log('Seeding completed!');
   console.log(`Created ${await prisma.user.count()} users`);
