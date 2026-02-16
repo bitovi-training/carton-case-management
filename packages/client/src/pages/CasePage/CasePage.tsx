@@ -28,7 +28,7 @@ export function CasePage() {
   }, [id, cases, navigate, location.pathname]);
 
   return (
-    <div className="flex gap-6 bg-[#fbfcfc] lg:rounded-lg shadow-sm h-full lg:p-6 p-4">
+    <div className="w-full lg:flex gap-6 bg-[#fbfcfc] lg:rounded-lg shadow-sm min-h-full lg:p-6 p-4 overflow-x-hidden">
       <div className="hidden lg:block">
         <CaseList />
       </div>

@@ -75,7 +75,7 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
   };
 
   return (
-    <div className="flex flex-col gap-4 lg:flex-1 lg:min-h-0">
+    <div className="flex flex-col gap-4">
       <h2 className="text-base font-semibold">Comments</h2>
       <form onSubmit={handleSubmit}>
         <Textarea
@@ -92,7 +92,7 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
           }}
         />
       </form>
-      <div className="flex flex-col gap-4 md:overflow-y-auto md:flex-1 md:min-h-0">
+      <div className="flex flex-col gap-4">
         {caseData.comments && caseData.comments.length > 0 ? (
           caseData.comments.map((comment) => (
             <div key={comment.id} className="flex flex-col gap-2 py-2">

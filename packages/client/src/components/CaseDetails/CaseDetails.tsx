@@ -31,17 +31,17 @@ export function CaseDetails() {
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
+    <div className="flex flex-1 flex-col">
       {/* Mobile Layout */}
-      <div className="flex flex-col w-full lg:hidden gap-4 overflow-y-auto flex-1 pb-6">
+      <div className="flex flex-col w-full lg:hidden gap-4 pb-6">
         <CaseInformation caseId={caseData.id} caseData={caseData} />
         <CaseEssentialDetails caseId={caseData.id} caseData={caseData} />
         <CaseComments caseData={caseData} />
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:flex flex-1 gap-4 overflow-hidden">
-        <div className="flex flex-col px-1 flex-1 gap-6 overflow-y-auto">
+      <div className="hidden lg:flex flex-1 gap-4">
+        <div className="flex flex-col px-1 flex-1 gap-6">
           <CaseInformation caseId={caseData.id} caseData={caseData} />
           <div className="h-[9px]" />
           <CaseComments caseData={caseData} />

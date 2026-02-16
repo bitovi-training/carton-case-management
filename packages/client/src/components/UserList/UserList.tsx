@@ -11,7 +11,7 @@ export function UserList({ onUserClick }: UserListProps) {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-2 w-full lg:w-[200px]">
+      <div className="flex flex-col w-full lg:w-[200px]">
         <Button
           onClick={() => navigate('/users/new')}
           variant="secondary"
@@ -19,18 +19,20 @@ export function UserList({ onUserClick }: UserListProps) {
         >
           Create New User
         </Button>
-        {[...Array(5)].map((_, index) => (
-          <div key={index} className="flex items-center justify-between px-4 py-2 rounded-lg">
-            <Skeleton className="h-5 bg-slate-200 w-3/4" />
-          </div>
-        ))}
+        <div className="flex flex-col gap-2">
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className="flex items-center justify-between px-4 py-2 rounded-lg">
+              <Skeleton className="h-5 bg-slate-200 w-3/4" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col gap-4 w-full lg:w-[200px] p-4">
+      <div className="flex flex-col w-full lg:w-[200px] p-4">
         <Button
           onClick={() => navigate('/users/new')}
           variant="secondary"
@@ -51,7 +53,7 @@ export function UserList({ onUserClick }: UserListProps) {
 
   if (!users || users.length === 0) {
     return (
-      <div className="flex flex-col gap-2 w-full lg:w-[200px] p-4">
+      <div className="flex flex-col w-full lg:w-[200px] p-4">
         <Button
           onClick={() => navigate('/users/new')}
           variant="secondary"
@@ -67,7 +69,7 @@ export function UserList({ onUserClick }: UserListProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2 w-full lg:w-[200px]">
+    <div className="flex flex-col w-full lg:w-[200px]">
       <Button
         onClick={() => navigate('/users/new')}
         variant="secondary"
@@ -75,21 +77,23 @@ export function UserList({ onUserClick }: UserListProps) {
       >
         Create New User
       </Button>
-      {users?.map((user: { id: string; firstName: string; lastName: string }) => {
-        const isActive = user.id === activeId;
-        return (
-          <Link
-            key={user.id}
-            to={`/users/${user.id}`}
-            onClick={onUserClick}
-            className={`flex items-center justify-between px-4 py-2 rounded-lg transition-colors ${
-              isActive ? 'bg-[#e8feff]' : 'hover:bg-gray-100'
-            }`}
-          >
-            <p className="text-sm font-medium text-[#00848b] w-full truncate">{user.firstName} {user.lastName}</p>
-          </Link>
-        );
-      })}
+      <div className="flex flex-col gap-2">
+        {users?.map((user: { id: string; firstName: string; lastName: string }) => {
+          const isActive = user.id === activeId;
+          return (
+            <Link
+              key={user.id}
+              to={`/users/${user.id}`}
+              onClick={onUserClick}
+              className={`flex items-center justify-between px-4 py-2 rounded-lg transition-colors ${
+                isActive ? 'bg-[#e8feff]' : 'hover:bg-gray-100'
+              }`}
+            >
+              <p className="text-sm font-medium text-[#00848b] w-full truncate">{user.firstName} {user.lastName}</p>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

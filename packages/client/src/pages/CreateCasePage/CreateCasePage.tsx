@@ -95,7 +95,7 @@ export function CreateCasePage() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 h-full flex-1 overflow-auto">
+    <div className="w-full bg-white rounded-lg shadow-sm p-6 h-full flex-1 overflow-auto">
       <h1 className="text-2xl font-bold mb-6">Create New Case</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
