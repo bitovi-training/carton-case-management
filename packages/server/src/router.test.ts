@@ -337,6 +337,7 @@ describe('appRouter', () => {
               id: 'comment-1',
               content: 'Test comment',
               author: { id: 'user-1', firstName: 'User', lastName: 'One', email: 'user1@example.com' },
+              votes: [],
             },
           ],
         };
@@ -363,12 +364,23 @@ describe('appRouter', () => {
                 author: {
                   select: { id: true, firstName: true, lastName: true, email: true },
                 },
+                votes: {
+                  include: {
+                    user: {
+                      select: { id: true, firstName: true, lastName: true },
+                    },
+                  },
+                },
               },
               orderBy: { createdAt: 'desc' },
             },
           },
         });
-        expect(result).toEqual(mockCase);
+        expect(result?.id).toBe('case-1');
+        expect(result?.comments).toHaveLength(1);
+        expect(result?.comments[0].upvoteCount).toBe(0);
+        expect(result?.comments[0].downvoteCount).toBe(0);
+        expect(result?.comments[0].userVote).toBe('none');
       });
     });
 
