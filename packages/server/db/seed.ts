@@ -5,6 +5,7 @@ async function main() {
   console.log('Clearing existing data...');
 
   // Delete all existing data in correct order (respecting foreign keys)
+  await prisma.commentVote.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.case.deleteMany();
   await prisma.customer.deleteMany();
@@ -161,13 +162,38 @@ async function main() {
     },
   });
 
-  await prisma.comment.create({
+  const comment1_2 = await prisma.comment.create({
     data: {
       content:
         'Following up on the housing assistance application. Will contact the Housing First program coordinator.',
       caseId: case1.id,
       authorId: alexMorgan.id,
       createdAt: new Date('2025-11-29T14:30:00'),
+    },
+  });
+
+  // Add votes for comment1_2
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment1_2.id,
+      userId: sarahJohnson.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment1_2.id,
+      userId: johnSorenson.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment1_2.id,
+      userId: aliceSmith.id,
+      voteType: 'UP',
     },
   });
 
@@ -186,12 +212,53 @@ async function main() {
     },
   });
 
-  await prisma.comment.create({
+  const comment2_1 = await prisma.comment.create({
     data: {
       content: 'Reviewed policy documents. Flood coverage is included with a $1,000 deductible.',
       caseId: case2.id,
       authorId: alexMorgan.id,
       createdAt: new Date('2025-12-10T09:15:00'),
+    },
+  });
+
+  // Add votes for comment2_1
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2_1.id,
+      userId: bobWilliams.id,
+      voteType: 'DOWN',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2_1.id,
+      userId: emilyBrown.id,
+      voteType: 'DOWN',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2_1.id,
+      userId: johnSorenson.id,
+      voteType: 'DOWN',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2_1.id,
+      userId: sarahJohnson.id,
+      voteType: 'DOWN',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2_1.id,
+      userId: aliceSmith.id,
+      voteType: 'DOWN',
     },
   });
 
@@ -314,6 +381,7 @@ async function main() {
   console.log(`Created ${await prisma.customer.count()} customers`);
   console.log(`Created ${await prisma.case.count()} cases`);
   console.log(`Created ${await prisma.comment.count()} comments`);
+  console.log(`Created ${await prisma.commentVote.count()} comment votes`);
 }
 
 main()
