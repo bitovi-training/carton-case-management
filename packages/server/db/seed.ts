@@ -5,6 +5,7 @@ async function main() {
   console.log('Clearing existing data...');
 
   // Delete all existing data in correct order (respecting foreign keys)
+  await prisma.commentVote.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.case.deleteMany();
   await prisma.customer.deleteMany();
@@ -195,7 +196,7 @@ async function main() {
     },
   });
 
-  await prisma.comment.create({
+  const comment2_2 = await prisma.comment.create({
     data: {
       content: 'Sent detailed coverage breakdown to customer via email.',
       caseId: case2.id,
@@ -228,7 +229,7 @@ async function main() {
     },
   });
 
-  await prisma.comment.create({
+  const comment3_2 = await prisma.comment.create({
     data: {
       content: 'System qualifies for 10% discount. Processing adjustment.',
       caseId: case3.id,
@@ -309,11 +310,65 @@ async function main() {
     },
   });
 
+  // Create some comment votes for demonstration
+  console.log('Adding comment votes...');
+
+  // Votes on comment2_2 (3 upvotes from different users)
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2_2.id,
+      userId: sarahJohnson.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2_2.id,
+      userId: johnSorenson.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2_2.id,
+      userId: aliceSmith.id,
+      voteType: 'UP',
+    },
+  });
+
+  // Votes on comment3_2 (1 upvote, 2 downvotes)
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment3_2.id,
+      userId: sarahJohnson.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment3_2.id,
+      userId: bobWilliams.id,
+      voteType: 'DOWN',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment3_2.id,
+      userId: aliceSmith.id,
+      voteType: 'DOWN',
+    },
+  });
+
   console.log('Seeding completed!');
   console.log(`Created ${await prisma.user.count()} users`);
   console.log(`Created ${await prisma.customer.count()} customers`);
   console.log(`Created ${await prisma.case.count()} cases`);
   console.log(`Created ${await prisma.comment.count()} comments`);
+  console.log(`Created ${await prisma.commentVote.count()} comment votes`);
 }
 
 main()
