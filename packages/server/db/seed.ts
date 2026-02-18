@@ -5,6 +5,7 @@ async function main() {
   console.log('Clearing existing data...');
 
   // Delete all existing data in correct order (respecting foreign keys)
+  await prisma.commentVote.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.case.deleteMany();
   await prisma.customer.deleteMany();
@@ -309,11 +310,108 @@ async function main() {
     },
   });
 
+  // Get all comments to add votes
+  const allComments = await prisma.comment.findMany();
+  
+  // Add votes to various comments to demonstrate the feature
+  if (allComments.length > 0) {
+    // First comment: Alex upvotes, Sarah upvotes, John upvotes
+    await prisma.commentVote.createMany({
+      data: [
+        {
+          commentId: allComments[0].id,
+          userId: alexMorgan.id,
+          voteType: 'UP',
+        },
+        {
+          commentId: allComments[0].id,
+          userId: sarahJohnson.id,
+          voteType: 'UP',
+        },
+        {
+          commentId: allComments[0].id,
+          userId: johnSorenson.id,
+          voteType: 'UP',
+        },
+      ],
+    });
+  }
+
+  if (allComments.length > 1) {
+    // Second comment: Alex upvotes, Bob downvotes
+    await prisma.commentVote.createMany({
+      data: [
+        {
+          commentId: allComments[1].id,
+          userId: alexMorgan.id,
+          voteType: 'UP',
+        },
+        {
+          commentId: allComments[1].id,
+          userId: bobWilliams.id,
+          voteType: 'DOWN',
+        },
+      ],
+    });
+  }
+
+  if (allComments.length > 2) {
+    // Third comment: Emily downvotes, Alice downvotes
+    await prisma.commentVote.createMany({
+      data: [
+        {
+          commentId: allComments[2].id,
+          userId: emilyBrown.id,
+          voteType: 'DOWN',
+        },
+        {
+          commentId: allComments[2].id,
+          userId: aliceSmith.id,
+          voteType: 'DOWN',
+        },
+      ],
+    });
+  }
+
+  if (allComments.length > 3) {
+    // Fourth comment: Multiple mixed votes
+    await prisma.commentVote.createMany({
+      data: [
+        {
+          commentId: allComments[3].id,
+          userId: alexMorgan.id,
+          voteType: 'UP',
+        },
+        {
+          commentId: allComments[3].id,
+          userId: sarahJohnson.id,
+          voteType: 'UP',
+        },
+        {
+          commentId: allComments[3].id,
+          userId: johnSorenson.id,
+          voteType: 'UP',
+        },
+        {
+          commentId: allComments[3].id,
+          userId: bobWilliams.id,
+          voteType: 'DOWN',
+        },
+        {
+          commentId: allComments[3].id,
+          userId: emilyBrown.id,
+          voteType: 'DOWN',
+        },
+      ],
+    });
+  }
+
   console.log('Seeding completed!');
   console.log(`Created ${await prisma.user.count()} users`);
   console.log(`Created ${await prisma.customer.count()} customers`);
   console.log(`Created ${await prisma.case.count()} cases`);
   console.log(`Created ${await prisma.comment.count()} comments`);
+  console.log(`Created ${await prisma.commentVote.count()} comment votes`);
 }
 
 main()
