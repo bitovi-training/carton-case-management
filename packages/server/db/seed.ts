@@ -5,6 +5,7 @@ async function main() {
   console.log('Clearing existing data...');
 
   // Delete all existing data in correct order (respecting foreign keys)
+  await prisma.vote.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.case.deleteMany();
   await prisma.customer.deleteMany();
@@ -76,6 +77,28 @@ async function main() {
       email: 'emily.brown@mail.com',
       password: 'hashed_password_here',
       dateJoined: new Date('2024-11-05'),
+    },
+  });
+
+  const gregMiller = await prisma.user.create({
+    data: {
+      firstName: 'Greg',
+      lastName: 'Miller',
+      username: 'gmiller',
+      email: 'greg.miller@example.com',
+      password: 'hashed_password_here',
+      dateJoined: new Date('2024-06-15'),
+    },
+  });
+
+  const andrewSmith = await prisma.user.create({
+    data: {
+      firstName: 'Andrew',
+      lastName: 'Smith',
+      username: 'asmith2',
+      email: 'andrew.smith@example.com',
+      password: 'hashed_password_here',
+      dateJoined: new Date('2024-07-20'),
     },
   });
 
@@ -151,7 +174,7 @@ async function main() {
     },
   });
 
-  await prisma.comment.create({
+  const comment1_1 = await prisma.comment.create({
     data: {
       content:
         'Customer is seeking housing assistance after job loss. Currently in temporary housing. Need to contact Housing First program coordinator.',
@@ -161,13 +184,87 @@ async function main() {
     },
   });
 
-  await prisma.comment.create({
+  const comment1_2 = await prisma.comment.create({
     data: {
       content:
         'Following up on the housing assistance application. Will contact the Housing First program coordinator.',
       caseId: case1.id,
       authorId: alexMorgan.id,
       createdAt: new Date('2025-11-29T14:30:00'),
+    },
+  });
+
+  // Add votes to comment1_1: 3 upvotes from Alex, Greg, Andrew
+  await prisma.vote.create({
+    data: {
+      commentId: comment1_1.id,
+      userId: alexMorgan.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.vote.create({
+    data: {
+      commentId: comment1_1.id,
+      userId: gregMiller.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.vote.create({
+    data: {
+      commentId: comment1_1.id,
+      userId: andrewSmith.id,
+      voteType: 'UP',
+    },
+  });
+
+  // Add votes to comment1_2: 5 upvotes and 1 downvote
+  await prisma.vote.create({
+    data: {
+      commentId: comment1_2.id,
+      userId: alexMorgan.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.vote.create({
+    data: {
+      commentId: comment1_2.id,
+      userId: gregMiller.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.vote.create({
+    data: {
+      commentId: comment1_2.id,
+      userId: andrewSmith.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.vote.create({
+    data: {
+      commentId: comment1_2.id,
+      userId: sarahJohnson.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.vote.create({
+    data: {
+      commentId: comment1_2.id,
+      userId: johnSorenson.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.vote.create({
+    data: {
+      commentId: comment1_2.id,
+      userId: aliceSmith.id,
+      voteType: 'DOWN',
     },
   });
 
@@ -314,6 +411,7 @@ async function main() {
   console.log(`Created ${await prisma.customer.count()} customers`);
   console.log(`Created ${await prisma.case.count()} cases`);
   console.log(`Created ${await prisma.comment.count()} comments`);
+  console.log(`Created ${await prisma.vote.count()} votes`);
 }
 
 main()
