@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/obra';
-import { ReactionStatistics } from '@/components/common/ReactionStatistics';
+import { VoteButton } from '@/components/common/VoteButton';
 import type { CaseCommentsProps } from './types';
 
 export function CaseComments({ caseData }: CaseCommentsProps) {
@@ -202,15 +202,24 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
                   </div>
                 </div>
                 <p className="text-sm text-gray-700">{comment.content}</p>
-                <ReactionStatistics
-                  userVote={userVoteType}
-                  upvotes={upvotes.length}
-                  upvoters={upvoters}
-                  downvotes={downvotes.length}
-                  downvoters={downvoters}
-                  onUpvote={() => voteMutation.mutate({ commentId: comment.id, voteType: 'UP' })}
-                  onDownvote={() => voteMutation.mutate({ commentId: comment.id, voteType: 'DOWN' })}
-                />
+                <div className="inline-flex items-center gap-2">
+                  <VoteButton
+                    type="up"
+                    active={userVoteType === 'up'}
+                    showCount={true}
+                    count={upvotes.length}
+                    voters={upvoters}
+                    onClick={() => voteMutation.mutate({ commentId: comment.id, voteType: 'UP' })}
+                  />
+                  <VoteButton
+                    type="down"
+                    active={userVoteType === 'down'}
+                    showCount={true}
+                    count={downvotes.length}
+                    voters={downvoters}
+                    onClick={() => voteMutation.mutate({ commentId: comment.id, voteType: 'DOWN' })}
+                  />
+                </div>
               </div>
             );
           })
