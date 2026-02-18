@@ -7,6 +7,27 @@ describe('CaseComments', () => {
   it('renders without crashing', () => {
     const mockCaseData = {
       id: '1',
+      title: 'Test Case',
+      description: 'Test Description',
+      status: 'TO_DO' as const,
+      priority: 'MEDIUM' as const,
+      customerId: 'customer1',
+      createdBy: 'user1',
+      assignedTo: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      customer: {
+        id: 'customer1',
+        firstName: 'John',
+        lastName: 'Doe',
+      },
+      creator: {
+        id: 'user1',
+        firstName: 'Jane',
+        lastName: 'Smith',
+        email: 'jane@example.com',
+      },
+      assignee: null,
       comments: [],
     };
     
