@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { router, publicProcedure } from './trpc.js';
-import { formatDate, casePrioritySchema, caseStatusSchema } from '@carton/shared';
+import { formatDate, casePrioritySchema, caseStatusSchema, VoteTypeSchema } from '@carton/shared';
 import { TRPCError } from '@trpc/server';
 
 export const appRouter = router({
@@ -277,7 +277,7 @@ export const appRouter = router({
         });
       }),
     getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-      return ctx.prisma.case.findUnique({
+      const caseData = await ctx.prisma.case.findUnique({
         where: { id: input.id },
         include: {
           customer: {
@@ -313,6 +313,17 @@ export const appRouter = router({
                   email: true,
                 },
               },
+              votes: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
             },
             orderBy: {
               createdAt: 'desc',
@@ -320,6 +331,8 @@ export const appRouter = router({
           },
         },
       });
+
+      return caseData;
     }),
     create: publicProcedure
       .input(
@@ -399,6 +412,63 @@ export const appRouter = router({
             },
           },
         });
+      }),
+    vote: publicProcedure
+      .input(
+        z.object({
+          commentId: z.string(),
+          voteType: VoteTypeSchema,
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated',
+          });
+        }
+
+        // Upsert: if user already voted, update the vote; otherwise create new vote
+        return ctx.prisma.commentVote.upsert({
+          where: {
+            commentId_userId: {
+              commentId: input.commentId,
+              userId: ctx.userId,
+            },
+          },
+          update: {
+            voteType: input.voteType,
+          },
+          create: {
+            commentId: input.commentId,
+            userId: ctx.userId,
+            voteType: input.voteType,
+          },
+        });
+      }),
+    removeVote: publicProcedure
+      .input(
+        z.object({
+          commentId: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated',
+          });
+        }
+
+        // Delete the vote if it exists
+        await ctx.prisma.commentVote.deleteMany({
+          where: {
+            commentId: input.commentId,
+            userId: ctx.userId,
+          },
+        });
+
+        return { success: true };
       }),
   }),
 });
