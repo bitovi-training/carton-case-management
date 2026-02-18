@@ -335,10 +335,11 @@ export const appRouter = router({
       // Transform comments to include vote aggregations
       if (caseData) {
         const commentsWithVotes = caseData.comments.map((comment) => {
-          const upvotes = comment.votes.filter((v) => v.voteType === 'UP');
-          const downvotes = comment.votes.filter((v) => v.voteType === 'DOWN');
+          const votes = comment.votes || [];
+          const upvotes = votes.filter((v) => v.voteType === 'UP');
+          const downvotes = votes.filter((v) => v.voteType === 'DOWN');
           const userVote = ctx.userId
-            ? comment.votes.find((v) => v.userId === ctx.userId)
+            ? votes.find((v) => v.userId === ctx.userId)
             : null;
 
           return {
