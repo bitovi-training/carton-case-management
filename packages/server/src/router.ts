@@ -401,6 +401,98 @@ export const appRouter = router({
         });
       }),
   }),
+
+  commentVote: router({
+    vote: publicProcedure
+      .input(
+        z.object({
+          commentId: z.string(),
+          voteType: z.enum(['UP', 'DOWN']),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated',
+          });
+        }
+
+        // Check if user already voted on this comment
+        const existingVote = await ctx.prisma.commentVote.findUnique({
+          where: {
+            commentId_userId: {
+              commentId: input.commentId,
+              userId: ctx.userId,
+            },
+          },
+        });
+
+        // If same vote type, remove the vote (toggle off)
+        if (existingVote?.voteType === input.voteType) {
+          await ctx.prisma.commentVote.delete({
+            where: {
+              id: existingVote.id,
+            },
+          });
+          return { action: 'removed' as const, voteType: input.voteType };
+        }
+
+        // Otherwise, upsert the vote (create or update to new type)
+        await ctx.prisma.commentVote.upsert({
+          where: {
+            commentId_userId: {
+              commentId: input.commentId,
+              userId: ctx.userId,
+            },
+          },
+          create: {
+            commentId: input.commentId,
+            userId: ctx.userId,
+            voteType: input.voteType,
+          },
+          update: {
+            voteType: input.voteType,
+          },
+        });
+
+        return { action: 'voted' as const, voteType: input.voteType };
+      }),
+
+    getVoteStats: publicProcedure
+      .input(z.object({ commentId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const votes = await ctx.prisma.commentVote.findMany({
+          where: { commentId: input.commentId },
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        });
+
+        const upvotes = votes.filter((v) => v.voteType === 'UP');
+        const downvotes = votes.filter((v) => v.voteType === 'DOWN');
+
+        const currentUserVote = ctx.userId
+          ? votes.find((v) => v.userId === ctx.userId)
+          : null;
+
+        return {
+          upvoteCount: upvotes.length,
+          downvoteCount: downvotes.length,
+          upvoters: upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
+          downvoters: downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
+          userVote: currentUserVote?.voteType === 'UP' ? ('up' as const) : 
+                    currentUserVote?.voteType === 'DOWN' ? ('down' as const) : 
+                    ('none' as const),
+        };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
