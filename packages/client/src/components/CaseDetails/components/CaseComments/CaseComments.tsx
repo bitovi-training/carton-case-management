@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/obra';
+import { ReactionStatistics } from '@/components/common/ReactionStatistics';
 import type { CaseCommentsProps } from './types';
 
 export function CaseComments({ caseData }: CaseCommentsProps) {
@@ -94,33 +95,153 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
       </form>
       <div className="flex flex-col gap-4 md:overflow-y-auto md:flex-1 md:min-h-0">
         {caseData.comments && caseData.comments.length > 0 ? (
-          caseData.comments.map((comment) => (
-            <div key={comment.id} className="flex flex-col gap-2 py-2">
-              <div className="flex gap-2 items-center">
-                <div className="w-10 flex items-center justify-center text-sm font-semibold text-gray-900">
-                  {comment.author.firstName[0]}{comment.author.lastName[0]}
-                </div>
-                <div className="flex flex-col">
-                  <p className="text-sm font-medium">{comment.author.firstName} {comment.author.lastName}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(comment.createdAt).toLocaleString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true,
-                    })}
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-700">{comment.content}</p>
-            </div>
-          ))
+          caseData.comments.map((comment) => <CommentItem key={comment.id} comment={comment} />)
         ) : (
           <div className="text-sm text-gray-500">No comments yet</div>
         )}
       </div>
+    </div>
+  );
+}
+
+interface CommentItemProps {
+  comment: {
+    id: string;
+    content: string;
+    createdAt: string;
+    author: {
+      firstName: string;
+      lastName: string;
+    };
+  };
+}
+
+function CommentItem({ comment }: CommentItemProps) {
+  const utils = trpc.useUtils();
+  
+  // Fetch vote stats for this comment
+  const { data: voteStats } = trpc.commentVote.getVoteStats.useQuery({
+    commentId: comment.id,
+  });
+
+  // Vote mutation
+  const voteMutation = trpc.commentVote.vote.useMutation({
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await utils.commentVote.getVoteStats.cancel({ commentId: comment.id });
+
+      // Snapshot previous value
+      const previousStats = utils.commentVote.getVoteStats.getData({ commentId: comment.id });
+
+      // Optimistically update vote stats
+      if (previousStats) {
+        const currentVote = previousStats.userVote;
+        const newVoteType = variables.voteType;
+
+        let newUserVote: 'none' | 'up' | 'down' = 'none';
+        let newUpvoteCount = previousStats.upvoteCount;
+        let newDownvoteCount = previousStats.downvoteCount;
+
+        // If clicking same vote type, remove it (toggle off)
+        if (
+          (currentVote === 'up' && newVoteType === 'UP') ||
+          (currentVote === 'down' && newVoteType === 'DOWN')
+        ) {
+          newUserVote = 'none';
+          if (newVoteType === 'UP') {
+            newUpvoteCount = Math.max(0, newUpvoteCount - 1);
+          } else {
+            newDownvoteCount = Math.max(0, newDownvoteCount - 1);
+          }
+        } else {
+          // Switching to a new vote or voting for the first time
+          newUserVote = newVoteType === 'UP' ? 'up' : 'down';
+
+          // Remove old vote counts if switching
+          if (currentVote === 'up') {
+            newUpvoteCount = Math.max(0, newUpvoteCount - 1);
+          } else if (currentVote === 'down') {
+            newDownvoteCount = Math.max(0, newDownvoteCount - 1);
+          }
+
+          // Add new vote counts
+          if (newVoteType === 'UP') {
+            newUpvoteCount += 1;
+          } else {
+            newDownvoteCount += 1;
+          }
+        }
+
+        utils.commentVote.getVoteStats.setData(
+          { commentId: comment.id },
+          {
+            ...previousStats,
+            userVote: newUserVote,
+            upvoteCount: newUpvoteCount,
+            downvoteCount: newDownvoteCount,
+          }
+        );
+      }
+
+      return { previousStats };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      if (context?.previousStats) {
+        utils.commentVote.getVoteStats.setData(
+          { commentId: comment.id },
+          context.previousStats
+        );
+      }
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      utils.commentVote.getVoteStats.invalidate({ commentId: comment.id });
+    },
+  });
+
+  const handleUpvote = () => {
+    voteMutation.mutate({ commentId: comment.id, voteType: 'UP' });
+  };
+
+  const handleDownvote = () => {
+    voteMutation.mutate({ commentId: comment.id, voteType: 'DOWN' });
+  };
+
+  return (
+    <div className="flex flex-col gap-2 py-2">
+      <div className="flex gap-2 items-center">
+        <div className="w-10 flex items-center justify-center text-sm font-semibold text-gray-900">
+          {comment.author.firstName[0]}{comment.author.lastName[0]}
+        </div>
+        <div className="flex flex-col">
+          <p className="text-sm font-medium">
+            {comment.author.firstName} {comment.author.lastName}
+          </p>
+          <p className="text-xs text-gray-500">
+            {new Date(comment.createdAt).toLocaleString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true,
+            })}
+          </p>
+        </div>
+      </div>
+      <p className="text-sm text-gray-700">{comment.content}</p>
+      {voteStats && (
+        <ReactionStatistics
+          userVote={voteStats.userVote}
+          upvotes={voteStats.upvoteCount}
+          upvoters={voteStats.upvoters}
+          downvotes={voteStats.downvoteCount}
+          downvoters={voteStats.downvoters}
+          onUpvote={handleUpvote}
+          onDownvote={handleDownvote}
+        />
+      )}
     </div>
   );
 }
