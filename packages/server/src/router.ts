@@ -401,6 +401,138 @@ export const appRouter = router({
         });
       }),
   }),
+
+  // Vote routes
+  vote: router({
+    // Cast or change a vote on a comment
+    vote: publicProcedure
+      .input(
+        z.object({
+          commentId: z.string(),
+          voteType: z.enum(['UP', 'DOWN']),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated',
+          });
+        }
+
+        // Check if user already voted on this comment
+        const existingVote = await ctx.prisma.vote.findUnique({
+          where: {
+            userId_commentId: {
+              userId: ctx.userId,
+              commentId: input.commentId,
+            },
+          },
+        });
+
+        // If user already voted with same type, remove vote (toggle off)
+        if (existingVote && existingVote.voteType === input.voteType) {
+          await ctx.prisma.vote.delete({
+            where: { id: existingVote.id },
+          });
+          return { action: 'removed', voteType: input.voteType };
+        }
+
+        // Otherwise, upsert the vote (create or update to new type)
+        await ctx.prisma.vote.upsert({
+          where: {
+            userId_commentId: {
+              userId: ctx.userId,
+              commentId: input.commentId,
+            },
+          },
+          create: {
+            userId: ctx.userId,
+            commentId: input.commentId,
+            voteType: input.voteType,
+          },
+          update: {
+            voteType: input.voteType,
+          },
+        });
+
+        return { action: 'voted', voteType: input.voteType };
+      }),
+
+    // Get vote statistics for a comment
+    getCommentVotes: publicProcedure
+      .input(z.object({ commentId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const votes = await ctx.prisma.vote.findMany({
+          where: { commentId: input.commentId },
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        });
+
+        const upvotes = votes.filter((v) => v.voteType === 'UP');
+        const downvotes = votes.filter((v) => v.voteType === 'DOWN');
+
+        // Get current user's vote if authenticated
+        const userVote = ctx.userId
+          ? votes.find((v) => v.userId === ctx.userId)?.voteType
+          : null;
+
+        return {
+          upvotes: upvotes.length,
+          downvotes: downvotes.length,
+          upvoters: upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
+          downvoters: downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
+          userVote: userVote ? (userVote === 'UP' ? 'up' : 'down') : 'none',
+        };
+      }),
+
+    // Get votes for multiple comments (batch query for case details)
+    getBatchCommentVotes: publicProcedure
+      .input(z.object({ commentIds: z.array(z.string()) }))
+      .query(async ({ ctx, input }) => {
+        const votes = await ctx.prisma.vote.findMany({
+          where: { commentId: { in: input.commentIds } },
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        });
+
+        // Group votes by commentId
+        const votesByComment = input.commentIds.reduce((acc, commentId) => {
+          const commentVotes = votes.filter((v) => v.commentId === commentId);
+          const upvotes = commentVotes.filter((v) => v.voteType === 'UP');
+          const downvotes = commentVotes.filter((v) => v.voteType === 'DOWN');
+          const userVote = ctx.userId
+            ? commentVotes.find((v) => v.userId === ctx.userId)?.voteType
+            : null;
+
+          acc[commentId] = {
+            upvotes: upvotes.length,
+            downvotes: downvotes.length,
+            upvoters: upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
+            downvoters: downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
+            userVote: userVote ? (userVote === 'UP' ? 'up' : 'down') : 'none',
+          };
+
+          return acc;
+        }, {} as Record<string, { upvotes: number; downvotes: number; upvoters: string[]; downvoters: string[]; userVote: 'up' | 'down' | 'none' }>);
+
+        return votesByComment;
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
