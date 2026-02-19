@@ -1,7 +1,7 @@
 FROM node:24-bookworm
 
 ENV NODE_ENV=development
-ENV DATABASE_URL=file:./prisma/dev.db
+ENV DATABASE_URL=file:./db/dev.db
 
 # Install system dependencies and Playwright dependencies
 RUN apt-get update && apt-get install -y \
@@ -91,8 +91,8 @@ COPY packages/ ./packages/
 #COPY packages/shared/prisma/* ./packages/shared/prisma/
 #COPY packages/client/* ./packages/client/
 
-RUN npm install && npm run setup
+RUN npm run setup
 
 EXPOSE 5173 3001
 
-CMD sh -c "npm run setup && npm run dev"
+CMD sh -c "npm run dev"
