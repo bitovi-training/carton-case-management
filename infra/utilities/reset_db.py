@@ -20,12 +20,12 @@ parser.add_argument("--environment",
 client = boto3.client('ecs')
 
 def main(environment: str) -> None:
-        """
-        This function simply retrieves the ECS Task Name and runs `npn run db:setup` on the
-        task's container.
-        
-        environment: str: 
-        """
+    """
+    This function simply retrieves the ECS Task Name and runs `npn run db:setup` on the
+    task's container.
+    
+    environment: str: 
+    """
     cluster_name = "carton-case-management-cluster"
     service_name = f"carton-case-mgmt-{environment}-service"
     task = client.list_tasks(cluster=cluster_name, serviceName=service_name)["taskArns"][0]
