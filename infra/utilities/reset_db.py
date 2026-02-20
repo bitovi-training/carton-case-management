@@ -17,7 +17,7 @@ parser.add_argument("--environment",
                     help = "Environment to reset -- Either production or staging",
                     default = "staging")
 
-client = boto3.client('ecs')
+client = boto3.client('ecs', region_name="us-east-2")
 
 def main(environment: str) -> None:
     """
