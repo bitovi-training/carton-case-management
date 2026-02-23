@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/obra';
+import { toast } from '@/components/obra/Toast';
 import type { CaseCommentsProps } from './types';
 
 export function CaseComments({ caseData }: CaseCommentsProps) {
@@ -49,12 +50,16 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
       return { previousCase };
     },
     onError: (_err, _variables, context) => {
+      toast.error('Failed to add comment', {
+        description: 'Please try again',
+      });
       // Rollback on error
       if (context?.previousCase) {
         utils.case.getById.setData({ id: caseData.id }, context.previousCase);
       }
     },
     onSuccess: () => {
+      toast.success('Comment added successfully');
       // Clear input on success
       setNewComment('');
     },

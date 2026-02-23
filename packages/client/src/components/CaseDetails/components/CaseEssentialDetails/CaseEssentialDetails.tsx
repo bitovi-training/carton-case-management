@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/obra/Button';
 import { EditableSelect } from '@/components/inline-edit';
 import { trpc } from '@/lib/trpc';
+import { toast } from '@/components/obra/Toast';
 import { type CasePriority, CASE_PRIORITY_OPTIONS } from '@carton/shared/client';
 import type { CaseEssentialDetailsProps } from './types';
 
@@ -36,9 +37,13 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
     onSuccess: () => {
       trpcUtils.case.getById.invalidate({ id: caseId });
       trpcUtils.case.list.invalidate();
+      toast.success('Case updated successfully');
     },
     onError: (error, _variables, context) => {
       console.error('Failed to update case:', error);
+      toast.error('Failed to update case', {
+        description: error.message || 'Please try again',
+      });
       // Roll back to previous value on error
       if (context?.previousCase) {
         trpcUtils.case.getById.setData({ id: caseId }, context.previousCase);

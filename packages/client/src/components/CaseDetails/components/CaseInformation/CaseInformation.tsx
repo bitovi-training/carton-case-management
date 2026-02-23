@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MoreVertical, Trash } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/obra/Button';
+import { toast } from '@/components/obra/Toast';
 import { formatCaseNumber, type CaseStatus, CASE_STATUS_OPTIONS } from '@carton/shared/client';
 import { EditableTitle, EditableTextarea } from '@/components/inline-edit';
 import {
@@ -45,9 +46,13 @@ export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
     onSuccess: () => {
       utils.case.getById.invalidate({ id: caseId });
       utils.case.list.invalidate();
+      toast.success('Case updated successfully');
     },
     onError: (error, _variables, context) => {
       console.error('Failed to update case:', error);
+      toast.error('Failed to update case', {
+        description: error.message || 'Please try again',
+      });
       // Roll back to previous value on error
       if (context?.previousCase) {
         utils.case.getById.setData({ id: caseId }, context.previousCase);
@@ -58,10 +63,14 @@ export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
   const deleteCase = trpc.case.delete.useMutation({
     onSuccess: () => {
       utils.case.list.invalidate();
+      toast.success('Case deleted successfully');
       navigate('/cases');
     },
     onError: (error) => {
       console.error('Failed to delete case:', error);
+      toast.error('Failed to delete case', {
+        description: error.message || 'Please try again',
+      });
       setIsDeleteDialogOpen(false);
     },
   });
