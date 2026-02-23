@@ -460,7 +460,6 @@ export const appRouter = router({
             },
             data: {
               voteType,
-              updatedAt: new Date(),
             },
           });
           return { action: 'switched', voteType, from: existingVote.voteType };
