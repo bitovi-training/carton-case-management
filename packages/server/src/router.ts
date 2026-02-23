@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { router, publicProcedure } from './trpc.js';
 import { formatDate, casePrioritySchema, caseStatusSchema } from '@carton/shared';
 import { TRPCError } from '@trpc/server';
+import { VoteType } from '@prisma/client';
 
 export const appRouter = router({
   health: publicProcedure.query(() => {
@@ -313,6 +314,17 @@ export const appRouter = router({
                   email: true,
                 },
               },
+              votes: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
             },
             orderBy: {
               createdAt: 'desc',
@@ -399,6 +411,65 @@ export const appRouter = router({
             },
           },
         });
+      }),
+    vote: publicProcedure
+      .input(
+        z.object({
+          commentId: z.string(),
+          voteType: z.enum(['UP', 'DOWN']),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated',
+          });
+        }
+
+        // Check if user already has a vote on this comment
+        const existingVote = await ctx.prisma.commentVote.findUnique({
+          where: {
+            commentId_userId: {
+              commentId: input.commentId,
+              userId: ctx.userId,
+            },
+          },
+        });
+
+        // If existing vote is the same type, remove it (toggle behavior)
+        if (existingVote && existingVote.voteType === input.voteType) {
+          await ctx.prisma.commentVote.delete({
+            where: {
+              id: existingVote.id,
+            },
+          });
+          return { action: 'removed', voteType: input.voteType };
+        }
+
+        // If existing vote is different type, update it
+        if (existingVote && existingVote.voteType !== input.voteType) {
+          await ctx.prisma.commentVote.update({
+            where: {
+              id: existingVote.id,
+            },
+            data: {
+              voteType: input.voteType as VoteType,
+            },
+          });
+          return { action: 'updated', voteType: input.voteType };
+        }
+
+        // No existing vote, create new one
+        await ctx.prisma.commentVote.create({
+          data: {
+            commentId: input.commentId,
+            userId: ctx.userId,
+            voteType: input.voteType as VoteType,
+          },
+        });
+
+        return { action: 'created', voteType: input.voteType };
       }),
   }),
 });
