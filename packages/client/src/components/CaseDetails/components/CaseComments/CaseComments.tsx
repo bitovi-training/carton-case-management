@@ -106,6 +106,9 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
                   id: `temp-${Date.now()}`,
                   voteType,
                   userId: currentUser.id,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                  commentId: comment.id,
                   user: {
                     id: currentUser.id,
                     firstName: currentUser.firstName,
