@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CheckCircle } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
+import { useToast } from '@/lib/toast';
 import { Button } from '@/components/obra/Button';
 import { Input } from '@/components/obra/Input';
 import { Textarea } from '@/components/obra';
@@ -23,6 +25,7 @@ type ValidationErrors = {
 export function CreateCasePage() {
   const navigate = useNavigate();
   const utils = trpc.useUtils();
+  const { showToast } = useToast();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [customerId, setCustomerId] = useState('');
@@ -42,6 +45,12 @@ export function CreateCasePage() {
   const createCase = trpc.case.create.useMutation({
     onSuccess: (data) => {
       utils.case.list.invalidate();
+      showToast({
+        type: 'Success',
+        title: 'Success!',
+        description: 'A new claim has been created.',
+        icon: <CheckCircle className="h-4 w-4" />,
+      });
       navigate(`/cases/${data.id}`);
     },
   });

@@ -6,7 +6,7 @@ export interface AlertProps {
    * @default 'Neutral'
    * @figma Variant: Type
    */
-  type?: 'Neutral' | 'Error';
+  type?: 'Neutral' | 'Error' | 'Success';
   
   /**
    * Primary alert text (Line 1)

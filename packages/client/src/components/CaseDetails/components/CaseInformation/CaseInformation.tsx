@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MoreVertical, Trash } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
+import { useToast } from '@/lib/toast';
 import { Button } from '@/components/obra/Button';
 import { formatCaseNumber, type CaseStatus, CASE_STATUS_OPTIONS } from '@carton/shared/client';
 import { EditableTitle, EditableTextarea } from '@/components/inline-edit';
@@ -19,6 +20,7 @@ import type { CaseInformationProps } from './types';
 export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const utils = trpc.useUtils();
   const updateCase = trpc.case.update.useMutation({
@@ -58,6 +60,12 @@ export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
   const deleteCase = trpc.case.delete.useMutation({
     onSuccess: () => {
       utils.case.list.invalidate();
+      showToast({
+        type: 'Error',
+        title: 'Deleted',
+        description: `"${caseData.title}" case has been successfully deleted.`,
+        icon: <Trash className="h-4 w-4" />,
+      });
       navigate('/cases');
     },
     onError: (error) => {

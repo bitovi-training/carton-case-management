@@ -19,12 +19,21 @@ export function Alert({
       text: 'text-foreground',
       description: 'text-muted-foreground',
       icon: '',
+      indicator: '',
     },
     Error: {
-      container: 'bg-card border-border',
+      container: 'bg-card border-border border-l-4 border-l-destructive',
       text: 'text-destructive-foreground',
       description: 'text-destructive-foreground',
       icon: 'text-destructive-foreground',
+      indicator: 'border-l-destructive',
+    },
+    Success: {
+      container: 'bg-card border-border',
+      text: 'text-foreground',
+      description: 'text-muted-foreground',
+      icon: 'text-green-600',
+      indicator: '',
     },
   };
 
