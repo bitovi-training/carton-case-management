@@ -277,7 +277,7 @@ export const appRouter = router({
         });
       }),
     getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-      return ctx.prisma.case.findUnique({
+      const caseData = await ctx.prisma.case.findUnique({
         where: { id: input.id },
         include: {
           customer: {
@@ -313,6 +313,17 @@ export const appRouter = router({
                   email: true,
                 },
               },
+              votes: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
             },
             orderBy: {
               createdAt: 'desc',
@@ -320,6 +331,33 @@ export const appRouter = router({
           },
         },
       });
+
+      if (!caseData) {
+        return null;
+      }
+
+      // Enrich comments with vote statistics
+      const enrichedComments = caseData.comments.map((comment) => {
+        const upvotes = comment.votes.filter((v) => v.voteType === 'UP');
+        const downvotes = comment.votes.filter((v) => v.voteType === 'DOWN');
+        const userVote = ctx.userId
+          ? comment.votes.find((v) => v.userId === ctx.userId)
+          : null;
+
+        return {
+          ...comment,
+          upvoteCount: upvotes.length,
+          downvoteCount: downvotes.length,
+          userVoteType: userVote?.voteType ?? null,
+          upvoters: upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
+          downvoters: downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
+        };
+      });
+
+      return {
+        ...caseData,
+        comments: enrichedComments,
+      };
     }),
     create: publicProcedure
       .input(
@@ -399,6 +437,68 @@ export const appRouter = router({
             },
           },
         });
+      }),
+  }),
+
+  // Vote routes
+  vote: router({
+    toggle: publicProcedure
+      .input(
+        z.object({
+          commentId: z.string(),
+          voteType: z.enum(['UP', 'DOWN']),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated',
+          });
+        }
+
+        // Check if user has already voted on this comment
+        const existingVote = await ctx.prisma.vote.findUnique({
+          where: {
+            commentId_userId: {
+              commentId: input.commentId,
+              userId: ctx.userId,
+            },
+          },
+        });
+
+        // If same vote type, remove vote (toggle off)
+        if (existingVote?.voteType === input.voteType) {
+          await ctx.prisma.vote.delete({
+            where: {
+              id: existingVote.id,
+            },
+          });
+          return { action: 'removed' as const };
+        }
+
+        // If different vote type, update vote (switch)
+        if (existingVote && existingVote.voteType !== input.voteType) {
+          await ctx.prisma.vote.update({
+            where: {
+              id: existingVote.id,
+            },
+            data: {
+              voteType: input.voteType,
+            },
+          });
+          return { action: 'switched' as const };
+        }
+
+        // No existing vote, create new vote
+        await ctx.prisma.vote.create({
+          data: {
+            commentId: input.commentId,
+            userId: ctx.userId,
+            voteType: input.voteType,
+          },
+        });
+        return { action: 'added' as const };
       }),
   }),
 });
