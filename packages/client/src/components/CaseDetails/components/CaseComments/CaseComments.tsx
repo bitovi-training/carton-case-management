@@ -97,7 +97,7 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
             newVotes = [
               ...newVotes,
               {
-                id: `temp-${Date.now()}`,
+                id: `temp-${Date.now()}-${Math.random()}`,
                 commentId: comment.id,
                 userId: currentUser.id,
                 voteType: variables.voteType,
@@ -125,7 +125,7 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
       if (context?.previousCase) {
         utils.case.getById.setData({ id: caseData.id }, context.previousCase);
       }
-      alert('Failed to save vote. Please try again.');
+      alert('Failed to save vote due to a server error. Please try again.');
     },
     onSettled: () => {
       // Refetch to sync with server

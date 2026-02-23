@@ -3,7 +3,6 @@ import { router, publicProcedure } from './trpc.js';
 import { formatDate, casePrioritySchema, caseStatusSchema } from '@carton/shared';
 import { TRPCError } from '@trpc/server';
 
-// Vote type enum
 const voteTypeSchema = z.enum(['UP', 'DOWN']);
 
 export const appRouter = router({
@@ -468,26 +467,6 @@ export const appRouter = router({
           },
         });
         return { action: 'created', voteType };
-      }),
-
-    removeVote: publicProcedure
-      .input(z.object({ commentId: z.string() }))
-      .mutation(async ({ ctx, input }) => {
-        if (!ctx.userId) {
-          throw new TRPCError({
-            code: 'UNAUTHORIZED',
-            message: 'Not authenticated',
-          });
-        }
-
-        await ctx.prisma.commentVote.deleteMany({
-          where: {
-            commentId: input.commentId,
-            userId: ctx.userId,
-          },
-        });
-
-        return { success: true };
       }),
   }),
 });
