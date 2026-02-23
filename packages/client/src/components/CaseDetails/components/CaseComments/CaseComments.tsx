@@ -2,11 +2,13 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/obra';
+import { useToast } from '@/components/Toaster';
 import type { CaseCommentsProps } from './types';
 
 export function CaseComments({ caseData }: CaseCommentsProps) {
   const [newComment, setNewComment] = useState('');
   const utils = trpc.useUtils();
+  const toast = useToast();
 
   // Fetch first user to use as current user (in production this would come from auth)
   const { data: users } = trpc.user.list.useQuery();
@@ -53,10 +55,12 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
       if (context?.previousCase) {
         utils.case.getById.setData({ id: caseData.id }, context.previousCase);
       }
+      toast.error('Failed to add comment', 'Please try again.');
     },
     onSuccess: () => {
       // Clear input on success
       setNewComment('');
+      toast.success('Comment added');
     },
     onSettled: () => {
       // Refetch to sync with server

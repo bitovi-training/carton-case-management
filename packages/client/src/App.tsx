@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { FolderClosed, Users, Bot } from 'lucide-react';
 import { Header } from './components/Header';
 import { MenuList } from './components/MenuList';
+import { Toaster } from './components/Toaster';
 import { CasePage } from './pages/CasePage';
 import { CustomerPage } from './pages/CustomerPage';
 import { UserPage } from './pages/UserPage';
@@ -48,6 +49,7 @@ function App() {
 
   return (
     <div className="h-screen bg-[#dfe2e2] flex flex-col">
+      <Toaster position="bottom-right" />
       <Header userInitials={userInitials} />
       <MenuList items={menuItems} />
       <div className="flex flex-1 overflow-hidden lg:pl-[68px]">

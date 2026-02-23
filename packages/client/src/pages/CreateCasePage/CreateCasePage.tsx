@@ -13,6 +13,7 @@ import {
 } from '@/components/obra/Select';
 import { type CasePriority, CASE_PRIORITY_OPTIONS } from '@carton/shared/client';
 import { Label } from '@/components/obra/Label';
+import { useToast } from '@/components/Toaster';
 
 type ValidationErrors = {
   title?: string;
@@ -23,6 +24,7 @@ type ValidationErrors = {
 export function CreateCasePage() {
   const navigate = useNavigate();
   const utils = trpc.useUtils();
+  const toast = useToast();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [customerId, setCustomerId] = useState('');
@@ -42,7 +44,11 @@ export function CreateCasePage() {
   const createCase = trpc.case.create.useMutation({
     onSuccess: (data) => {
       utils.case.list.invalidate();
+      toast.success('Case created successfully', `Case #${data.caseNumber} has been created`);
       navigate(`/cases/${data.id}`);
+    },
+    onError: (error) => {
+      toast.error('Failed to create case', error.message || 'An unexpected error occurred. Please try again.');
     },
   });
 
@@ -80,7 +86,7 @@ export function CreateCasePage() {
     }
 
     if (!defaultUser) {
-      alert('Default user (Alex Morgan) not found. Please ensure the database is seeded correctly.');
+      toast.error('Default user not found', 'Please ensure the database is seeded correctly.');
       return;
     }
 
@@ -235,12 +241,6 @@ export function CreateCasePage() {
             Cancel
           </Button>
         </div>
-
-        {createCase.isError && (
-          <div className="text-red-600 text-sm p-3 bg-red-50 rounded border border-red-200">
-            Failed to create case. Please ensure all required fields are filled correctly.
-          </div>
-        )}
       </form>
     </div>
   );

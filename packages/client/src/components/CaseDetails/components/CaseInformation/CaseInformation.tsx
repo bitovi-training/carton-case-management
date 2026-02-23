@@ -14,11 +14,13 @@ import {
 import { MoreOptionsMenu, MenuItem } from '@/components/common/MoreOptionsMenu';
 import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/components/Toaster';
 import type { CaseInformationProps } from './types';
 
 export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const toast = useToast();
 
   const utils = trpc.useUtils();
   const updateCase = trpc.case.update.useMutation({
@@ -45,6 +47,7 @@ export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
     onSuccess: () => {
       utils.case.getById.invalidate({ id: caseId });
       utils.case.list.invalidate();
+      toast.success('Case updated');
     },
     onError: (error, _variables, context) => {
       console.error('Failed to update case:', error);
@@ -52,16 +55,19 @@ export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
       if (context?.previousCase) {
         utils.case.getById.setData({ id: caseId }, context.previousCase);
       }
+      toast.error('Failed to update case', error.message || 'Please try again.');
     },
   });
 
   const deleteCase = trpc.case.delete.useMutation({
     onSuccess: () => {
       utils.case.list.invalidate();
+      toast.success('Case deleted');
       navigate('/cases');
     },
     onError: (error) => {
       console.error('Failed to delete case:', error);
+      toast.error('Failed to delete case', error.message || 'Please try again.');
       setIsDeleteDialogOpen(false);
     },
   });
