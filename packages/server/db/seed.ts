@@ -5,6 +5,7 @@ async function main() {
   console.log('Clearing existing data...');
 
   // Delete all existing data in correct order (respecting foreign keys)
+  await prisma.commentVote.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.case.deleteMany();
   await prisma.customer.deleteMany();
@@ -151,7 +152,7 @@ async function main() {
     },
   });
 
-  await prisma.comment.create({
+  const comment1 = await prisma.comment.create({
     data: {
       content:
         'Customer is seeking housing assistance after job loss. Currently in temporary housing. Need to contact Housing First program coordinator.',
@@ -161,7 +162,7 @@ async function main() {
     },
   });
 
-  await prisma.comment.create({
+  const comment2 = await prisma.comment.create({
     data: {
       content:
         'Following up on the housing assistance application. Will contact the Housing First program coordinator.',
@@ -294,12 +295,89 @@ async function main() {
     },
   });
 
+  // Create some comment votes to demonstrate voting feature
+  console.log('Adding comment votes...');
+
+  // Vote on first comment (3 upvotes, 1 downvote matching screenshot)
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment1.id,
+      userId: alexMorgan.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment1.id,
+      userId: sarahJohnson.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment1.id,
+      userId: emilyBrown.id,
+      voteType: 'UP',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment1.id,
+      userId: bobWilliams.id,
+      voteType: 'DOWN',
+    },
+  });
+
+  // Vote on second comment (5 downvotes matching screenshot pattern)
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2.id,
+      userId: aliceSmith.id,
+      voteType: 'DOWN',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2.id,
+      userId: bobWilliams.id,
+      voteType: 'DOWN',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2.id,
+      userId: johnSorenson.id,
+      voteType: 'DOWN',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2.id,
+      userId: emilyBrown.id,
+      voteType: 'DOWN',
+    },
+  });
+
+  await prisma.commentVote.create({
+    data: {
+      commentId: comment2.id,
+      userId: alexMorgan.id,
+      voteType: 'DOWN',
+    },
+  });
 
   console.log('Seeding completed!');
   console.log(`Created ${await prisma.user.count()} users`);
   console.log(`Created ${await prisma.customer.count()} customers`);
   console.log(`Created ${await prisma.case.count()} cases`);
   console.log(`Created ${await prisma.comment.count()} comments`);
+  console.log(`Created ${await prisma.commentVote.count()} comment votes`);
 }
 
 main()
