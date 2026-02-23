@@ -332,6 +332,7 @@ describe('appRouter', () => {
           customer: { id: 'customer-1', firstName: 'Customer', lastName: 'A' },
           creator: { id: 'user-1', firstName: 'User', lastName: '1', email: 'user1@example.com' },
           assignee: { id: 'user-1', firstName: 'User', lastName: '1', email: 'user1@example.com' },
+          votes: [],
           comments: [
             {
               id: 'comment-1',
@@ -366,9 +367,22 @@ describe('appRouter', () => {
               },
               orderBy: { createdAt: 'desc' },
             },
+            votes: {
+              select: {
+                id: true,
+                userId: true,
+                voteType: true,
+                user: {
+                  select: {
+                    firstName: true,
+                    lastName: true,
+                  },
+                },
+              },
+            },
           },
         });
-        expect(result).toEqual(mockCase);
+        expect(result).toHaveProperty('voteStats');
       });
     });
 

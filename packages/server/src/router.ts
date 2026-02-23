@@ -338,19 +338,20 @@ export const appRouter = router({
         return null;
       }
 
-      // Calculate vote statistics
-      const upvotes = caseData.votes.filter((v) => v.voteType === 'UP').length;
-      const downvotes = caseData.votes.filter((v) => v.voteType === 'DOWN').length;
-      const upvoters = caseData.votes
+      // Calculate vote statistics (handle cases where votes might not be included)
+      const votes = caseData.votes || [];
+      const upvotes = votes.filter((v) => v.voteType === 'UP').length;
+      const downvotes = votes.filter((v) => v.voteType === 'DOWN').length;
+      const upvoters = votes
         .filter((v) => v.voteType === 'UP')
         .map((v) => `${v.user.firstName} ${v.user.lastName}`);
-      const downvoters = caseData.votes
+      const downvoters = votes
         .filter((v) => v.voteType === 'DOWN')
         .map((v) => `${v.user.firstName} ${v.user.lastName}`);
 
       // Determine user's vote
       const userVote: 'none' | 'up' | 'down' = ctx.userId
-        ? (caseData.votes.find((v) => v.userId === ctx.userId)?.voteType.toLowerCase() as 'up' | 'down' | undefined) || 'none'
+        ? (votes.find((v) => v.userId === ctx.userId)?.voteType.toLowerCase() as 'up' | 'down' | undefined) || 'none'
         : 'none';
 
       return {
