@@ -13,6 +13,7 @@ import {
 } from '@/components/obra/Select';
 import { MoreOptionsMenu, MenuItem } from '@/components/common/MoreOptionsMenu';
 import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
+import { ReactionStatistics } from '@/components/common/ReactionStatistics';
 import { useNavigate } from 'react-router-dom';
 import type { CaseInformationProps } from './types';
 
@@ -89,6 +90,23 @@ export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
       id: caseId,
       status: newStatus as CaseStatus,
     });
+  };
+
+  const toggleVote = trpc.vote.toggle.useMutation({
+    onSuccess: () => {
+      utils.case.getById.invalidate({ id: caseId });
+    },
+    onError: (error) => {
+      console.error('Failed to toggle vote:', error);
+    },
+  });
+
+  const handleUpvote = () => {
+    toggleVote.mutate({ caseId, voteType: 'UP' });
+  };
+
+  const handleDownvote = () => {
+    toggleVote.mutate({ caseId, voteType: 'DOWN' });
   };
 
   return (
@@ -188,6 +206,21 @@ export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
             return null;
           }}
         />
+
+        {/* Reactions */}
+        {caseData.voteStats && (
+          <div className="flex items-center gap-2">
+            <ReactionStatistics
+              userVote={caseData.voteStats.userVote as 'none' | 'up' | 'down'}
+              upvotes={caseData.voteStats.upvotes}
+              upvoters={caseData.voteStats.upvoters}
+              downvotes={caseData.voteStats.downvotes}
+              downvoters={caseData.voteStats.downvoters}
+              onUpvote={handleUpvote}
+              onDownvote={handleDownvote}
+            />
+          </div>
+        )}
       </div>
 
       <ConfirmationDialog

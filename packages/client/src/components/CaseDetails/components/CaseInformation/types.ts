@@ -8,5 +8,12 @@ export type CaseInformationProps = {
     status: CaseStatus;
     description: string;
     createdAt: Date | string;
+    voteStats?: {
+      upvotes: number;
+      downvotes: number;
+      upvoters: string[];
+      downvoters: string[];
+      userVote: 'none' | 'up' | 'down';
+    };
   };
 };
