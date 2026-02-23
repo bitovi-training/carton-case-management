@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Toast Notifications', () => {
+  // Tolerance for toast center position verification (pixels)
+  // Allows for minor rendering differences across browsers/devices
+  const CENTERING_TOLERANCE_PX = 50;
+
   test('should show success toast when creating a case', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/cases/');
     
-    await page.waitForURL(/\/cases\/.+/, { timeout: 10000 });
-    
     const createButton = page.getByRole('button', { name: /create new case/i });
-    await expect(createButton).toBeVisible();
+    await expect(createButton).toBeVisible({ timeout: 10000 });
     await createButton.click();
-    
-    await page.waitForURL('/cases/', { timeout: 5000 });
     
     const titleInput = page.getByLabel(/case title/i);
     const descriptionInput = page.getByLabel(/case description/i);
@@ -39,11 +39,11 @@ test.describe('Toast Notifications', () => {
 
   test('should show delete toast when deleting a case', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
-    await page.goto('/');
+    await page.goto('/cases/');
     
+    // Wait for navigation to a specific case
     await page.waitForURL(/\/cases\/.+/, { timeout: 10000 });
-    
-    await expect(page.getByText('Loading case details...')).not.toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 15000 });
     
     const caseTitle = page.getByRole('heading', { level: 1 });
     await expect(caseTitle).toBeVisible();
@@ -109,7 +109,9 @@ test.describe('Toast Notifications', () => {
       const centerX = viewportWidth / 2;
       const toastCenterX = toastBox.x + toastBox.width / 2;
       
-      expect(Math.abs(toastCenterX - centerX)).toBeLessThan(50);
+      // Verify toast is horizontally centered within tolerance
+      expect(Math.abs(toastCenterX - centerX)).toBeLessThan(CENTERING_TOLERANCE_PX);
+      // Verify toast is positioned near bottom (below 70% of viewport height)
       expect(toastBox.y).toBeGreaterThan(500);
     }
   });

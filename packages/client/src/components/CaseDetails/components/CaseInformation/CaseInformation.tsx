@@ -63,7 +63,7 @@ export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
       showToast({
         type: 'error',
         title: 'Deleted',
-        description: `'${caseData.title}' case has been successfully deleted.`,
+        description: `${caseData.title} case has been successfully deleted.`,
       });
       navigate('/cases');
     },
