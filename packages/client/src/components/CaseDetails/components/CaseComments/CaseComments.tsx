@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/obra';
+import { ReactionStatistics } from '@/components/common/ReactionStatistics';
 import type { CaseCommentsProps } from './types';
 
 export function CaseComments({ caseData }: CaseCommentsProps) {
@@ -35,6 +36,7 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
             lastName: currentUser.lastName,
             email: currentUser.email,
           },
+          votes: [],
         };
 
         utils.case.getById.setData(
@@ -64,6 +66,70 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
     },
   });
 
+  const voteMutation = trpc.comment.vote.useMutation({
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await utils.case.getById.cancel({ id: caseData.id });
+
+      // Snapshot previous value
+      const previousCase = utils.case.getById.getData({ id: caseData.id });
+
+      // Optimistically update votes in cache
+      if (previousCase && currentUser) {
+        const updatedComments = previousCase.comments?.map((comment) => {
+          if (comment.id !== variables.commentId) return comment;
+
+          const votes = comment.votes || [];
+          const existingVoteIndex = votes.findIndex((v) => v.userId === currentUser.id);
+          const existingVote = existingVoteIndex >= 0 ? votes[existingVoteIndex] : null;
+
+          let newVotes = [...votes];
+
+          // Toggle: if same vote type, remove it
+          if (existingVote && existingVote.voteType === variables.voteType) {
+            newVotes = votes.filter((v) => v.userId !== currentUser.id);
+          }
+          // Update: if different vote type, change it
+          else if (existingVote && existingVote.voteType !== variables.voteType) {
+            newVotes[existingVoteIndex] = {
+              ...existingVote,
+              voteType: variables.voteType,
+            };
+          }
+          // Create: if no existing vote, add it
+          else {
+            newVotes.push({
+              id: `temp-${Date.now()}`,
+              userId: currentUser.id,
+              voteType: variables.voteType,
+              user: {
+                id: currentUser.id,
+                firstName: currentUser.firstName,
+                lastName: currentUser.lastName,
+              },
+            });
+          }
+
+          return { ...comment, votes: newVotes };
+        });
+
+        utils.case.getById.setData({ id: caseData.id }, { ...previousCase, comments: updatedComments });
+      }
+
+      return { previousCase };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      if (context?.previousCase) {
+        utils.case.getById.setData({ id: caseData.id }, context.previousCase);
+      }
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      utils.case.getById.invalidate({ id: caseData.id });
+    },
+  });
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!newComment.trim() || !currentUser) return;
@@ -72,6 +138,11 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
       caseId: caseData.id,
       content: newComment.trim(),
     });
+  };
+
+  const handleVote = (commentId: string, voteType: 'UP' | 'DOWN') => {
+    if (!currentUser) return;
+    voteMutation.mutate({ commentId, voteType });
   };
 
   return (
@@ -94,29 +165,52 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
       </form>
       <div className="flex flex-col gap-4">
         {caseData.comments && caseData.comments.length > 0 ? (
-          caseData.comments.map((comment) => (
-            <div key={comment.id} className="flex flex-col gap-2 py-2">
-              <div className="flex gap-2 items-center">
-                <div className="w-10 flex items-center justify-center text-sm font-semibold text-gray-900">
-                  {comment.author.firstName[0]}{comment.author.lastName[0]}
+          caseData.comments.map((comment) => {
+            const votes = comment.votes || [];
+            const upvotes = votes.filter((v) => v.voteType === 'UP');
+            const downvotes = votes.filter((v) => v.voteType === 'DOWN');
+            const userVote = currentUser
+              ? votes.find((v) => v.userId === currentUser.id)
+              : null;
+            const userVoteType = userVote
+              ? userVote.voteType === 'UP'
+                ? 'up'
+                : 'down'
+              : 'none';
+
+            return (
+              <div key={comment.id} className="flex flex-col gap-2 py-2">
+                <div className="flex gap-2 items-center">
+                  <div className="w-10 flex items-center justify-center text-sm font-semibold text-gray-900">
+                    {comment.author.firstName[0]}{comment.author.lastName[0]}
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-sm font-medium">{comment.author.firstName} {comment.author.lastName}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(comment.createdAt).toLocaleString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <p className="text-sm font-medium">{comment.author.firstName} {comment.author.lastName}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(comment.createdAt).toLocaleString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true,
-                    })}
-                  </p>
-                </div>
+                <p className="text-sm text-gray-700">{comment.content}</p>
+                <ReactionStatistics
+                  userVote={userVoteType}
+                  upvotes={upvotes.length}
+                  upvoters={upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`)}
+                  downvotes={downvotes.length}
+                  downvoters={downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`)}
+                  onUpvote={() => handleVote(comment.id, 'UP')}
+                  onDownvote={() => handleVote(comment.id, 'DOWN')}
+                />
               </div>
-              <p className="text-sm text-gray-700">{comment.content}</p>
-            </div>
-          ))
+            );
+          })
         ) : (
           <div className="text-sm text-gray-500">No comments yet</div>
         )}
