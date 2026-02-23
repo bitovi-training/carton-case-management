@@ -6,6 +6,7 @@ import { CasePage } from './pages/CasePage';
 import { CustomerPage } from './pages/CustomerPage';
 import { UserPage } from './pages/UserPage';
 import { trpc } from './lib/trpc';
+import { Toaster } from './components/obra/Toast';
 
 function App() {
   const location = useLocation();
@@ -63,6 +64,7 @@ function App() {
           </Routes>
         </main>
       </div>
+      <Toaster />
     </div>
   );
 }

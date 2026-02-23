@@ -13,6 +13,7 @@ import {
 } from '@/components/obra/Select';
 import { type CasePriority, CASE_PRIORITY_OPTIONS } from '@carton/shared/client';
 import { Label } from '@/components/obra/Label';
+import { toast } from '@/components/obra/Toast';
 
 type ValidationErrors = {
   title?: string;
@@ -42,6 +43,7 @@ export function CreateCasePage() {
   const createCase = trpc.case.create.useMutation({
     onSuccess: (data) => {
       utils.case.list.invalidate();
+      toast.success('Success!', 'A new claim has been created.');
       navigate(`/cases/${data.id}`);
     },
   });

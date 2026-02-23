@@ -14,6 +14,7 @@ import {
 import { MoreOptionsMenu, MenuItem } from '@/components/common/MoreOptionsMenu';
 import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
 import { useNavigate } from 'react-router-dom';
+import { toast } from '@/components/obra/Toast';
 import type { CaseInformationProps } from './types';
 
 export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
@@ -58,6 +59,7 @@ export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
   const deleteCase = trpc.case.delete.useMutation({
     onSuccess: () => {
       utils.case.list.invalidate();
+      toast.error('Deleted', `"${caseData.title}" case has been successfully deleted.`);
       navigate('/cases');
     },
     onError: (error) => {
