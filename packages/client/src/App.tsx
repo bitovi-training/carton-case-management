@@ -6,6 +6,7 @@ import { CasePage } from './pages/CasePage';
 import { CustomerPage } from './pages/CustomerPage';
 import { UserPage } from './pages/UserPage';
 import { trpc } from './lib/trpc';
+import { Toaster } from './components/common/Toast';
 
 function App() {
   const location = useLocation();
@@ -48,6 +49,7 @@ function App() {
 
   return (
     <div className="h-screen bg-[#dfe2e2] flex flex-col">
+      <Toaster />
       <Header userInitials={userInitials} />
       <MenuList items={menuItems} />
       <div className="flex flex-1 overflow-hidden lg:pl-[68px]">

@@ -13,6 +13,7 @@ import {
 } from '@/components/obra/Select';
 import { type CasePriority, CASE_PRIORITY_OPTIONS } from '@carton/shared/client';
 import { Label } from '@/components/obra/Label';
+import { showSuccess, showError } from '@/components/common/Toast';
 
 type ValidationErrors = {
   title?: string;
@@ -36,13 +37,21 @@ export function CreateCasePage() {
   
   // For now use Alex Morgan as the default user
   const defaultUser = users?.find(
-    (user) => user.firstName === 'Alex' && user.lastName === 'Morgan'
+    (user: { firstName: string; lastName: string }) => user.firstName === 'Alex' && user.lastName === 'Morgan'
   );
   
   const createCase = trpc.case.create.useMutation({
     onSuccess: (data) => {
       utils.case.list.invalidate();
+      showSuccess('Case created successfully', {
+        description: 'The case has been created and assigned.',
+      });
       navigate(`/cases/${data.id}`);
+    },
+    onError: (error) => {
+      showError('Failed to create case', {
+        description: error.message || 'Please ensure all required fields are filled correctly.',
+      });
     },
   });
 
@@ -80,7 +89,9 @@ export function CreateCasePage() {
     }
 
     if (!defaultUser) {
-      alert('Default user (Alex Morgan) not found. Please ensure the database is seeded correctly.');
+      showError('Default user not found', {
+        description: 'Please ensure the database is seeded correctly.',
+      });
       return;
     }
 
@@ -235,12 +246,6 @@ export function CreateCasePage() {
             Cancel
           </Button>
         </div>
-
-        {createCase.isError && (
-          <div className="text-red-600 text-sm p-3 bg-red-50 rounded border border-red-200">
-            Failed to create case. Please ensure all required fields are filled correctly.
-          </div>
-        )}
       </form>
     </div>
   );

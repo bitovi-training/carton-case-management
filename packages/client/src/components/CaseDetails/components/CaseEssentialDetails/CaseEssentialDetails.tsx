@@ -4,6 +4,7 @@ import { EditableSelect } from '@/components/inline-edit';
 import { trpc } from '@/lib/trpc';
 import { type CasePriority, CASE_PRIORITY_OPTIONS } from '@carton/shared/client';
 import type { CaseEssentialDetailsProps } from './types';
+import { showSuccess, showError } from '@/components/common/Toast';
 
 export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsProps) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -36,9 +37,15 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
     onSuccess: () => {
       trpcUtils.case.getById.invalidate({ id: caseId });
       trpcUtils.case.list.invalidate();
+      showSuccess('Case updated successfully', {
+        description: 'Your changes have been saved.',
+      });
     },
     onError: (error, _variables, context) => {
       console.error('Failed to update case:', error);
+      showError('Failed to update case', {
+        description: error.message || 'Please try again.',
+      });
       // Roll back to previous value on error
       if (context?.previousCase) {
         trpcUtils.case.getById.setData({ id: caseId }, context.previousCase);
