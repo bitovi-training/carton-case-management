@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { CheckCircle2, Trash2, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, AlertTriangle } from 'lucide-react';
 import { Toast } from './Toast';
 import { ToastProvider, useToast } from './ToastContext';
 import { Toaster } from './Toaster';
