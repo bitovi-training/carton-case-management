@@ -350,7 +350,7 @@ export const appRouter = router({
           downvoteCount: downvotes.length,
           upvoters: upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
           downvoters: downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
-          userVote: userVote ? (userVote.voteType === 'UP' ? 'up' : 'down') : 'none',
+          userVote: userVote ? (userVote.voteType === 'UP' ? 'up' as const : 'down' as const) : 'none' as const,
           votes: undefined, // Remove votes array from response
         };
       });
@@ -530,7 +530,7 @@ export const appRouter = router({
           downvoteCount: downvotes.length,
           upvoters: upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
           downvoters: downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
-          userVote: userVote ? (userVote.voteType === 'UP' ? 'up' : 'down') : 'none',
+          userVote: userVote ? (userVote.voteType === 'UP' ? 'up' as const : 'down' as const) : 'none' as const,
         };
       }),
   }),
