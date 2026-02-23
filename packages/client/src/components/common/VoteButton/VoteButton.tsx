@@ -14,26 +14,24 @@ export function VoteButton({
 }: VoteButtonProps) {
   const Icon = type === 'up' ? ThumbsUp : ThumbsDown;
   
-  const colorClasses = active
-    ? type === 'up'
-      ? 'text-teal-500' 
-      : 'text-red-500'   
-    : 'text-slate-700';  
+  const buttonClasses = cn(
+    'inline-flex items-center gap-2 rounded-md px-2 py-1 transition-colors',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+    active
+      ? 'bg-teal-500/20 text-teal-600 hover:bg-teal-500/30'
+      : 'text-slate-700 hover:bg-slate-100',
+    className
+  );
 
   const button = (
     <button
       type="button"
       onClick={onClick}
-      className={cn(
-        'inline-flex items-center gap-2 transition-colors hover:opacity-80',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-        colorClasses,
-        className
-      )}
+      className={buttonClasses}
       aria-label={type === 'up' ? 'Upvote' : 'Downvote'}
       aria-pressed={active}
     >
-      <Icon className="h-6 w-6 shrink-0" />
+      <Icon className="h-5 w-5 shrink-0" />
       {showCount && count !== undefined && (
         <span className="text-sm leading-[21px] tracking-[0.07px]">
           {count}
