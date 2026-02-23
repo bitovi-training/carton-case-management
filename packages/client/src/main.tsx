@@ -3,13 +3,17 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { TrpcProvider } from './lib/trpc';
+import { ToastProvider, Toaster } from './components/obra/Toast';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <TrpcProvider>
       <BrowserRouter>
-        <App />
+        <ToastProvider>
+          <App />
+          <Toaster />
+        </ToastProvider>
       </BrowserRouter>
     </TrpcProvider>
   </React.StrictMode>
