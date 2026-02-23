@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Info, AlertCircle } from 'lucide-react';
+import { Info, AlertCircle, CheckCircle, Trash } from 'lucide-react';
 import { Alert } from './Alert';
 
 const meta: Meta<typeof Alert> = {
@@ -129,6 +129,53 @@ export const Complete: Story = {
     action: (
       <button className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold shadow-sm hover:bg-accent">
         Label
+      </button>
+    ),
+    showButton: true,
+  },
+};
+
+// Success variant stories
+export const Success: Story = {
+  args: {
+    type: 'Success',
+    children: 'Success!',
+    description: 'A new claim has been created.',
+    showLine2: true,
+    icon: <CheckCircle className="h-4 w-4" />,
+    showIcon: true,
+  },
+};
+
+export const SuccessWithButton: Story = {
+  args: {
+    type: 'Success',
+    children: 'Success!',
+    description: 'A new claim has been created.',
+    showLine2: true,
+    icon: <CheckCircle className="h-4 w-4" />,
+    showIcon: true,
+    action: (
+      <button className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold shadow-sm hover:bg-accent">
+        Dismiss
+      </button>
+    ),
+    showButton: true,
+  },
+};
+
+// Deletion toast story
+export const DeletionToast: Story = {
+  args: {
+    type: 'Error',
+    children: 'Deleted',
+    description: '"Fraud Investigation" case has been successfully deleted.',
+    showLine2: true,
+    icon: <Trash className="h-4 w-4" />,
+    showIcon: true,
+    action: (
+      <button className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold shadow-sm hover:bg-accent">
+        Dismiss
       </button>
     ),
     showButton: true,
