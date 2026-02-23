@@ -337,9 +337,10 @@ export const appRouter = router({
       }
 
       const commentsWithVoteCounts = caseData.comments.map((comment) => {
-        const upvotes = comment.votes.filter((v) => v.type === 'UP');
-        const downvotes = comment.votes.filter((v) => v.type === 'DOWN');
-        const userVote = comment.votes.find((v) => v.userId === ctx.userId);
+        const votes = comment.votes || [];
+        const upvotes = votes.filter((v) => v.type === 'UP');
+        const downvotes = votes.filter((v) => v.type === 'DOWN');
+        const userVote = votes.find((v) => v.userId === ctx.userId);
 
         return {
           ...comment,
