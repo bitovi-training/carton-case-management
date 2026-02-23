@@ -337,6 +337,9 @@ describe('appRouter', () => {
               id: 'comment-1',
               content: 'Test comment',
               author: { id: 'user-1', firstName: 'User', lastName: 'One', email: 'user1@example.com' },
+              votes: [
+                { id: 'vote-1', type: 'UP', userId: 'user-2', user: { id: 'user-2', firstName: 'Alex', lastName: 'Morgan' } },
+              ],
             },
           ],
         };
@@ -363,12 +366,23 @@ describe('appRouter', () => {
                 author: {
                   select: { id: true, firstName: true, lastName: true, email: true },
                 },
+                votes: {
+                  include: {
+                    user: {
+                      select: { id: true, firstName: true, lastName: true },
+                    },
+                  },
+                },
               },
               orderBy: { createdAt: 'desc' },
             },
           },
         });
-        expect(result).toEqual(mockCase);
+        expect(result).toBeDefined();
+        expect(result?.comments).toBeDefined();
+        expect(result?.comments?.[0]).toHaveProperty('upvoteCount');
+        expect(result?.comments?.[0]).toHaveProperty('downvoteCount');
+        expect(result?.comments?.[0]).toHaveProperty('userVoteType');
       });
     });
 

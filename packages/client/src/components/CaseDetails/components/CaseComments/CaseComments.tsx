@@ -41,6 +41,7 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
           userVoteType: 'none' as const,
           upvoters: [],
           downvoters: [],
+          votes: [],
         };
 
         utils.case.getById.setData(
@@ -86,7 +87,6 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
           }
 
           const voteType = variables.type === 'UP' ? 'up' : 'down';
-          const oppositeType = voteType === 'up' ? 'down' : 'up';
           const currentVote = comment.userVoteType;
           const userName = `${currentUser.firstName} ${currentUser.lastName}`;
 

@@ -348,7 +348,7 @@ export const appRouter = router({
           ...comment,
           upvoteCount: upvotes.length,
           downvoteCount: downvotes.length,
-          userVoteType: userVote ? (userVote.type === 'UP' ? 'up' : 'down') : 'none',
+          userVoteType: (userVote ? (userVote.type === 'UP' ? 'up' : 'down') : 'none') as 'up' | 'down' | 'none',
           upvoters: upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
           downvoters: downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
         };
