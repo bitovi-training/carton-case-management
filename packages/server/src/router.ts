@@ -313,6 +313,17 @@ export const appRouter = router({
                   email: true,
                 },
               },
+              votes: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
             },
             orderBy: {
               createdAt: 'desc',
@@ -399,6 +410,87 @@ export const appRouter = router({
             },
           },
         });
+      }),
+  }),
+
+  commentVote: router({
+    vote: publicProcedure
+      .input(
+        z.object({
+          commentId: z.string(),
+          voteType: z.enum(['UP', 'DOWN']).nullable(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated',
+          });
+        }
+
+        const { commentId, voteType } = input;
+
+        // If voteType is null, remove the vote
+        if (voteType === null) {
+          await ctx.prisma.commentVote.deleteMany({
+            where: {
+              commentId,
+              userId: ctx.userId,
+            },
+          });
+          return { success: true };
+        }
+
+        // Check if user already voted
+        const existingVote = await ctx.prisma.commentVote.findUnique({
+          where: {
+            commentId_userId: {
+              commentId,
+              userId: ctx.userId,
+            },
+          },
+        });
+
+        if (existingVote) {
+          // If same vote type, remove it (toggle off)
+          if (existingVote.voteType === voteType) {
+            await ctx.prisma.commentVote.delete({
+              where: {
+                commentId_userId: {
+                  commentId,
+                  userId: ctx.userId,
+                },
+              },
+            });
+            return { success: true };
+          }
+
+          // Otherwise, update to new vote type (switch vote)
+          await ctx.prisma.commentVote.update({
+            where: {
+              commentId_userId: {
+                commentId,
+                userId: ctx.userId,
+              },
+            },
+            data: {
+              voteType,
+            },
+          });
+          return { success: true };
+        }
+
+        // Create new vote
+        await ctx.prisma.commentVote.create({
+          data: {
+            commentId,
+            userId: ctx.userId,
+            voteType,
+          },
+        });
+
+        return { success: true };
       }),
   }),
 });
