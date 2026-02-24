@@ -33,7 +33,6 @@ export function CaseList({ onCaseClick }: CaseListProps) {
     activeFilterCount,
     isDialogOpen,
     openDialog,
-    closeDialog,
     applyFilters,
     clearFilters,
     setDialogOpen,

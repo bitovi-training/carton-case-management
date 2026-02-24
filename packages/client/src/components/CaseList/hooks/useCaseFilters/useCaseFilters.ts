@@ -50,14 +50,16 @@ export function useCaseFilters(customers: Array<{ id: string; name: string }> = 
     switch (filter) {
       case 'today':
         return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      case 'week':
+      case 'week': {
         const weekAgo = new Date(now);
         weekAgo.setDate(weekAgo.getDate() - 7);
         return weekAgo;
-      case 'month':
+      }
+      case 'month': {
         const monthAgo = new Date(now);
         monthAgo.setDate(monthAgo.getDate() - 30);
         return monthAgo;
+      }
       case 'all':
       default:
         return undefined;

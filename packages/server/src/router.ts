@@ -244,7 +244,13 @@ export const appRouter = router({
           .optional()
       )
       .query(async ({ ctx, input }) => {
-        const where: any = {};
+        const where: {
+          status?: { in: string[] };
+          priority?: { in: string[] };
+          customerId?: { in: string[] };
+          updatedAt?: { gte: Date };
+          assignedTo?: string;
+        } = {};
         
         // Multi-select filters (arrays)
         if (input?.status && input.status.length > 0) {
