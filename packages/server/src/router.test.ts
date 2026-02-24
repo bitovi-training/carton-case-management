@@ -332,6 +332,8 @@ describe('appRouter', () => {
           customer: { id: 'customer-1', firstName: 'Customer', lastName: 'A' },
           creator: { id: 'user-1', firstName: 'User', lastName: '1', email: 'user1@example.com' },
           assignee: { id: 'user-1', firstName: 'User', lastName: '1', email: 'user1@example.com' },
+          relatedCases: [],
+          relatedToThisCase: [],
           comments: [
             {
               id: 'comment-1',
@@ -366,9 +368,23 @@ describe('appRouter', () => {
               },
               orderBy: { createdAt: 'desc' },
             },
+            relatedCases: {
+              include: {
+                related: {
+                  select: { id: true, title: true, status: true, createdAt: true },
+                },
+              },
+            },
+            relatedToThisCase: {
+              include: {
+                case: {
+                  select: { id: true, title: true, status: true, createdAt: true },
+                },
+              },
+            },
           },
         });
-        expect(result).toEqual(mockCase);
+        expect(result).toEqual({ ...mockCase, relatedCases: [] });
       });
     });
 
