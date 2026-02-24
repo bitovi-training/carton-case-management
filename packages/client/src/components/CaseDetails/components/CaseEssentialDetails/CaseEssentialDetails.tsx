@@ -1,13 +1,18 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/obra/Button';
 import { EditableSelect } from '@/components/inline-edit';
+import { RelationshipManagerAccordion } from '@/components/common/RelationshipManagerAccordion';
+import { AddRelatedCasesDialog } from './AddRelatedCasesDialog';
 import { trpc } from '@/lib/trpc';
-import { type CasePriority, CASE_PRIORITY_OPTIONS } from '@carton/shared/client';
+import { type CasePriority, CASE_PRIORITY_OPTIONS, formatCaseNumber } from '@carton/shared/client';
 import type { CaseEssentialDetailsProps } from './types';
 
 export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const trpcUtils = trpc.useUtils();
+  const navigate = useNavigate();
 
   const { data: customers } = trpc.customer.list.useQuery();
   const { data: users } = trpc.user.list.useQuery();
@@ -70,8 +75,36 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
     });
   };
 
+  const addRelationshipsMutation = trpc.caseRelationship.addRelationships.useMutation({
+    onSuccess: () => {
+      trpcUtils.case.getById.invalidate({ id: caseId });
+    },
+  });
+
+  const handleAddRelationships = async (selectedCaseIds: string[]) => {
+    await addRelationshipsMutation.mutateAsync({
+      caseId,
+      relatedCaseIds: selectedCaseIds,
+    });
+  };
+
+  const handleRelatedCaseClick = (relatedCaseId: string) => {
+    navigate(`/cases/${relatedCaseId}`);
+  };
+
+  // Transform related cases for RelationshipManagerAccordion
+  const relatedCasesItems = (caseData.relatedCases || []).map(relatedCase => ({
+    id: relatedCase.id,
+    title: relatedCase.title,
+    subtitle: formatCaseNumber(relatedCase.id, relatedCase.createdAt),
+    onClick: () => handleRelatedCaseClick(relatedCase.id),
+  }));
+
+  const existingRelatedCaseIds = (caseData.relatedCases || []).map(c => c.id);
+
   return (
-    <div className="w-full lg:w-[200px] flex flex-col gap-3">
+    <>
+      <div className="w-full lg:w-[200px] flex flex-col gap-3">
       <Button
         onClick={() => setIsExpanded(!isExpanded)}
         variant="ghost"
@@ -154,8 +187,25 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
               })}
             </p>
           </div>
+
+          {/* Related Cases Accordion */}
+          <RelationshipManagerAccordion
+            accordionTitle="Related Cases"
+            items={relatedCasesItems}
+            defaultOpen={true}
+            onAddClick={() => setIsAddDialogOpen(true)}
+          />
         </>
       )}
     </div>
+
+    <AddRelatedCasesDialog
+      open={isAddDialogOpen}
+      onOpenChange={setIsAddDialogOpen}
+      currentCaseId={caseId}
+      existingRelatedCaseIds={existingRelatedCaseIds}
+      onSave={handleAddRelationships}
+    />
+  </>
   );
 }

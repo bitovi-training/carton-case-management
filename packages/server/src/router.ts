@@ -277,7 +277,7 @@ export const appRouter = router({
         });
       }),
     getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-      return ctx.prisma.case.findUnique({
+      const caseData = await ctx.prisma.case.findUnique({
         where: { id: input.id },
         include: {
           customer: {
@@ -318,8 +318,52 @@ export const appRouter = router({
               createdAt: 'desc',
             },
           },
+          relatedCases: {
+            include: {
+              related: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  createdAt: true,
+                },
+              },
+            },
+          },
+          relatedToThisCase: {
+            include: {
+              case: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  createdAt: true,
+                },
+              },
+            },
+          },
         },
       });
+
+      if (!caseData) {
+        return null;
+      }
+
+      // Combine bidirectional relationships
+      const allRelated = [
+        ...caseData.relatedCases.map(r => r.related),
+        ...caseData.relatedToThisCase.map(r => r.case),
+      ];
+
+      // Remove duplicates based on id
+      const uniqueRelated = Array.from(
+        new Map(allRelated.map(item => [item.id, item])).values()
+      );
+
+      return {
+        ...caseData,
+        relatedCases: uniqueRelated,
+      };
     }),
     create: publicProcedure
       .input(
@@ -399,6 +443,72 @@ export const appRouter = router({
             },
           },
         });
+      }),
+  }),
+
+  // Case relationship routes
+  caseRelationship: router({
+    addRelationships: publicProcedure
+      .input(
+        z.object({
+          caseId: z.string(),
+          relatedCaseIds: z.array(z.string()),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { caseId, relatedCaseIds } = input;
+
+        // Get existing relationships for this case (both directions)
+        const existingRelationships = await ctx.prisma.caseRelationship.findMany({
+          where: {
+            OR: [
+              { caseId },
+              { relatedId: caseId },
+            ],
+          },
+        });
+
+        const existingRelatedIds = new Set([
+          ...existingRelationships.filter(r => r.caseId === caseId).map(r => r.relatedId),
+          ...existingRelationships.filter(r => r.relatedId === caseId).map(r => r.caseId),
+        ]);
+
+        // Determine which relationships to add and which to remove
+        const toAdd = relatedCaseIds.filter(id => !existingRelatedIds.has(id) && id !== caseId);
+        const toRemove = Array.from(existingRelatedIds).filter(id => !relatedCaseIds.includes(id));
+
+        // Remove relationships that are no longer selected
+        if (toRemove.length > 0) {
+          await ctx.prisma.caseRelationship.deleteMany({
+            where: {
+              OR: [
+                {
+                  caseId,
+                  relatedId: { in: toRemove },
+                },
+                {
+                  caseId: { in: toRemove },
+                  relatedId: caseId,
+                },
+              ],
+            },
+          });
+        }
+
+        // Add new bidirectional relationships
+        if (toAdd.length > 0) {
+          const relationshipsToCreate = toAdd.flatMap(relatedId => [
+            { caseId, relatedId },
+            { caseId: relatedId, relatedId: caseId },
+          ]);
+
+          await ctx.prisma.caseRelationship.createMany({
+            data: relationshipsToCreate,
+            skipDuplicates: true,
+          });
+        }
+
+        return { success: true, added: toAdd.length, removed: toRemove.length };
       }),
   }),
 });

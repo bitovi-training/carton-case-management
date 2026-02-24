@@ -31,7 +31,19 @@ export function RelationshipManagerAccordion({
                   {items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between rounded-lg px-4 py-2"
+                      className={cn(
+                        'flex items-center justify-between rounded-lg px-4 py-2',
+                        item.onClick && 'cursor-pointer hover:bg-gray-100'
+                      )}
+                      onClick={item.onClick}
+                      role={item.onClick ? 'button' : undefined}
+                      tabIndex={item.onClick ? 0 : undefined}
+                      onKeyDown={item.onClick ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          item.onClick?.();
+                        }
+                      } : undefined}
                     >
                       <div className="flex flex-col text-sm leading-[21px]">
                         <p className="font-semibold text-teal-600">

@@ -2,6 +2,7 @@ export interface RelationshipItem {
   id: string;
   title: string;
   subtitle: string;
+  onClick?: () => void;
 }
 
 export interface RelationshipManagerAccordionProps {
