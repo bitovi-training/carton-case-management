@@ -337,6 +337,15 @@ describe('appRouter', () => {
               id: 'comment-1',
               content: 'Test comment',
               author: { id: 'user-1', firstName: 'User', lastName: 'One', email: 'user1@example.com' },
+              votes: [
+                {
+                  id: 'vote-1',
+                  userId: 'user-1',
+                  voteType: 'UP',
+                  createdAt: new Date(),
+                  user: { id: 'user-1', firstName: 'User', lastName: 'One' },
+                },
+              ],
             },
           ],
         };
@@ -363,12 +372,34 @@ describe('appRouter', () => {
                 author: {
                   select: { id: true, firstName: true, lastName: true, email: true },
                 },
+                votes: {
+                  include: {
+                    user: {
+                      select: { id: true, firstName: true, lastName: true },
+                    },
+                  },
+                  orderBy: { createdAt: 'asc' },
+                },
               },
               orderBy: { createdAt: 'desc' },
             },
           },
         });
-        expect(result).toEqual(mockCase);
+        expect(result).toMatchObject({
+          id: 'case-1',
+          title: 'Test Case',
+          comments: [
+            {
+              id: 'comment-1',
+              content: 'Test comment',
+              upvoteCount: 1,
+              downvoteCount: 0,
+              upvoters: ['User One'],
+              downvoters: [],
+              userVoteType: null, // No user context in test
+            },
+          ],
+        });
       });
     });
 
