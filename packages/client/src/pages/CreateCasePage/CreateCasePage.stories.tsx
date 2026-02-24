@@ -4,7 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { TrpcProvider } from '@/lib/trpc';
 import { CreateCasePage } from './CreateCasePage';
 import type { inferProcedureOutput } from '@trpc/server';
-import type { AppRouter } from '@carton/server/src/router';
+import type { AppRouter } from '@carton/server';
 
 type CustomerListOutput = inferProcedureOutput<AppRouter['customer']['list']>;
 type UserListOutput = inferProcedureOutput<AppRouter['user']['list']>;

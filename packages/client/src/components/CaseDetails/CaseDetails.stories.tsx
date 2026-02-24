@@ -4,7 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { TrpcProvider } from '@/lib/trpc';
 import { CaseDetails } from './CaseDetails';
 import type { inferProcedureOutput } from '@trpc/server';
-import type { AppRouter } from '@carton/server/src/router';
+import type { AppRouter } from '@carton/server';
 
 type CaseByIdOutput = inferProcedureOutput<AppRouter['case']['getById']>;
 

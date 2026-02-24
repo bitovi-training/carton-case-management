@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "main": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
   "scripts": {
     "dev": "tsx watch src",
     "build": "tsc --build",
