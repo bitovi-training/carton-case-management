@@ -235,17 +235,42 @@ export const appRouter = router({
       .input(
         z
           .object({
-            status: caseStatusSchema.optional(),
+            status: z.array(caseStatusSchema).optional(),
+            priority: z.array(casePrioritySchema).optional(),
+            customerId: z.array(z.string()).optional(),
+            updatedAfter: z.date().optional(),
             assignedTo: z.string().optional(),
           })
           .optional()
       )
       .query(async ({ ctx, input }) => {
+        const where: any = {};
+        
+        // Multi-select filters (arrays)
+        if (input?.status && input.status.length > 0) {
+          where.status = { in: input.status };
+        }
+        
+        if (input?.priority && input.priority.length > 0) {
+          where.priority = { in: input.priority };
+        }
+        
+        if (input?.customerId && input.customerId.length > 0) {
+          where.customerId = { in: input.customerId };
+        }
+        
+        // Date range filter for "Last Updated"
+        if (input?.updatedAfter) {
+          where.updatedAt = { gte: input.updatedAfter };
+        }
+        
+        // Single-select filter (kept for backward compatibility)
+        if (input?.assignedTo) {
+          where.assignedTo = input.assignedTo;
+        }
+        
         return ctx.prisma.case.findMany({
-          where: {
-            ...(input?.status ? { status: input.status } : {}),
-            ...(input?.assignedTo ? { assignedTo: input.assignedTo } : {}),
-          },
+          where,
           include: {
             customer: {
               select: {
