@@ -83,14 +83,30 @@ model Case {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  customer Customer @relation(fields: [customerId], references: [id])
-  creator  User     @relation("UserCreatedBy", fields: [createdBy], references: [id])
-  assignee User?    @relation("UserAssignedTo", fields: [assignedTo], references: [id])
-  comments Comment[]
+  customer         Customer           @relation(fields: [customerId], references: [id])
+  creator          User               @relation("UserCreatedBy", fields: [createdBy], references: [id])
+  assignee         User?              @relation("UserAssignedTo", fields: [assignedTo], references: [id])
+  comments         Comment[]
+  relatedFromCases CaseRelationship[] @relation("CaseFrom")
+  relatedToCases   CaseRelationship[] @relation("CaseTo")
 
   @@index([customerId])
   @@index([createdBy])
   @@index([assignedTo])
+}
+
+model CaseRelationship {
+  id        String   @id @default(uuid())
+  fromCaseId String
+  toCaseId   String
+  createdAt DateTime @default(now())
+
+  fromCase Case @relation("CaseFrom", fields: [fromCaseId], references: [id], onDelete: Cascade)
+  toCase   Case @relation("CaseTo", fields: [toCaseId], references: [id], onDelete: Cascade)
+
+  @@unique([fromCaseId, toCaseId])
+  @@index([fromCaseId])
+  @@index([toCaseId])
 }
 
 model Comment {

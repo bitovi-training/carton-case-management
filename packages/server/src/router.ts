@@ -366,6 +366,95 @@ export const appRouter = router({
     }),
   }),
 
+  // Related Case routes
+  relatedCase: router({
+    list: publicProcedure
+      .input(z.object({ caseId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const relationships = await ctx.prisma.caseRelationship.findMany({
+          where: { fromCaseId: input.caseId },
+          include: {
+            toCase: {
+              select: {
+                id: true,
+                title: true,
+                status: true,
+                priority: true,
+                createdAt: true,
+              },
+            },
+          },
+        });
+
+        return relationships.map((rel) => rel.toCase);
+      }),
+    
+    update: publicProcedure
+      .input(
+        z.object({
+          caseId: z.string(),
+          relatedCaseIds: z.array(z.string()).max(5, 'Maximum 5 related cases allowed'),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { caseId, relatedCaseIds } = input;
+
+        // Validate that case is not relating to itself
+        if (relatedCaseIds.includes(caseId)) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'A case cannot be related to itself',
+          });
+        }
+
+        // Validate that all related cases exist
+        const existingCases = await ctx.prisma.case.findMany({
+          where: { id: { in: relatedCaseIds } },
+          select: { id: true },
+        });
+
+        if (existingCases.length !== relatedCaseIds.length) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'One or more related cases do not exist',
+          });
+        }
+
+        // Delete existing relationships for this case
+        await ctx.prisma.caseRelationship.deleteMany({
+          where: { fromCaseId: caseId },
+        });
+
+        // Create new relationships
+        if (relatedCaseIds.length > 0) {
+          await ctx.prisma.caseRelationship.createMany({
+            data: relatedCaseIds.map((toCaseId) => ({
+              fromCaseId: caseId,
+              toCaseId,
+            })),
+          });
+        }
+
+        // Return the updated list of related cases
+        const relationships = await ctx.prisma.caseRelationship.findMany({
+          where: { fromCaseId: caseId },
+          include: {
+            toCase: {
+              select: {
+                id: true,
+                title: true,
+                status: true,
+                priority: true,
+                createdAt: true,
+              },
+            },
+          },
+        });
+
+        return relationships.map((rel) => rel.toCase);
+      }),
+  }),
+
   // Comment routes
   comment: router({
     create: publicProcedure

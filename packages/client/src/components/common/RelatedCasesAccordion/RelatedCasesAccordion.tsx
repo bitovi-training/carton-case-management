@@ -9,9 +9,10 @@ interface RelatedCasesAccordionProps {
     priority: string;
     createdAt: string;
   }>;
+  onAddClick?: () => void;
 }
 
-export function RelatedCasesAccordion({ cases }: RelatedCasesAccordionProps) {
+export function RelatedCasesAccordion({ cases, onAddClick }: RelatedCasesAccordionProps) {
   const items = (cases || []).map((caseItem) => ({
     id: caseItem.id,
     title: caseItem.title,
@@ -24,6 +25,7 @@ export function RelatedCasesAccordion({ cases }: RelatedCasesAccordionProps) {
         accordionTitle="Related Cases"
         items={items}
         defaultOpen={true}
+        onAddClick={onAddClick}
       />
     </div>
   );
