@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { Alert } from '@/components/obra/Alert';
-import { CheckCircle2, X } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 export interface Toast {
   id: string;
@@ -30,6 +30,10 @@ let toastIdCounter = 0;
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
+  const dismissToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
+
   const showToast = useCallback((toast: Omit<Toast, 'id'>) => {
     const id = `toast-${Date.now()}-${toastIdCounter++}`;
     const newToast = { ...toast, id };
@@ -40,11 +44,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setTimeout(() => {
       dismissToast(id);
     }, 5000);
-  }, []);
-
-  const dismissToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  }, []);
+  }, [dismissToast]);
 
   return (
     <ToastContext.Provider value={{ toasts, showToast, dismissToast }}>
