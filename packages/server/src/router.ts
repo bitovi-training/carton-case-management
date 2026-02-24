@@ -406,30 +406,45 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
-        // Create bidirectional relationships
-        const relationships = [];
+        // Create bidirectional relationships one by one to handle duplicates
         for (const relatedId of input.relatedCaseIds) {
           // Skip if trying to relate to self
           if (relatedId === input.caseId) continue;
 
-          // Add forward relationship
-          relationships.push({
-            caseId: input.caseId,
-            relatedId: relatedId,
+          // Check if forward relationship exists
+          const forwardExists = await ctx.prisma.relatedCase.findFirst({
+            where: {
+              caseId: input.caseId,
+              relatedId: relatedId,
+            },
           });
 
-          // Add reverse relationship for bidirectionality
-          relationships.push({
-            caseId: relatedId,
-            relatedId: input.caseId,
+          if (!forwardExists) {
+            await ctx.prisma.relatedCase.create({
+              data: {
+                caseId: input.caseId,
+                relatedId: relatedId,
+              },
+            });
+          }
+
+          // Check if reverse relationship exists
+          const reverseExists = await ctx.prisma.relatedCase.findFirst({
+            where: {
+              caseId: relatedId,
+              relatedId: input.caseId,
+            },
           });
+
+          if (!reverseExists) {
+            await ctx.prisma.relatedCase.create({
+              data: {
+                caseId: relatedId,
+                relatedId: input.caseId,
+              },
+            });
+          }
         }
-
-        // Use createMany with skipDuplicates to avoid errors on existing relationships
-        await ctx.prisma.relatedCase.createMany({
-          data: relationships,
-          skipDuplicates: true,
-        });
 
         return { success: true };
       }),

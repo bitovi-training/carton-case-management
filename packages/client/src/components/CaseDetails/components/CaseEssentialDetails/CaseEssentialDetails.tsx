@@ -3,6 +3,7 @@ import { Button } from '@/components/obra/Button';
 import { EditableSelect } from '@/components/inline-edit';
 import { trpc } from '@/lib/trpc';
 import { type CasePriority, CASE_PRIORITY_OPTIONS } from '@carton/shared/client';
+import { CaseRelatedCases } from '../CaseRelatedCases';
 import type { CaseEssentialDetailsProps } from './types';
 
 export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsProps) {
@@ -154,6 +155,7 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
               })}
             </p>
           </div>
+          <CaseRelatedCases caseId={caseId} />
         </>
       )}
     </div>
