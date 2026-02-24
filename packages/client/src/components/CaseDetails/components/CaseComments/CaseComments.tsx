@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/obra';
+import { ReactionStatistics } from '@/components/common';
 import type { CaseCommentsProps } from './types';
 
 export function CaseComments({ caseData }: CaseCommentsProps) {
@@ -35,6 +36,11 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
             lastName: currentUser.lastName,
             email: currentUser.email,
           },
+          upvoteCount: 0,
+          downvoteCount: 0,
+          userVoteType: null,
+          upvoters: [],
+          downvoters: [],
         };
 
         utils.case.getById.setData(
@@ -63,6 +69,95 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
       utils.case.getById.invalidate({ id: caseData.id });
     },
   });
+
+  const voteToggleMutation = trpc.vote.toggle.useMutation({
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await utils.case.getById.cancel({ id: caseData.id });
+
+      // Snapshot previous value
+      const previousCase = utils.case.getById.getData({ id: caseData.id });
+
+      // Optimistically update vote counts
+      if (previousCase) {
+        const updatedComments = previousCase.comments?.map((comment) => {
+          if (comment.id !== variables.commentId) return comment;
+
+          const currentUserVote = comment.userVoteType;
+          const newVoteType = variables.type;
+
+          let upvoteCount = comment.upvoteCount || 0;
+          let downvoteCount = comment.downvoteCount || 0;
+          let userVoteType = comment.userVoteType;
+          let upvoters = [...(comment.upvoters || [])];
+          let downvoters = [...(comment.downvoters || [])];
+
+          const currentUserName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : '';
+
+          // Remove previous vote if exists
+          if (currentUserVote === 'UP') {
+            upvoteCount--;
+            upvoters = upvoters.filter((name) => name !== currentUserName);
+          } else if (currentUserVote === 'DOWN') {
+            downvoteCount--;
+            downvoters = downvoters.filter((name) => name !== currentUserName);
+          }
+
+          // Add new vote if different from current, or set to null if same (toggle off)
+          if (currentUserVote === newVoteType) {
+            userVoteType = null;
+          } else {
+            userVoteType = newVoteType;
+            if (newVoteType === 'UP') {
+              upvoteCount++;
+              if (currentUserName && !upvoters.includes(currentUserName)) {
+                upvoters.push(currentUserName);
+              }
+            } else {
+              downvoteCount++;
+              if (currentUserName && !downvoters.includes(currentUserName)) {
+                downvoters.push(currentUserName);
+              }
+            }
+          }
+
+          return {
+            ...comment,
+            upvoteCount,
+            downvoteCount,
+            userVoteType,
+            upvoters,
+            downvoters,
+          };
+        });
+
+        utils.case.getById.setData(
+          { id: caseData.id },
+          {
+            ...previousCase,
+            comments: updatedComments,
+          }
+        );
+      }
+
+      return { previousCase };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      if (context?.previousCase) {
+        utils.case.getById.setData({ id: caseData.id }, context.previousCase);
+      }
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      utils.case.getById.invalidate({ id: caseData.id });
+    },
+  });
+
+  const handleVote = (commentId: string, type: 'UP' | 'DOWN') => {
+    if (!currentUser) return;
+    voteToggleMutation.mutate({ commentId, type });
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -115,6 +210,19 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
                 </div>
               </div>
               <p className="text-sm text-gray-700">{comment.content}</p>
+              <ReactionStatistics
+                userVote={
+                  comment.userVoteType === 'UP' ? 'up' : 
+                  comment.userVoteType === 'DOWN' ? 'down' : 
+                  'none'
+                }
+                upvotes={comment.upvoteCount || 0}
+                upvoters={comment.upvoters || []}
+                downvotes={comment.downvoteCount || 0}
+                downvoters={comment.downvoters || []}
+                onUpvote={() => handleVote(comment.id, 'UP')}
+                onDownvote={() => handleVote(comment.id, 'DOWN')}
+              />
             </div>
           ))
         ) : (
