@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 export interface CheckboxGroupProps {
   /**
    * Layout variant
@@ -14,10 +16,10 @@ export interface CheckboxGroupProps {
   checked?: boolean;
   
   /**
-   * Label text
+   * Label text or element
    * @figma Text: Label
    */
-  label: string;
+  label: string | ReactNode;
   
   /**
    * Change handler

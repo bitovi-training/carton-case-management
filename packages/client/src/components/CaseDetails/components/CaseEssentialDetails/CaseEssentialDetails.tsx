@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/obra/Button';
 import { EditableSelect } from '@/components/inline-edit';
 import { RelationshipManagerAccordion } from '@/components/common/RelationshipManagerAccordion';
-import { AddRelatedCasesDialog } from './AddRelatedCasesDialog';
+import { AddRelatedCasesDialog } from '../AddRelatedCasesDialog';
 import { trpc } from '@/lib/trpc';
 import { type CasePriority, CASE_PRIORITY_OPTIONS, formatCaseNumber } from '@carton/shared/client';
 import type { CaseEssentialDetailsProps } from './types';

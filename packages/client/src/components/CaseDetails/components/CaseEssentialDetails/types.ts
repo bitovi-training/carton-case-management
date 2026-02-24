@@ -10,5 +10,11 @@ export type CaseEssentialDetailsProps = {
     assignedTo: string | null;
     creator: { id: string; firstName: string; lastName: string; email: string };
     createdBy: string;
+    relatedCases?: Array<{
+      id: string;
+      title: string;
+      status: string;
+      createdAt: string | Date;
+    }>;
   };
 };

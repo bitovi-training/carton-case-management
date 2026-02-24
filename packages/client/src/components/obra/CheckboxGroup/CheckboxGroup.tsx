@@ -27,7 +27,9 @@ export function CheckboxGroup({
       )}
     >
       <Checkbox checked={checked} onCheckedChange={handleCheckedChange} />
-      <span className="text-sm leading-6 text-foreground select-none">{label}</span>
+      <span className="text-sm leading-6 text-foreground select-none">
+        {typeof label === 'string' ? label : <>{label}</>}
+      </span>
     </label>
   );
 }

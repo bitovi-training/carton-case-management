@@ -351,8 +351,8 @@ export const appRouter = router({
 
       // Combine bidirectional relationships
       const allRelated = [
-        ...caseData.relatedCases.map(r => r.related),
-        ...caseData.relatedToThisCase.map(r => r.case),
+        ...(caseData.relatedCases || []).map(r => r.related),
+        ...(caseData.relatedToThisCase || []).map(r => r.case),
       ];
 
       // Remove duplicates based on id
@@ -497,15 +497,24 @@ export const appRouter = router({
 
         // Add new bidirectional relationships
         if (toAdd.length > 0) {
-          const relationshipsToCreate = toAdd.flatMap(relatedId => [
-            { caseId, relatedId },
-            { caseId: relatedId, relatedId: caseId },
-          ]);
+          // Create relationships one by one to handle duplicates gracefully
+          for (const relatedId of toAdd) {
+            await ctx.prisma.caseRelationship.upsert({
+              where: {
+                caseId_relatedId: { caseId, relatedId },
+              },
+              update: {},
+              create: { caseId, relatedId },
+            });
 
-          await ctx.prisma.caseRelationship.createMany({
-            data: relationshipsToCreate,
-            skipDuplicates: true,
-          });
+            await ctx.prisma.caseRelationship.upsert({
+              where: {
+                caseId_relatedId: { caseId: relatedId, relatedId: caseId },
+              },
+              update: {},
+              create: { caseId: relatedId, relatedId: caseId },
+            });
+          }
         }
 
         return { success: true, added: toAdd.length, removed: toRemove.length };

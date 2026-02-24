@@ -37,6 +37,8 @@ const mockCase: NonNullable<CaseByIdOutput> = {
   },
   createdAt: new Date('2024-01-15T10:00:00Z'),
   updatedAt: new Date('2024-01-16T14:30:00Z'),
+  relatedCases: [],
+  relatedToThisCase: [],
   comments: [
     {
       id: '1',
