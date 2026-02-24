@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/obra';
+import { VoteButton } from '@/components/common/VoteButton';
+import type { VoteType } from '@carton/shared/client';
 import type { CaseCommentsProps } from './types';
 
 export function CaseComments({ caseData }: CaseCommentsProps) {
@@ -74,6 +76,95 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
     });
   };
 
+  const voteToggleMutation = trpc.vote.toggle.useMutation({
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await utils.case.getById.cancel({ id: caseData.id });
+
+      // Snapshot previous value
+      const previousCase = utils.case.getById.getData({ id: caseData.id });
+
+      // Optimistically update vote counts
+      if (previousCase && currentUser) {
+        const updatedComments = previousCase.comments?.map((comment) => {
+          if (comment.id !== variables.commentId) return comment;
+
+          const currentUserVote = comment.userVoteType;
+          let newUpvoteCount = comment.upvoteCount || 0;
+          let newDownvoteCount = comment.downvoteCount || 0;
+          let newUserVoteType: VoteType | null = null;
+          let newUpvoters = [...(comment.upvoters || [])];
+          let newDownvoters = [...(comment.downvoters || [])];
+          const userName = `${currentUser.firstName} ${currentUser.lastName}`;
+
+          // Remove user from both lists first
+          newUpvoters = newUpvoters.filter((name) => name !== userName);
+          newDownvoters = newDownvoters.filter((name) => name !== userName);
+
+          if (currentUserVote === variables.voteType) {
+            // Toggle off - remove vote
+            if (variables.voteType === 'UP') {
+              newUpvoteCount = Math.max(0, newUpvoteCount - 1);
+            } else {
+              newDownvoteCount = Math.max(0, newDownvoteCount - 1);
+            }
+            newUserVoteType = null;
+          } else {
+            // Toggle on or switch
+            if (currentUserVote === 'UP') {
+              newUpvoteCount = Math.max(0, newUpvoteCount - 1);
+            } else if (currentUserVote === 'DOWN') {
+              newDownvoteCount = Math.max(0, newDownvoteCount - 1);
+            }
+
+            if (variables.voteType === 'UP') {
+              newUpvoteCount += 1;
+              newUpvoters.push(userName);
+            } else {
+              newDownvoteCount += 1;
+              newDownvoters.push(userName);
+            }
+            newUserVoteType = variables.voteType;
+          }
+
+          return {
+            ...comment,
+            upvoteCount: newUpvoteCount,
+            downvoteCount: newDownvoteCount,
+            userVoteType: newUserVoteType,
+            upvoters: newUpvoters,
+            downvoters: newDownvoters,
+          };
+        });
+
+        utils.case.getById.setData(
+          { id: caseData.id },
+          {
+            ...previousCase,
+            comments: updatedComments || [],
+          }
+        );
+      }
+
+      return { previousCase };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      if (context?.previousCase) {
+        utils.case.getById.setData({ id: caseData.id }, context.previousCase);
+      }
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      utils.case.getById.invalidate({ id: caseData.id });
+    },
+  });
+
+  const handleVote = (commentId: string, voteType: VoteType) => {
+    if (!currentUser) return;
+    voteToggleMutation.mutate({ commentId, voteType });
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-base font-semibold">Comments</h2>
@@ -115,6 +206,22 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
                 </div>
               </div>
               <p className="text-sm text-gray-700">{comment.content}</p>
+              <div className="flex items-center gap-4">
+                <VoteButton
+                  type="up"
+                  active={comment.userVoteType === 'UP'}
+                  count={comment.upvoteCount}
+                  voters={comment.upvoters}
+                  onClick={() => handleVote(comment.id, 'UP')}
+                />
+                <VoteButton
+                  type="down"
+                  active={comment.userVoteType === 'DOWN'}
+                  count={comment.downvoteCount}
+                  voters={comment.downvoters}
+                  onClick={() => handleVote(comment.id, 'DOWN')}
+                />
+              </div>
             </div>
           ))
         ) : (
