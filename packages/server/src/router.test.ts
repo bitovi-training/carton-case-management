@@ -288,11 +288,52 @@ describe('appRouter', () => {
         mockPrisma.case.findMany.mockResolvedValue([]);
 
         const caller = appRouter.createCaller(mockContext);
-        await caller.case.list({ status: 'TO_DO' });
+        await caller.case.list({ status: ['TO_DO'] });
 
         expect(mockPrisma.case.findMany).toHaveBeenCalledWith(
           expect.objectContaining({
-            where: { status: 'TO_DO' },
+            where: { status: { in: ['TO_DO'] } },
+          })
+        );
+      });
+
+      it('filters cases by customerId', async () => {
+        mockPrisma.case.findMany.mockResolvedValue([]);
+
+        const caller = appRouter.createCaller(mockContext);
+        await caller.case.list({ customerId: ['customer-1'] });
+
+        expect(mockPrisma.case.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { customerId: { in: ['customer-1'] } },
+          })
+        );
+      });
+
+      it('filters cases by priority', async () => {
+        mockPrisma.case.findMany.mockResolvedValue([]);
+
+        const caller = appRouter.createCaller(mockContext);
+        await caller.case.list({ priority: ['HIGH'] });
+
+        expect(mockPrisma.case.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { priority: { in: ['HIGH'] } },
+          })
+        );
+      });
+
+      it('filters cases by lastUpdated', async () => {
+        mockPrisma.case.findMany.mockResolvedValue([]);
+
+        const caller = appRouter.createCaller(mockContext);
+        await caller.case.list({ lastUpdated: 'week' });
+
+        expect(mockPrisma.case.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: expect.objectContaining({
+              updatedAt: expect.objectContaining({ gte: expect.any(Date) }),
+            }),
           })
         );
       });
@@ -310,15 +351,23 @@ describe('appRouter', () => {
         );
       });
 
-      it('filters cases by both status and assignedTo', async () => {
+      it('filters cases by multiple criteria', async () => {
         mockPrisma.case.findMany.mockResolvedValue([]);
 
         const caller = appRouter.createCaller(mockContext);
-        await caller.case.list({ status: 'IN_PROGRESS', assignedTo: 'user-1' });
+        await caller.case.list({ 
+          status: ['IN_PROGRESS'], 
+          priority: ['HIGH'], 
+          assignedTo: 'user-1' 
+        });
 
         expect(mockPrisma.case.findMany).toHaveBeenCalledWith(
           expect.objectContaining({
-            where: { status: 'IN_PROGRESS', assignedTo: 'user-1' },
+            where: { 
+              status: { in: ['IN_PROGRESS'] }, 
+              priority: { in: ['HIGH'] },
+              assignedTo: 'user-1' 
+            },
           })
         );
       });

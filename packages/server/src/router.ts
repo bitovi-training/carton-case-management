@@ -235,15 +235,42 @@ export const appRouter = router({
       .input(
         z
           .object({
-            status: caseStatusSchema.optional(),
+            status: z.array(caseStatusSchema).optional(),
+            customerId: z.array(z.string()).optional(),
+            priority: z.array(casePrioritySchema).optional(),
+            lastUpdated: z.enum(['today', 'week', 'month', 'all']).optional(),
             assignedTo: z.string().optional(),
           })
           .optional()
       )
       .query(async ({ ctx, input }) => {
+        const now = new Date();
+        let updatedAfter: Date | undefined;
+
+        if (input?.lastUpdated) {
+          switch (input.lastUpdated) {
+            case 'today':
+              updatedAfter = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+              break;
+            case 'week':
+              updatedAfter = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+              break;
+            case 'month':
+              updatedAfter = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+              break;
+            case 'all':
+            default:
+              updatedAfter = undefined;
+              break;
+          }
+        }
+
         return ctx.prisma.case.findMany({
           where: {
-            ...(input?.status ? { status: input.status } : {}),
+            ...(input?.status && input.status.length > 0 ? { status: { in: input.status } } : {}),
+            ...(input?.customerId && input.customerId.length > 0 ? { customerId: { in: input.customerId } } : {}),
+            ...(input?.priority && input.priority.length > 0 ? { priority: { in: input.priority } } : {}),
+            ...(updatedAfter ? { updatedAt: { gte: updatedAfter } } : {}),
             ...(input?.assignedTo ? { assignedTo: input.assignedTo } : {}),
           },
           include: {
