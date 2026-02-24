@@ -364,6 +364,101 @@ export const appRouter = router({
         where: { id: input.id },
       });
     }),
+    getRelatedCases: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+      const relatedCases = await ctx.prisma.relatedCase.findMany({
+        where: {
+          OR: [{ caseId: input.id }, { relatedId: input.id }],
+        },
+        include: {
+          case: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+          related: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+      });
+
+      // Return unique cases (excluding the current case)
+      const uniqueCases = new Map<string, { id: string; title: string }>();
+      relatedCases.forEach((rc) => {
+        if (rc.caseId !== input.id) {
+          uniqueCases.set(rc.caseId, rc.case);
+        }
+        if (rc.relatedId !== input.id) {
+          uniqueCases.set(rc.relatedId, rc.related);
+        }
+      });
+
+      return Array.from(uniqueCases.values());
+    }),
+    addRelatedCases: publicProcedure
+      .input(
+        z.object({
+          caseId: z.string(),
+          relatedCaseIds: z.array(z.string()),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        // Create bidirectional relationships
+        const relationships = [];
+        for (const relatedId of input.relatedCaseIds) {
+          // Skip if trying to relate to self
+          if (relatedId === input.caseId) continue;
+
+          // Add forward relationship
+          relationships.push({
+            caseId: input.caseId,
+            relatedId: relatedId,
+          });
+
+          // Add reverse relationship for bidirectionality
+          relationships.push({
+            caseId: relatedId,
+            relatedId: input.caseId,
+          });
+        }
+
+        // Use createMany with skipDuplicates to avoid errors on existing relationships
+        await ctx.prisma.relatedCase.createMany({
+          data: relationships,
+          skipDuplicates: true,
+        });
+
+        return { success: true };
+      }),
+    removeRelatedCase: publicProcedure
+      .input(
+        z.object({
+          caseId: z.string(),
+          relatedCaseId: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        // Delete both directions of the relationship
+        await ctx.prisma.relatedCase.deleteMany({
+          where: {
+            OR: [
+              {
+                caseId: input.caseId,
+                relatedId: input.relatedCaseId,
+              },
+              {
+                caseId: input.relatedCaseId,
+                relatedId: input.caseId,
+              },
+            ],
+          },
+        });
+
+        return { success: true };
+      }),
   }),
 
   // Comment routes
