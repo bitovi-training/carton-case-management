@@ -352,8 +352,8 @@ export const appRouter = router({
       }
 
       const relatedCases = [
-        ...caseData.relatedFrom.map((rel) => rel.caseTo),
-        ...caseData.relatedTo.map((rel) => rel.caseFrom),
+        ...(caseData.relatedFrom || []).map((rel) => rel.caseTo),
+        ...(caseData.relatedTo || []).map((rel) => rel.caseFrom),
       ];
 
       const uniqueRelatedCases = Array.from(

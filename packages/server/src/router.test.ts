@@ -339,6 +339,8 @@ describe('appRouter', () => {
               author: { id: 'user-1', firstName: 'User', lastName: 'One', email: 'user1@example.com' },
             },
           ],
+          relatedFrom: [],
+          relatedTo: [],
         };
 
         mockPrisma.case.findUnique.mockResolvedValue(mockCase);
@@ -366,9 +368,38 @@ describe('appRouter', () => {
               },
               orderBy: { createdAt: 'desc' },
             },
+            relatedFrom: {
+              include: {
+                caseTo: {
+                  select: {
+                    id: true,
+                    title: true,
+                    status: true,
+                    priority: true,
+                    createdAt: true,
+                  },
+                },
+              },
+            },
+            relatedTo: {
+              include: {
+                caseFrom: {
+                  select: {
+                    id: true,
+                    title: true,
+                    status: true,
+                    priority: true,
+                    createdAt: true,
+                  },
+                },
+              },
+            },
           },
         });
-        expect(result).toEqual(mockCase);
+        expect(result).toEqual({
+          ...mockCase,
+          relatedCases: [],
+        });
       });
     });
 

@@ -37,6 +37,9 @@ const mockCase: NonNullable<CaseByIdOutput> = {
   },
   createdAt: new Date('2024-01-15T10:00:00Z'),
   updatedAt: new Date('2024-01-16T14:30:00Z'),
+  relatedCases: [],
+  relatedFrom: [],
+  relatedTo: [],
   comments: [
     {
       id: '1',
@@ -148,6 +151,16 @@ const meta: Meta<typeof CaseDetails> = {
             result: {
               data: mockCase,
             },
+          });
+        }),
+        http.get('*/trpc/case.list*', () => {
+          return HttpResponse.json({
+            result: { data: [] },
+          });
+        }),
+        http.post('*/trpc/case.list*', () => {
+          return HttpResponse.json({
+            result: { data: [] },
           });
         }),
         http.get('*/trpc/customer.list*', () => {

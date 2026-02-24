@@ -28,6 +28,16 @@ export interface RelationshipManagerAccordionProps {
   onAddClick?: () => void;
 
   /**
+   * Callback when an item is clicked
+   */
+  onItemClick?: (itemId: string) => void;
+
+  /**
+   * Callback when remove button is clicked on an item
+   */
+  onRemoveClick?: (itemId: string) => void;
+
+  /**
    * Additional CSS classes
    */
   className?: string;
