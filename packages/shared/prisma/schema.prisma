@@ -87,6 +87,9 @@ model Case {
   creator  User     @relation("UserCreatedBy", fields: [createdBy], references: [id])
   assignee User?    @relation("UserAssignedTo", fields: [assignedTo], references: [id])
   comments Comment[]
+  
+  relatedFrom CaseRelationship[] @relation("CaseRelatedFrom")
+  relatedTo   CaseRelationship[] @relation("CaseRelatedTo")
 
   @@index([customerId])
   @@index([createdBy])
@@ -106,4 +109,18 @@ model Comment {
 
   @@index([caseId])
   @@index([authorId])
+}
+
+model CaseRelationship {
+  id          String   @id @default(uuid())
+  caseIdFrom  String
+  caseIdTo    String
+  createdAt   DateTime @default(now())
+
+  caseFrom Case @relation("CaseRelatedFrom", fields: [caseIdFrom], references: [id], onDelete: Cascade)
+  caseTo   Case @relation("CaseRelatedTo", fields: [caseIdTo], references: [id], onDelete: Cascade)
+
+  @@unique([caseIdFrom, caseIdTo])
+  @@index([caseIdFrom])
+  @@index([caseIdTo])
 }

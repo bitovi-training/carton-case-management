@@ -277,7 +277,7 @@ export const appRouter = router({
         });
       }),
     getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-      return ctx.prisma.case.findUnique({
+      const caseData = await ctx.prisma.case.findUnique({
         where: { id: input.id },
         include: {
           customer: {
@@ -318,8 +318,52 @@ export const appRouter = router({
               createdAt: 'desc',
             },
           },
+          relatedFrom: {
+            include: {
+              caseTo: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  priority: true,
+                  createdAt: true,
+                },
+              },
+            },
+          },
+          relatedTo: {
+            include: {
+              caseFrom: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  priority: true,
+                  createdAt: true,
+                },
+              },
+            },
+          },
         },
       });
+
+      if (!caseData) {
+        return null;
+      }
+
+      const relatedCases = [
+        ...caseData.relatedFrom.map((rel) => rel.caseTo),
+        ...caseData.relatedTo.map((rel) => rel.caseFrom),
+      ];
+
+      const uniqueRelatedCases = Array.from(
+        new Map(relatedCases.map((c) => [c.id, c])).values()
+      );
+
+      return {
+        ...caseData,
+        relatedCases: uniqueRelatedCases,
+      };
     }),
     create: publicProcedure
       .input(
@@ -399,6 +443,77 @@ export const appRouter = router({
             },
           },
         });
+      }),
+  }),
+
+  // Case Relationship routes
+  caseRelationship: router({
+    addRelatedCases: publicProcedure
+      .input(
+        z.object({
+          caseId: z.string(),
+          relatedCaseIds: z.array(z.string()),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { caseId, relatedCaseIds } = input;
+
+        const relationshipsToCreate = relatedCaseIds.map((relatedId) => ({
+          caseIdFrom: caseId,
+          caseIdTo: relatedId,
+        }));
+
+        await ctx.prisma.$transaction([
+          ...relationshipsToCreate.map((rel) =>
+            ctx.prisma.caseRelationship.upsert({
+              where: {
+                caseIdFrom_caseIdTo: rel,
+              },
+              create: rel,
+              update: {},
+            })
+          ),
+          ...relationshipsToCreate.map((rel) =>
+            ctx.prisma.caseRelationship.upsert({
+              where: {
+                caseIdFrom_caseIdTo: {
+                  caseIdFrom: rel.caseIdTo,
+                  caseIdTo: rel.caseIdFrom,
+                },
+              },
+              create: {
+                caseIdFrom: rel.caseIdTo,
+                caseIdTo: rel.caseIdFrom,
+              },
+              update: {},
+            })
+          ),
+        ]);
+
+        return { success: true };
+      }),
+    removeRelatedCase: publicProcedure
+      .input(
+        z.object({
+          caseId: z.string(),
+          relatedCaseId: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { caseId, relatedCaseId } = input;
+
+        await ctx.prisma.$transaction([
+          ctx.prisma.caseRelationship.deleteMany({
+            where: {
+              OR: [
+                { caseIdFrom: caseId, caseIdTo: relatedCaseId },
+                { caseIdFrom: relatedCaseId, caseIdTo: caseId },
+              ],
+            },
+          }),
+        ]);
+
+        return { success: true };
       }),
   }),
 });
