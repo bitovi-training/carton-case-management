@@ -294,12 +294,52 @@ async function main() {
     },
   });
 
+  // Create case relationships (bidirectional)
+  await prisma.caseRelationship.create({
+    data: {
+      caseIdFrom: case1.id,
+      caseIdTo: case2.id,
+    },
+  });
+  await prisma.caseRelationship.create({
+    data: {
+      caseIdFrom: case2.id,
+      caseIdTo: case1.id,
+    },
+  });
+
+  await prisma.caseRelationship.create({
+    data: {
+      caseIdFrom: case1.id,
+      caseIdTo: case3.id,
+    },
+  });
+  await prisma.caseRelationship.create({
+    data: {
+      caseIdFrom: case3.id,
+      caseIdTo: case1.id,
+    },
+  });
+
+  await prisma.caseRelationship.create({
+    data: {
+      caseIdFrom: case4.id,
+      caseIdTo: case5.id,
+    },
+  });
+  await prisma.caseRelationship.create({
+    data: {
+      caseIdFrom: case5.id,
+      caseIdTo: case4.id,
+    },
+  });
 
   console.log('Seeding completed!');
   console.log(`Created ${await prisma.user.count()} users`);
   console.log(`Created ${await prisma.customer.count()} customers`);
   console.log(`Created ${await prisma.case.count()} cases`);
   console.log(`Created ${await prisma.comment.count()} comments`);
+  console.log(`Created ${await prisma.caseRelationship.count()} case relationships`);
 }
 
 main()
