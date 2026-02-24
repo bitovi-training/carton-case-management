@@ -35,8 +35,8 @@ const mockCase: NonNullable<CaseByIdOutput> = {
     lastName: 'Smith',
     email: 'jane@example.com',
   },
-  createdAt: new Date('2024-01-15T10:00:00Z'),
-  updatedAt: new Date('2024-01-16T14:30:00Z'),
+  createdAt: '2024-01-15T10:00:00Z' as any,
+  updatedAt: '2024-01-16T14:30:00Z' as any,
   comments: [
     {
       id: '1',
@@ -49,9 +49,14 @@ const mockCase: NonNullable<CaseByIdOutput> = {
         lastName: 'Smith',
         email: 'jane@example.com',
       },
-      createdAt: new Date('2024-01-15T11:00:00Z'),
-      updatedAt: new Date('2024-01-15T11:00:00Z'),
-    },
+      createdAt: '2024-01-15T11:00:00Z' as any,
+      updatedAt: '2024-01-15T11:00:00Z' as any,
+      upvoteCount: 3,
+      downvoteCount: 1,
+      upvoters: ['Alex Morgan', 'Alice Smith', 'Bob Williams'],
+      downvoters: ['John Sorenson'],
+      userVoteType: 'UP' as const,
+    } as any,
     {
       id: '2',
       content:
@@ -64,9 +69,14 @@ const mockCase: NonNullable<CaseByIdOutput> = {
         lastName: 'Smith',
         email: 'jane@example.com',
       },
-      createdAt: new Date('2024-01-16T09:15:00Z'),
-      updatedAt: new Date('2024-01-16T09:15:00Z'),
-    },
+      createdAt: '2024-01-16T09:15:00Z' as any,
+      updatedAt: '2024-01-16T09:15:00Z' as any,
+      upvoteCount: 1,
+      downvoteCount: 0,
+      upvoters: ['Alex Morgan'],
+      downvoters: [],
+      userVoteType: null,
+    } as any,
   ],
 };
 

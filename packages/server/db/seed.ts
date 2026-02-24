@@ -5,6 +5,7 @@ async function main() {
   console.log('Clearing existing data...');
 
   // Delete all existing data in correct order (respecting foreign keys)
+  await prisma.vote.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.case.deleteMany();
   await prisma.customer.deleteMany();
@@ -151,7 +152,7 @@ async function main() {
     },
   });
 
-  await prisma.comment.create({
+  const comment1 = await prisma.comment.create({
     data: {
       content:
         'Customer is seeking housing assistance after job loss. Currently in temporary housing. Need to contact Housing First program coordinator.',
@@ -161,13 +162,59 @@ async function main() {
     },
   });
 
-  await prisma.comment.create({
+  const comment2 = await prisma.comment.create({
     data: {
       content:
         'Following up on the housing assistance application. Will contact the Housing First program coordinator.',
       caseId: case1.id,
       authorId: sarahJohnson.id,
       createdAt: new Date('2025-11-29T14:30:00'),
+    },
+  });
+
+  // Add votes to comments
+  await prisma.vote.create({
+    data: {
+      commentId: comment1.id,
+      userId: alexMorgan.id,
+      voteType: 'UP',
+      createdAt: new Date('2025-11-29T12:00:00'),
+    },
+  });
+
+  await prisma.vote.create({
+    data: {
+      commentId: comment1.id,
+      userId: aliceSmith.id,
+      voteType: 'UP',
+      createdAt: new Date('2025-11-29T12:15:00'),
+    },
+  });
+
+  await prisma.vote.create({
+    data: {
+      commentId: comment1.id,
+      userId: bobWilliams.id,
+      voteType: 'UP',
+      createdAt: new Date('2025-11-29T12:30:00'),
+    },
+  });
+
+  await prisma.vote.create({
+    data: {
+      commentId: comment1.id,
+      userId: johnSorenson.id,
+      voteType: 'DOWN',
+      createdAt: new Date('2025-11-29T13:00:00'),
+    },
+  });
+
+  await prisma.vote.create({
+    data: {
+      commentId: comment2.id,
+      userId: alexMorgan.id,
+      voteType: 'UP',
+      createdAt: new Date('2025-11-29T14:45:00'),
     },
   });
 
@@ -294,12 +341,12 @@ async function main() {
     },
   });
 
-
   console.log('Seeding completed!');
   console.log(`Created ${await prisma.user.count()} users`);
   console.log(`Created ${await prisma.customer.count()} customers`);
   console.log(`Created ${await prisma.case.count()} cases`);
   console.log(`Created ${await prisma.comment.count()} comments`);
+  console.log(`Created ${await prisma.vote.count()} votes`);
 }
 
 main()
