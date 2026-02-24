@@ -34,16 +34,70 @@ Complete the audit process and output the audit table before creating any new co
 ```
 1. Extract all Figma URLs from Jira ticket
 2. Call get_design_context on each link
-3. Extract component names from CodeConnectSnippets
-4. Search exact names first (remove spaces)
-5. Search variations only if exact search fails
-6. Output audit table
-7. Reuse existing or delegate to figma-implement-component
+3. If CodeConnects missing, use get_metadata to find nested instances
+4. Extract component names from CodeConnectSnippets
+5. Search exact names first (remove spaces)
+6. Search variations only if exact search fails
+7. Output audit table
+8. Reuse existing or delegate to figma-implement-component
 ```
+
+## Step 0: Create Component Audit Todo List
+
+Use `manage_todo_list` to create a checklist before starting the audit.
+
+```javascript
+manage_todo_list({
+  todoList: [
+    {
+      id: 1,
+      title: 'Extract Figma links from ticket/request',
+      status: 'not-started'
+    },
+    {
+      id: 2,
+      title: 'Get design context for each Figma link',
+      status: 'not-started'
+    },
+    {
+      id: 3,
+      title: 'Check for nested components if needed',
+      status: 'not-started'
+    },
+    {
+      id: 4,
+      title: 'Extract component names from CodeConnectSnippets',
+      status: 'not-started'
+    },
+    {
+      id: 5,
+      title: 'Search exact component names',
+      status: 'not-started'
+    },
+    {
+      id: 6,
+      title: 'Search variations for unfound components',
+      status: 'not-started'
+    },
+    {
+      id: 7,
+      title: 'Output component audit table',
+      status: 'not-started'
+    },
+    {
+      id: 8,
+      title: 'Take action (REUSE/WRAP/CREATE)',
+      status: 'not-started'
+    }
+  ]
+})
+```
+
+Mark each task as `in-progress` before starting it, complete the work, then mark it `completed` immediately. Do not batch completion updates.
 
 ## Step-by-Step Process
 
-### Step 0: Extract Figma Links
+### Step 1: Extract Figma Links
 
 When working from a Jira ticket, extract all Figma URLs:
 - Ticket description
@@ -56,7 +110,7 @@ Example format:
 - https://www.figma.com/design/FILE_KEY?node-id=789-012 (Feature Active)
 ```
 
-### Step 1: Get Design Context for Each Link
+### Step 2: Get Design Context for Each Link
 
 Call `mcp_figma_get_design_context` for every Figma URL:
 
@@ -70,7 +124,9 @@ mcp_figma_get_design_context({
 
 Each screen may reference different components via Code Connect.
 
-### Step 2: Extract Component Names
+**For nested components:** If get_design_context doesn't return expected CodeConnectSnippets, use `mcp_figma_get_metadata` on the same node to get the structure, find `<instance>` nodes, and call `get_design_context` on those instance IDs directly.
+
+### Step 3: Extract Component Names
 
 Look for CodeConnectSnippet elements in each response:
 
@@ -87,7 +143,7 @@ Extract from each snippet:
 
 Create a list of all unique component names found across all Figma links.
 
-### Step 3: Search Exact Names
+### Step 4: Search Exact Names
 
 For every component found in CodeConnectSnippets, search using the exact name (remove spaces from data-name):
 
@@ -100,7 +156,7 @@ file_search "**/FeatureDialog/**"
 semantic_search "FeatureDialog component implementation"
 ```
 
-### Step 4: Search Variations (Only if Exact Search Failed)
+### Step 5: Search Variations (Only if Exact Search Failed)
 
 If exact name search found nothing, try variations:
 
@@ -117,7 +173,7 @@ grep_search "Feature.*Button|Feature.*Trigger" --isRegexp=true --includePattern=
 semantic_search "feature trigger button component"
 ```
 
-### Step 5: Output Audit Table
+### Step 6: Output Audit Table
 
 Output this table before creating any components:
 ```
@@ -142,7 +198,7 @@ Column definitions:
 - **WRAP**: Component is generic/common and needs domain logic (e.g., `FiltersDialog`, `ConfirmationDialog`)
 - **CREATE**: Component doesn't exist after exhaustive search
 
-### Step 6: Take Action
+### Step 7: Take Action
 
 For components marked REUSE:
 - Import and use the existing component directly
@@ -193,43 +249,43 @@ User Request → component-reuse (audit) → figma-implement-component (if CREAT
 
 ### Example 1: Feature Component Audit
 
-Step 0: Extract links from ticket
+Step 1: Extract links from ticket
 ```
 1. node-id=123-456 (Feature Button)
 2. node-id=789-012 (Feature Active)
 ```
 
-Step 1: Get context for both links
+Step 2: Get context for both links
 ```javascript
 mcp_figma_get_design_context({ nodeId: "123-456" }) // No CodeConnect
 mcp_figma_get_design_context({ nodeId: "789-012" }) // Returns FeatureDialog
 ```
 
-Step 2: Extract names
+Step 3: Extract names
 ```
 - FeatureDialog (from CodeConnect)
 - FeatureTrigger (from layer name)
 ```
 
-Step 3: Search exact
+Step 4: Search exact
 ```
 FeatureDialog → FOUND at common/FeatureDialog/
 FeatureTrigger → NOT FOUND
 ```
 
-Step 4: Search variations
+Step 5: Search variations
 ```
 FeatureButton → FOUND at common/FeatureButton/
 ```
 
-Step 5: Audit table
+Step 6: Audit table
 ```
 | Screen | Component | CodeConnect | Exact | Variation | Location | Action |
 | 789-012 | Feature Panel | GenericDialog | FOUND | N/A | common/GenericDialog/ | WRAP |
 | 123-456 | Feature Trigger | FeatureTrigger | NOT FOUND | FeatureButton | common/FeatureButton/ | REUSE |
 ```
 
-Step 6: 
+Step 7: 
 - For GenericDialog: Create FeatureGenericDialog wrapper in Feature domain
 - For FeatureButton: Import and use directly
 
@@ -314,6 +370,14 @@ Correct: Search "FeatureDialog" → "FeatureModal" → "Dialog" → Semantic sea
 Before proceeding to implementation:
 
 - [ ] Extracted all Figma links from ticket
+- [ ] Called get_design_context on every link
+- [ ] Identified all CodeConnectSnippets
+- [ ] Searched exact names first
+- [ ] Searched variations only after exact search failed
+- [ ] Output the audit table
+- [ ] For REUSE: Verified component meets requirements
+- [ ] For CREATE: Confirmed exhaustive search found nothing
+- [ ] No duplicates: Not creating what exists with different name from ticket
 - [ ] Called get_design_context on every link
 - [ ] Identified all CodeConnectSnippets
 - [ ] Searched exact names first
