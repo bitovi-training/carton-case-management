@@ -55,21 +55,24 @@ const mockCustomers = [
 const mockUsers = [
   {
     id: '1',
-    name: 'Admin User',
+    firstName: 'Admin',
+    lastName: 'User',
     email: 'admin@example.com',
     createdAt: new Date('2024-01-01T00:00:00Z'),
     updatedAt: new Date('2024-01-01T00:00:00Z'),
   },
   {
     id: '2',
-    name: 'Jane Smith',
+    firstName: 'Jane',
+    lastName: 'Smith',
     email: 'jane@example.com',
     createdAt: new Date('2024-01-02T00:00:00Z'),
     updatedAt: new Date('2024-01-02T00:00:00Z'),
   },
   {
     id: '3',
-    name: 'John Doe',
+    firstName: 'John',
+    lastName: 'Doe',
     email: 'john@example.com',
     createdAt: new Date('2024-01-03T00:00:00Z'),
     updatedAt: new Date('2024-01-03T00:00:00Z'),
