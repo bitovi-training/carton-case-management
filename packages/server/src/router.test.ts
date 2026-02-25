@@ -336,7 +336,21 @@ describe('appRouter', () => {
             {
               id: 'comment-1',
               content: 'Test comment',
+              caseId: 'case-1',
+              authorId: 'user-1',
+              createdAt: new Date(),
+              updatedAt: new Date(),
               author: { id: 'user-1', firstName: 'User', lastName: 'One', email: 'user1@example.com' },
+              votes: [
+                {
+                  id: 'vote-1',
+                  type: 'UP',
+                  commentId: 'comment-1',
+                  userId: 'user-2',
+                  createdAt: new Date(),
+                  user: { firstName: 'Jane', lastName: 'Doe' },
+                },
+              ],
             },
           ],
         };
@@ -363,12 +377,29 @@ describe('appRouter', () => {
                 author: {
                   select: { id: true, firstName: true, lastName: true, email: true },
                 },
+                votes: {
+                  include: {
+                    user: {
+                      select: { firstName: true, lastName: true },
+                    },
+                  },
+                },
               },
               orderBy: { createdAt: 'desc' },
             },
           },
         });
-        expect(result).toEqual(mockCase);
+        
+        // Verify the result has enriched comment data
+        expect(result?.comments?.[0]).toMatchObject({
+          id: 'comment-1',
+          content: 'Test comment',
+          upvoteCount: 1,
+          downvoteCount: 0,
+          userVoteType: 'none',
+          upvoters: ['Jane Doe'],
+          downvoters: [],
+        });
       });
     });
 
