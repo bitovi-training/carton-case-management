@@ -55,6 +55,7 @@ model User {
   comments      Comment[]
   createdCases  Case[]    @relation("UserCreatedBy")
   assignedCases Case[]    @relation("UserAssignedTo")
+  votes         Vote[]
 }
 
 model Customer {
@@ -93,6 +94,11 @@ model Case {
   @@index([assignedTo])
 }
 
+enum VoteType {
+  UP
+  DOWN
+}
+
 model Comment {
   id        String   @id @default(uuid())
   content   String
@@ -101,9 +107,26 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  case   Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  votes  Vote[]
 
   @@index([caseId])
   @@index([authorId])
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  type      VoteType
+  commentId String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
 }
