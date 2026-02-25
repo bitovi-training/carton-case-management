@@ -33,15 +33,16 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
 
       return { previousCase };
     },
-    onSuccess: (data) => {
-      trpcUtils.case.getById.setData({ id: caseId }, data);
-    },
     onError: (error, _variables, context) => {
       console.error('Failed to update case:', error);
       // Roll back to previous value on error
       if (context?.previousCase) {
         trpcUtils.case.getById.setData({ id: caseId }, context.previousCase);
       }
+    },
+    onSettled: () => {
+      // Refetch to get the latest data from server
+      trpcUtils.case.getById.invalidate({ id: caseId });
     },
   });
 

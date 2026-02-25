@@ -41,7 +41,7 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
           votes: [],
           upvoteCount: 0,
           downvoteCount: 0,
-          userVoteType: null as const,
+          userVoteType: null,
           upvotes: [],
           downvotes: [],
         };

@@ -336,10 +336,11 @@ export const appRouter = router({
 
       // Enrich comments with vote counts and user vote status
       const enrichedComments = caseData.comments.map((comment) => {
-        const upvotes = comment.votes.filter((v) => v.voteType === 'UPVOTE');
-        const downvotes = comment.votes.filter((v) => v.voteType === 'DOWNVOTE');
+        const votes = comment.votes || [];
+        const upvotes = votes.filter((v) => v.voteType === 'UPVOTE');
+        const downvotes = votes.filter((v) => v.voteType === 'DOWNVOTE');
         const userVote = ctx.userId
-          ? comment.votes.find((v) => v.userId === ctx.userId)
+          ? votes.find((v) => v.userId === ctx.userId)
           : undefined;
 
         return {
