@@ -325,7 +325,7 @@ describe('appRouter', () => {
     });
 
     describe('getById', () => {
-      it('returns case with comments', async () => {
+      it('returns case with comments and vote data', async () => {
         const mockCase = {
           id: 'case-1',
           title: 'Test Case',
@@ -337,6 +337,14 @@ describe('appRouter', () => {
               id: 'comment-1',
               content: 'Test comment',
               author: { id: 'user-1', firstName: 'User', lastName: 'One', email: 'user1@example.com' },
+              votes: [
+                {
+                  id: 'vote-1',
+                  type: 'UP',
+                  userId: 'user-2',
+                  user: { id: 'user-2', firstName: 'User', lastName: 'Two' },
+                },
+              ],
             },
           ],
         };
@@ -363,12 +371,25 @@ describe('appRouter', () => {
                 author: {
                   select: { id: true, firstName: true, lastName: true, email: true },
                 },
+                votes: {
+                  include: {
+                    user: {
+                      select: { id: true, firstName: true, lastName: true },
+                    },
+                  },
+                },
               },
               orderBy: { createdAt: 'desc' },
             },
           },
         });
-        expect(result).toEqual(mockCase);
+        
+        // Result should include enriched vote data
+        expect(result?.comments[0]).toHaveProperty('upvoteCount', 1);
+        expect(result?.comments[0]).toHaveProperty('downvoteCount', 0);
+        expect(result?.comments[0]).toHaveProperty('userVoteType', 'NONE');
+        expect(result?.comments[0]).toHaveProperty('upvoters', ['User Two']);
+        expect(result?.comments[0]).toHaveProperty('downvoters', []);
       });
     });
 
