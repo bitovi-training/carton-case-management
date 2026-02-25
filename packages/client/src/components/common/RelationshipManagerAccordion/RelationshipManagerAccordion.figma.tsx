@@ -21,6 +21,7 @@ figma.connect(
           id: '1',
           title: 'Policy Coverage Inquiry',
           subtitle: '#CAS-242315-2125',
+          to: '/cases/1',
         },
       ]}
       onAddClick={() => {}}
@@ -51,6 +52,7 @@ figma.connect(
           id: '1',
           title: 'Policy Coverage Inquiry',
           subtitle: '#CAS-242315-2125',
+          to: '/cases/1',
         },
       ]}
       onAddClick={() => {}}
