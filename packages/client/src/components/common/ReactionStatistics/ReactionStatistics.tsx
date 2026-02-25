@@ -8,6 +8,7 @@ export function ReactionStatistics({
   upvoters,
   downvotes = 0,
   downvoters,
+  isPending = false,
   onUpvote,
   onDownvote,
   className
@@ -20,6 +21,7 @@ export function ReactionStatistics({
         showCount={userVote === 'up'}
         count={upvotes}
         voters={upvoters}
+        isPending={isPending}
         onClick={onUpvote}
       />
       <VoteButton
@@ -28,6 +30,7 @@ export function ReactionStatistics({
         showCount={userVote === 'down'}
         count={downvotes}
         voters={downvoters}
+        isPending={isPending}
         onClick={onDownvote}
       />
     </div>

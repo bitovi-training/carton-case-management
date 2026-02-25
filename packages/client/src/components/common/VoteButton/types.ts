@@ -32,6 +32,11 @@ export interface VoteButtonProps {
   voters?: string[];
   
   /**
+   * Whether a mutation is pending
+   */
+  isPending?: boolean;
+  
+  /**
    * Click handler for voting interaction
    */
   onClick?: () => void;
