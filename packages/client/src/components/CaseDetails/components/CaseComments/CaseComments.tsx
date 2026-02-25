@@ -36,6 +36,11 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
             lastName: currentUser.lastName,
             email: currentUser.email,
           },
+          upvoteCount: 0,
+          downvoteCount: 0,
+          userVoteType: 'none' as 'up' | 'down' | 'none',
+          upvoters: [],
+          downvoters: [],
         };
 
         utils.case.getById.setData(

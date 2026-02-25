@@ -337,6 +337,7 @@ describe('appRouter', () => {
               id: 'comment-1',
               content: 'Test comment',
               author: { id: 'user-1', firstName: 'User', lastName: 'One', email: 'user1@example.com' },
+              votes: [],
             },
           ],
         };
@@ -363,12 +364,25 @@ describe('appRouter', () => {
                 author: {
                   select: { id: true, firstName: true, lastName: true, email: true },
                 },
+                votes: {
+                  include: {
+                    user: {
+                      select: { id: true, firstName: true, lastName: true },
+                    },
+                  },
+                },
               },
               orderBy: { createdAt: 'desc' },
             },
           },
         });
-        expect(result).toEqual(mockCase);
+        
+        // Check that result has enriched vote data
+        expect(result?.comments?.[0]).toHaveProperty('upvoteCount', 0);
+        expect(result?.comments?.[0]).toHaveProperty('downvoteCount', 0);
+        expect(result?.comments?.[0]).toHaveProperty('userVoteType', 'none');
+        expect(result?.comments?.[0]).toHaveProperty('upvoters');
+        expect(result?.comments?.[0]).toHaveProperty('downvoters');
       });
     });
 
@@ -484,6 +498,17 @@ describe('appRouter', () => {
                     email: true,
                   },
                 },
+                votes: {
+                  include: {
+                    user: {
+                      select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                      },
+                    },
+                  },
+                },
               },
               orderBy: {
                 createdAt: 'desc',
@@ -542,6 +567,17 @@ describe('appRouter', () => {
                     firstName: true,
                     lastName: true,
                     email: true,
+                  },
+                },
+                votes: {
+                  include: {
+                    user: {
+                      select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                      },
+                    },
                   },
                 },
               },

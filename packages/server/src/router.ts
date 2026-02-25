@@ -348,7 +348,7 @@ export const appRouter = router({
           ...comment,
           upvoteCount: upvotes.length,
           downvoteCount: downvotes.length,
-          userVoteType: userVote ? (userVote.type === 'UPVOTE' ? 'up' : 'down') : 'none',
+          userVoteType: (userVote ? (userVote.type === 'UPVOTE' ? 'up' : 'down') : 'none') as 'up' | 'down' | 'none',
           upvoters: upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
           downvoters: downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
           votes: undefined, // Remove raw votes from response
@@ -390,7 +390,7 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         const { id, ...data } = input;
-        return ctx.prisma.case.update({
+        const updatedCase = await ctx.prisma.case.update({
           where: { id },
           data: {
             ...data,
@@ -430,6 +430,17 @@ export const appRouter = router({
                     email: true,
                   },
                 },
+                votes: {
+                  include: {
+                    user: {
+                      select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                      },
+                    },
+                  },
+                },
               },
               orderBy: {
                 createdAt: 'desc',
@@ -437,6 +448,34 @@ export const appRouter = router({
             },
           },
         });
+
+        // Enrich comments with vote counts and user vote status (if comments are included)
+        if (updatedCase.comments) {
+          const enrichedComments = updatedCase.comments.map((comment) => {
+            const upvotes = comment.votes.filter((v) => v.type === 'UPVOTE');
+            const downvotes = comment.votes.filter((v) => v.type === 'DOWNVOTE');
+            const userVote = ctx.userId
+              ? comment.votes.find((v) => v.userId === ctx.userId)
+              : null;
+
+            return {
+              ...comment,
+              upvoteCount: upvotes.length,
+              downvoteCount: downvotes.length,
+              userVoteType: (userVote ? (userVote.type === 'UPVOTE' ? 'up' : 'down') : 'none') as 'up' | 'down' | 'none',
+              upvoters: upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
+              downvoters: downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
+              votes: undefined, // Remove raw votes from response
+            };
+          });
+
+          return {
+            ...updatedCase,
+            comments: enrichedComments,
+          };
+        }
+
+        return updatedCase;
       }),
     delete: publicProcedure.input(z.object({ id: z.string() })).mutation(async ({ ctx, input }) => {
       return ctx.prisma.case.delete({
