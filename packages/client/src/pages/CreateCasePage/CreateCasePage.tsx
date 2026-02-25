@@ -38,7 +38,7 @@ export function CreateCasePage() {
   
   // For now use Alex Morgan as the default user
   const defaultUser = users?.find(
-    (user) => user.firstName === 'Alex' && user.lastName === 'Morgan'
+    (user: { firstName: string; lastName: string }) => user.firstName === 'Alex' && user.lastName === 'Morgan'
   );
   
   const createCase = trpc.case.create.useMutation({

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { Alert } from '@/components/obra/Alert';
 import { Button } from '@/components/obra/Button';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
@@ -67,7 +67,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
               action={
                 <Button
                   variant="outline"
-                  size="sm"
+                  size="small"
                   onClick={() => dismissToast(toast.id)}
                 >
                   Dismiss
