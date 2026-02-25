@@ -338,9 +338,9 @@ export const appRouter = router({
 
       // Enrich comments with vote counts and user vote status
       const enrichedComments = caseData.comments.map((comment) => {
-        const upvotes = comment.votes.filter((v) => v.type === 'UP');
-        const downvotes = comment.votes.filter((v) => v.type === 'DOWN');
-        const userVote = comment.votes.find((v) => v.userId === ctx.userId);
+        const upvotes = comment.votes?.filter((v) => v.type === 'UP') || [];
+        const downvotes = comment.votes?.filter((v) => v.type === 'DOWN') || [];
+        const userVote = comment.votes?.find((v) => v.userId === ctx.userId);
 
         return {
           ...comment,
@@ -446,11 +446,11 @@ export const appRouter = router({
           },
         });
 
-        // Enrich comments with vote counts
-        const enrichedComments = updatedCase.comments.map((comment) => {
-          const upvotes = comment.votes.filter((v) => v.type === 'UP');
-          const downvotes = comment.votes.filter((v) => v.type === 'DOWN');
-          const userVote = comment.votes.find((v) => v.userId === ctx.userId);
+        // Enrich comments with vote counts (if comments are included)
+        const enrichedComments = updatedCase.comments?.map((comment) => {
+          const upvotes = comment.votes?.filter((v) => v.type === 'UP') || [];
+          const downvotes = comment.votes?.filter((v) => v.type === 'DOWN') || [];
+          const userVote = comment.votes?.find((v) => v.userId === ctx.userId);
 
           return {
             ...comment,
@@ -460,7 +460,7 @@ export const appRouter = router({
             upvoters: upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
             downvoters: downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
           };
-        });
+        }) || [];
 
         return {
           ...updatedCase,

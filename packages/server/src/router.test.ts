@@ -337,6 +337,7 @@ describe('appRouter', () => {
               id: 'comment-1',
               content: 'Test comment',
               author: { id: 'user-1', firstName: 'User', lastName: 'One', email: 'user1@example.com' },
+              votes: [],
             },
           ],
         };
@@ -363,12 +364,35 @@ describe('appRouter', () => {
                 author: {
                   select: { id: true, firstName: true, lastName: true, email: true },
                 },
+                votes: {
+                  include: {
+                    user: {
+                      select: { id: true, firstName: true, lastName: true },
+                    },
+                  },
+                },
               },
               orderBy: { createdAt: 'desc' },
             },
           },
         });
-        expect(result).toEqual(mockCase);
+        
+        // The result should have enriched vote fields
+        expect(result).toMatchObject({
+          id: 'case-1',
+          title: 'Test Case',
+          comments: [
+            {
+              id: 'comment-1',
+              content: 'Test comment',
+              upvoteCount: 0,
+              downvoteCount: 0,
+              userVoteType: null,
+              upvoters: [],
+              downvoters: [],
+            },
+          ],
+        });
       });
     });
 
@@ -435,6 +459,7 @@ describe('appRouter', () => {
         const mockUpdatedCase = {
           ...input,
           updatedAt: expect.any(Date),
+          comments: [],
         };
 
         mockContext.userId = 'user-1';
@@ -484,6 +509,17 @@ describe('appRouter', () => {
                     email: true,
                   },
                 },
+                votes: {
+                  include: {
+                    user: {
+                      select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                      },
+                    },
+                  },
+                },
               },
               orderBy: {
                 createdAt: 'desc',
@@ -496,7 +532,7 @@ describe('appRouter', () => {
 
       it('updates case with nullable assignedTo', async () => {
         mockContext.userId = 'user-1';
-        mockPrisma.case.update.mockResolvedValue({});
+        mockPrisma.case.update.mockResolvedValue({ comments: [] });
 
         const caller = appRouter.createCaller(mockContext);
         await caller.case.update({
@@ -542,6 +578,17 @@ describe('appRouter', () => {
                     firstName: true,
                     lastName: true,
                     email: true,
+                  },
+                },
+                votes: {
+                  include: {
+                    user: {
+                      select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                      },
+                    },
                   },
                 },
               },
