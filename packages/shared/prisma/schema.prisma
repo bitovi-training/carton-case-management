@@ -41,6 +41,11 @@ enum CasePriority {
   URGENT
 }
 
+enum VoteType {
+  UPVOTE
+  DOWNVOTE
+}
+
 model User {
   id         String   @id @default(uuid())
   firstName  String
@@ -55,6 +60,7 @@ model User {
   comments      Comment[]
   createdCases  Case[]    @relation("UserCreatedBy")
   assignedCases Case[]    @relation("UserAssignedTo")
+  votes         Vote[]
 }
 
 model Customer {
@@ -101,9 +107,26 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  case   Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  case   Case  @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  author User  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  votes  Vote[]
 
   @@index([caseId])
   @@index([authorId])
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  commentId String
+  userId    String
+  voteType  VoteType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
 }

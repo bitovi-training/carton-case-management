@@ -277,7 +277,7 @@ export const appRouter = router({
         });
       }),
     getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-      return ctx.prisma.case.findUnique({
+      const caseData = await ctx.prisma.case.findUnique({
         where: { id: input.id },
         include: {
           customer: {
@@ -313,6 +313,17 @@ export const appRouter = router({
                   email: true,
                 },
               },
+              votes: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
             },
             orderBy: {
               createdAt: 'desc',
@@ -320,6 +331,37 @@ export const appRouter = router({
           },
         },
       });
+
+      if (!caseData) return null;
+
+      // Enrich comments with vote counts and user vote status
+      const enrichedComments = caseData.comments.map((comment) => {
+        const upvotes = comment.votes.filter((v) => v.voteType === 'UPVOTE');
+        const downvotes = comment.votes.filter((v) => v.voteType === 'DOWNVOTE');
+        const userVote = ctx.userId
+          ? comment.votes.find((v) => v.userId === ctx.userId)
+          : undefined;
+
+        return {
+          ...comment,
+          upvoteCount: upvotes.length,
+          downvoteCount: downvotes.length,
+          userVoteType: userVote?.voteType ?? null,
+          upvotes: upvotes.map((v) => ({
+            userId: v.user.id,
+            userName: `${v.user.firstName} ${v.user.lastName}`,
+          })),
+          downvotes: downvotes.map((v) => ({
+            userId: v.user.id,
+            userName: `${v.user.firstName} ${v.user.lastName}`,
+          })),
+        };
+      });
+
+      return {
+        ...caseData,
+        comments: enrichedComments,
+      };
     }),
     create: publicProcedure
       .input(
@@ -439,6 +481,69 @@ export const appRouter = router({
             },
           },
         });
+      }),
+  }),
+
+  vote: router({
+    toggle: publicProcedure
+      .input(
+        z.object({
+          commentId: z.string(),
+          voteType: z.enum(['UPVOTE', 'DOWNVOTE']),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated',
+          });
+        }
+
+        const { commentId, voteType } = input;
+
+        // Check if user already voted on this comment
+        const existingVote = await ctx.prisma.vote.findUnique({
+          where: {
+            commentId_userId: {
+              commentId,
+              userId: ctx.userId,
+            },
+          },
+        });
+
+        if (existingVote) {
+          // If same vote type, remove the vote (toggle off)
+          if (existingVote.voteType === voteType) {
+            await ctx.prisma.vote.delete({
+              where: {
+                id: existingVote.id,
+              },
+            });
+            return { action: 'removed', voteType };
+          }
+
+          // If different vote type, update the vote (switch)
+          await ctx.prisma.vote.update({
+            where: {
+              id: existingVote.id,
+            },
+            data: {
+              voteType,
+            },
+          });
+          return { action: 'switched', voteType };
+        }
+
+        // No existing vote, create new one
+        await ctx.prisma.vote.create({
+          data: {
+            commentId,
+            userId: ctx.userId,
+            voteType,
+          },
+        });
+        return { action: 'added', voteType };
       }),
   }),
 });
