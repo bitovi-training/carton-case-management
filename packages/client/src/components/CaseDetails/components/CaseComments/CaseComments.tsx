@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/obra';
+import { ReactionStatistics } from '@/components/common/ReactionStatistics';
 import type { CaseCommentsProps } from './types';
 
 export function CaseComments({ caseData }: CaseCommentsProps) {
@@ -35,6 +36,12 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
             lastName: currentUser.lastName,
             email: currentUser.email,
           },
+          votes: [],
+          upvoteCount: 0,
+          downvoteCount: 0,
+          upvoters: [],
+          downvoters: [],
+          userVoteType: 'none' as const,
         };
 
         utils.case.getById.setData(
@@ -57,6 +64,79 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
     onSuccess: () => {
       // Clear input on success
       setNewComment('');
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      utils.case.getById.invalidate({ id: caseData.id });
+    },
+  });
+
+  const voteToggleMutation = trpc.vote.toggle.useMutation({
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await utils.case.getById.cancel({ id: caseData.id });
+
+      // Snapshot previous value
+      const previousCase = utils.case.getById.getData({ id: caseData.id });
+
+      // Optimistically update vote in cache
+      if (previousCase && currentUser) {
+        const updatedComments = previousCase.comments.map((comment) => {
+          if (comment.id !== variables.commentId) return comment;
+
+          const voteType = variables.type.toLowerCase() as 'up' | 'down';
+          const currentVote = comment.userVoteType;
+          const upVoteChange = voteType === 'up' ? (currentVote === 'up' ? -1 : currentVote === 'down' ? 0 : 1) : currentVote === 'down' ? 1 : 0;
+          const downVoteChange = voteType === 'down' ? (currentVote === 'down' ? -1 : currentVote === 'up' ? 0 : 1) : currentVote === 'up' ? 1 : 0;
+
+          const newUpvoteCount = comment.upvoteCount + upVoteChange;
+          const newDownvoteCount = comment.downvoteCount + downVoteChange;
+          const newUserVote = currentVote === voteType ? 'none' : voteType;
+
+          const userName = `${currentUser.firstName} ${currentUser.lastName}`;
+          let newUpvoters = comment.upvoters || [];
+          let newDownvoters = comment.downvoters || [];
+
+          if (voteType === 'up') {
+            if (currentVote === 'up') {
+              newUpvoters = newUpvoters.filter((name) => name !== userName);
+            } else {
+              newUpvoters = [...newUpvoters, userName];
+              if (currentVote === 'down') {
+                newDownvoters = newDownvoters.filter((name) => name !== userName);
+              }
+            }
+          } else {
+            if (currentVote === 'down') {
+              newDownvoters = newDownvoters.filter((name) => name !== userName);
+            } else {
+              newDownvoters = [...newDownvoters, userName];
+              if (currentVote === 'up') {
+                newUpvoters = newUpvoters.filter((name) => name !== userName);
+              }
+            }
+          }
+
+          return {
+            ...comment,
+            upvoteCount: newUpvoteCount,
+            downvoteCount: newDownvoteCount,
+            upvoters: newUpvoters,
+            downvoters: newDownvoters,
+            userVoteType: newUserVote as 'none' | 'up' | 'down',
+          };
+        });
+
+        utils.case.getById.setData({ id: caseData.id }, { ...previousCase, comments: updatedComments });
+      }
+
+      return { previousCase };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      if (context?.previousCase) {
+        utils.case.getById.setData({ id: caseData.id }, context.previousCase);
+      }
     },
     onSettled: () => {
       // Refetch to sync with server
@@ -115,6 +195,15 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
                 </div>
               </div>
               <p className="text-sm text-gray-700">{comment.content}</p>
+              <ReactionStatistics
+                userVote={(comment.userVoteType as 'none' | 'up' | 'down') || 'none'}
+                upvotes={comment.upvoteCount || 0}
+                upvoters={comment.upvoters}
+                downvotes={comment.downvoteCount || 0}
+                downvoters={comment.downvoters}
+                onUpvote={() => voteToggleMutation.mutate({ commentId: comment.id, type: 'UP' })}
+                onDownvote={() => voteToggleMutation.mutate({ commentId: comment.id, type: 'DOWN' })}
+              />
             </div>
           ))
         ) : (

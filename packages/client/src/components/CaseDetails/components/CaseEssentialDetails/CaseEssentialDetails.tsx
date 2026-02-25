@@ -33,8 +33,8 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
 
       return { previousCase };
     },
-    onSuccess: (data) => {
-      trpcUtils.case.getById.setData({ id: caseId }, data);
+    onSuccess: () => {
+      trpcUtils.case.getById.invalidate({ id: caseId });
     },
     onError: (error, _variables, context) => {
       console.error('Failed to update case:', error);

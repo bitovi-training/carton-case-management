@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { router, publicProcedure } from './trpc.js';
 import { formatDate, casePrioritySchema, caseStatusSchema } from '@carton/shared';
 import { TRPCError } from '@trpc/server';
+import { VoteType } from '@prisma/client';
 
 export const appRouter = router({
   health: publicProcedure.query(() => {
@@ -277,7 +278,7 @@ export const appRouter = router({
         });
       }),
     getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-      return ctx.prisma.case.findUnique({
+      const caseData = await ctx.prisma.case.findUnique({
         where: { id: input.id },
         include: {
           customer: {
@@ -313,6 +314,17 @@ export const appRouter = router({
                   email: true,
                 },
               },
+              votes: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
             },
             orderBy: {
               createdAt: 'desc',
@@ -320,6 +332,30 @@ export const appRouter = router({
           },
         },
       });
+
+      if (!caseData) return null;
+
+      const enrichedComments = caseData.comments.map((comment) => {
+        const upvotes = comment.votes.filter((v) => v.type === 'UP');
+        const downvotes = comment.votes.filter((v) => v.type === 'DOWN');
+        const userVote = ctx.userId
+          ? comment.votes.find((v) => v.userId === ctx.userId)
+          : null;
+
+        return {
+          ...comment,
+          upvoteCount: upvotes.length,
+          downvoteCount: downvotes.length,
+          upvoters: upvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
+          downvoters: downvotes.map((v) => `${v.user.firstName} ${v.user.lastName}`),
+          userVoteType: userVote ? (userVote.type === 'UP' ? 'up' : 'down') : 'none',
+        };
+      });
+
+      return {
+        ...caseData,
+        comments: enrichedComments,
+      };
     }),
     create: publicProcedure
       .input(
@@ -439,6 +475,58 @@ export const appRouter = router({
             },
           },
         });
+      }),
+  }),
+
+  // Vote routes
+  vote: router({
+    toggle: publicProcedure
+      .input(
+        z.object({
+          commentId: z.string(),
+          type: z.enum(['UP', 'DOWN']),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.userId) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated',
+          });
+        }
+
+        const existingVote = await ctx.prisma.vote.findUnique({
+          where: {
+            commentId_userId: {
+              commentId: input.commentId,
+              userId: ctx.userId,
+            },
+          },
+        });
+
+        if (existingVote) {
+          if (existingVote.type === input.type) {
+            await ctx.prisma.vote.delete({
+              where: { id: existingVote.id },
+            });
+            return { action: 'removed' as const };
+          } else {
+            await ctx.prisma.vote.update({
+              where: { id: existingVote.id },
+              data: { type: input.type as VoteType },
+            });
+            return { action: 'switched' as const };
+          }
+        } else {
+          await ctx.prisma.vote.create({
+            data: {
+              commentId: input.commentId,
+              userId: ctx.userId,
+              type: input.type as VoteType,
+            },
+          });
+          return { action: 'added' as const };
+        }
       }),
   }),
 });
