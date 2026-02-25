@@ -1,4 +1,4 @@
-import { formatCaseNumber } from '@carton/shared';
+import { formatCaseNumber } from '@carton/shared/client';
 import { RelationshipManagerAccordion } from '../RelationshipManagerAccordion/RelationshipManagerAccordion';
 
 interface RelatedCasesAccordionProps {

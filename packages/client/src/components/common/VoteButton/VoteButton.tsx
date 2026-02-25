@@ -9,6 +9,7 @@ export function VoteButton({
   showCount = true,
   count,
   voters,
+  isPending = false,
   onClick,
   className,
 }: VoteButtonProps) {
@@ -43,7 +44,8 @@ export function VoteButton({
   );
 
   // If voters are provided and there's a count, wrap with tooltip
-  if (voters && voters.length > 0 && count !== undefined && count > 0) {
+  // Skip tooltip if mutation is pending to avoid showing stale data
+  if (voters && voters.length > 0 && count !== undefined && count > 0 && !isPending) {
     const displayVoters = voters.slice(0, 3);
     const remainingCount = voters.length - 3;
 
