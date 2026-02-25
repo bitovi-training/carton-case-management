@@ -42,15 +42,16 @@ export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
 
       return { previousCase };
     },
-    onSuccess: (data) => {
-      utils.case.getById.setData({ id: caseId }, data);
-    },
     onError: (error, _variables, context) => {
       console.error('Failed to update case:', error);
       // Roll back to previous value on error
       if (context?.previousCase) {
         utils.case.getById.setData({ id: caseId }, context.previousCase);
       }
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      utils.case.getById.invalidate({ id: caseId });
     },
   });
 

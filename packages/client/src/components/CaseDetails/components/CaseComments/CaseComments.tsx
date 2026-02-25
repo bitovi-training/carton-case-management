@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Textarea } from '@/components/obra';
+import { ReactionStatistics } from '@/components/common/ReactionStatistics';
 import type { CaseCommentsProps } from './types';
 
 export function CaseComments({ caseData }: CaseCommentsProps) {
@@ -35,6 +36,11 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
             lastName: currentUser.lastName,
             email: currentUser.email,
           },
+          upvoteCount: 0,
+          downvoteCount: 0,
+          userVoteType: 'none' as const,
+          upvoters: [],
+          downvoters: [],
         };
 
         utils.case.getById.setData(
@@ -64,6 +70,102 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
     },
   });
 
+  const voteToggleMutation = trpc.vote.toggle.useMutation({
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await utils.case.getById.cancel({ id: caseData.id });
+
+      // Snapshot previous value
+      const previousCase = utils.case.getById.getData({ id: caseData.id });
+
+      // Optimistically update vote counts
+      if (previousCase && currentUser) {
+        const updatedComments = previousCase.comments.map((comment) => {
+          if (comment.id !== variables.commentId) {
+            return comment;
+          }
+
+          let newUpvoteCount = comment.upvoteCount;
+          let newDownvoteCount = comment.downvoteCount;
+          let newUserVoteType: 'up' | 'down' | 'none' = comment.userVoteType as 'up' | 'down' | 'none';
+          let newUpvoters = [...comment.upvoters];
+          let newDownvoters = [...comment.downvoters];
+
+          const voterName = `${currentUser.firstName} ${currentUser.lastName}`;
+
+          if (variables.type === 'up') {
+            if (comment.userVoteType === 'up') {
+              // Remove upvote
+              newUpvoteCount--;
+              newUserVoteType = 'none';
+              newUpvoters = newUpvoters.filter((name) => name !== voterName);
+            } else if (comment.userVoteType === 'down') {
+              // Switch from downvote to upvote
+              newDownvoteCount--;
+              newUpvoteCount++;
+              newUserVoteType = 'up';
+              newDownvoters = newDownvoters.filter((name) => name !== voterName);
+              newUpvoters.push(voterName);
+            } else {
+              // Add upvote
+              newUpvoteCount++;
+              newUserVoteType = 'up';
+              newUpvoters.push(voterName);
+            }
+          } else {
+            if (comment.userVoteType === 'down') {
+              // Remove downvote
+              newDownvoteCount--;
+              newUserVoteType = 'none';
+              newDownvoters = newDownvoters.filter((name) => name !== voterName);
+            } else if (comment.userVoteType === 'up') {
+              // Switch from upvote to downvote
+              newUpvoteCount--;
+              newDownvoteCount++;
+              newUserVoteType = 'down';
+              newUpvoters = newUpvoters.filter((name) => name !== voterName);
+              newDownvoters.push(voterName);
+            } else {
+              // Add downvote
+              newDownvoteCount++;
+              newUserVoteType = 'down';
+              newDownvoters.push(voterName);
+            }
+          }
+
+          return {
+            ...comment,
+            upvoteCount: newUpvoteCount,
+            downvoteCount: newDownvoteCount,
+            userVoteType: newUserVoteType,
+            upvoters: newUpvoters,
+            downvoters: newDownvoters,
+          };
+        });
+
+        utils.case.getById.setData(
+          { id: caseData.id },
+          {
+            ...previousCase,
+            comments: updatedComments,
+          }
+        );
+      }
+
+      return { previousCase };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      if (context?.previousCase) {
+        utils.case.getById.setData({ id: caseData.id }, context.previousCase);
+      }
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      utils.case.getById.invalidate({ id: caseData.id });
+    },
+  });
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!newComment.trim() || !currentUser) return;
@@ -72,6 +174,11 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
       caseId: caseData.id,
       content: newComment.trim(),
     });
+  };
+
+  const handleVote = (commentId: string, type: 'up' | 'down') => {
+    if (!currentUser) return;
+    voteToggleMutation.mutate({ commentId, type });
   };
 
   return (
@@ -115,6 +222,16 @@ export function CaseComments({ caseData }: CaseCommentsProps) {
                 </div>
               </div>
               <p className="text-sm text-gray-700">{comment.content}</p>
+              <ReactionStatistics
+                userVote={comment.userVoteType as 'up' | 'down' | 'none'}
+                upvotes={comment.upvoteCount}
+                upvoters={comment.upvoters}
+                downvotes={comment.downvoteCount}
+                downvoters={comment.downvoters}
+                isPending={voteToggleMutation.isPending}
+                onUpvote={() => handleVote(comment.id, 'up')}
+                onDownvote={() => handleVote(comment.id, 'down')}
+              />
             </div>
           ))
         ) : (
