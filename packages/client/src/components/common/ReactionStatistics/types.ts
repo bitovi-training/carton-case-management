@@ -38,6 +38,11 @@ export interface ReactionStatisticsProps {
   onDownvote?: () => void;
   
   /**
+   * Whether a mutation is pending
+   */
+  isPending?: boolean;
+  
+  /**
    * Additional CSS classes
    */
   className?: string;
