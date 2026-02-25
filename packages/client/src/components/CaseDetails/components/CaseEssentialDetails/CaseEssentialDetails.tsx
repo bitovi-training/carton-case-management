@@ -98,6 +98,7 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
           <EditableSelect
             label="Customer Name"
             value={caseData.customerId}
+            displayValue={`${caseData.customer.firstName} ${caseData.customer.lastName}`}
             options={(customers || []).map((c: { id: string; firstName: string; lastName: string }) => ({ value: c.id, label: `${c.firstName} ${c.lastName}` }))}
             onSave={handleCustomerChange}
             readonly={updateCaseMutation.isPending}
@@ -113,6 +114,7 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
           <EditableSelect
             label="Assigned To"
             value={caseData.assignedTo || UNASSIGNED_VALUE}
+            displayValue={caseData.assignee ? `${caseData.assignee.firstName} ${caseData.assignee.lastName}` : 'Unassigned'}
             options={[
               { value: UNASSIGNED_VALUE, label: 'Unassigned' },
               ...(users || []).map((user: { id: string; firstName: string; lastName: string }) => ({ 
