@@ -2,9 +2,10 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
+import type { ReactElement } from 'react';
 import { RelationshipManagerAccordion } from './RelationshipManagerAccordion';
 
-const renderWithRouter = (ui: React.ReactElement) => {
+const renderWithRouter = (ui: ReactElement) => {
   return render(<MemoryRouter>{ui}</MemoryRouter>);
 };
 
