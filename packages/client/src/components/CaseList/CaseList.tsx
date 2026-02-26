@@ -8,7 +8,6 @@ import { ListFilter } from 'lucide-react';
 import { formatCaseNumber, CASE_PRIORITY_OPTIONS, CASE_STATUS_OPTIONS, LAST_UPDATED_OPTIONS } from '@carton/shared/client';
 import { FiltersDialog } from '@/components/common/FiltersDialog';
 import type { FilterItem } from '@/components/common/FiltersList/types';
-import { useToast } from '@/lib/toast';
 import type { CaseListProps, CaseListItem, CaseFilters } from './types';
 
 const STORAGE_KEY = 'case-list-filters';
@@ -23,7 +22,6 @@ const defaultFilters: CaseFilters = {
 export function CaseList({ onCaseClick }: CaseListProps) {
   const { id: activeId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { showToast } = useToast();
   
   const [filters, setFilters] = useState<CaseFilters>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -45,12 +43,6 @@ export function CaseList({ onCaseClick }: CaseListProps) {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
   }, [filters]);
-
-  useEffect(() => {
-    if (cases && cases.length === 0 && activeFilterCount > 0) {
-      showToast({ message: 'Zero results found', variant: 'info' });
-    }
-  }, [cases, activeFilterCount, showToast]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
