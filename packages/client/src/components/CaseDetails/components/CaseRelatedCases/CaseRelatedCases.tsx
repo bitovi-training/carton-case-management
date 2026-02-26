@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { trpc } from '@/lib/trpc';
 import { formatCaseNumber } from '@carton/shared/client';
 import { RelationshipManagerAccordion } from '@/components/common/RelationshipManagerAccordion';
@@ -10,6 +10,16 @@ export function CaseRelatedCases({ caseId, customerId, className }: CaseRelatedC
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const autoCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (autoCloseTimeoutRef.current !== null) {
+        clearTimeout(autoCloseTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const trpcUtils = trpc.useUtils();
 
@@ -26,7 +36,7 @@ export function CaseRelatedCases({ caseId, customerId, className }: CaseRelatedC
       trpcUtils.case.getRelatedCases.invalidate({ caseId });
       setSuccessMessage('Hasta la vista Baby');
       setSelectedIds([]);
-      setTimeout(() => {
+      autoCloseTimeoutRef.current = setTimeout(() => {
         setSuccessMessage(null);
         setDialogOpen(false);
       }, 2000);
@@ -46,6 +56,10 @@ export function CaseRelatedCases({ caseId, customerId, className }: CaseRelatedC
       setSelectedIds([]);
       setSuccessMessage(null);
       setErrorMessage(null);
+      if (autoCloseTimeoutRef.current !== null) {
+        clearTimeout(autoCloseTimeoutRef.current);
+        autoCloseTimeoutRef.current = null;
+      }
     }
     setDialogOpen(open);
   };
@@ -70,22 +84,13 @@ export function CaseRelatedCases({ caseId, customerId, className }: CaseRelatedC
 
   return (
     <div className={className}>
-      {accordionItems.length === 0 ? (
-        <RelationshipManagerAccordion
-          accordionTitle="Related Cases"
-          items={[]}
-          defaultOpen={true}
-          onAddClick={() => setDialogOpen(true)}
-          emptyStateMessage="No related cases yet."
-        />
-      ) : (
-        <RelationshipManagerAccordion
-          accordionTitle="Related Cases"
-          items={accordionItems}
-          defaultOpen={true}
-          onAddClick={() => setDialogOpen(true)}
-        />
-      )}
+      <RelationshipManagerAccordion
+        accordionTitle="Related Cases"
+        items={accordionItems}
+        defaultOpen={true}
+        onAddClick={() => setDialogOpen(true)}
+        emptyStateMessage="No related cases yet."
+      />
 
       <RelationshipManagerDialog
         open={dialogOpen}
