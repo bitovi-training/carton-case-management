@@ -29,6 +29,13 @@ export interface RelationshipManagerDialogProps {
   selectedItems: string[];
 
   /**
+   * Array of item IDs that are already linked (non-selectable/disabled).
+   * These items are shown but cannot be toggled.
+   * @default []
+   */
+  disabledItems?: string[];
+
+  /**
    * Callback when selection changes
    */
   onSelectionChange: (selectedIds: string[]) => void;

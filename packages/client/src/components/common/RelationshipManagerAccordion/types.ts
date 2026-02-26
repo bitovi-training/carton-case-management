@@ -29,6 +29,11 @@ export interface RelationshipManagerAccordionProps {
   onAddClick?: () => void;
 
   /**
+   * Callback when remove item is clicked. If not provided, the 3-dot menu is hidden.
+   */
+  onRemoveItem?: (itemId: string) => void;
+
+  /**
    * Additional CSS classes
    */
   className?: string;

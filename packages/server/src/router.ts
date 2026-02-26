@@ -404,6 +404,66 @@ export const appRouter = router({
         where: { id: input.id },
       });
     }),
+    getRelatedCases: publicProcedure
+      .input(z.object({ id: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const relations = await ctx.prisma.relatedCase.findMany({
+          where: {
+            OR: [{ caseAId: input.id }, { caseBId: input.id }],
+          },
+          include: {
+            caseA: {
+              select: {
+                id: true,
+                title: true,
+                status: true,
+                priority: true,
+                createdAt: true,
+              },
+            },
+            caseB: {
+              select: {
+                id: true,
+                title: true,
+                status: true,
+                priority: true,
+                createdAt: true,
+              },
+            },
+          },
+        });
+
+        return relations.map((relation) => {
+          return relation.caseAId === input.id ? relation.caseB : relation.caseA;
+        });
+      }),
+    addRelatedCase: publicProcedure
+      .input(z.object({ caseId: z.string(), relatedCaseId: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const { caseId, relatedCaseId } = input;
+        if (caseId === relatedCaseId) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'A case cannot be related to itself',
+          });
+        }
+        // Sort IDs to ensure consistent storage (avoid duplicate pairs)
+        const [caseAId, caseBId] = [caseId, relatedCaseId].sort();
+        return ctx.prisma.relatedCase.upsert({
+          where: { caseAId_caseBId: { caseAId, caseBId } },
+          update: {},
+          create: { caseAId, caseBId },
+        });
+      }),
+    removeRelatedCase: publicProcedure
+      .input(z.object({ caseId: z.string(), relatedCaseId: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const { caseId, relatedCaseId } = input;
+        const [caseAId, caseBId] = [caseId, relatedCaseId].sort();
+        return ctx.prisma.relatedCase.delete({
+          where: { caseAId_caseBId: { caseAId, caseBId } },
+        });
+      }),
   }),
 
   // Comment routes

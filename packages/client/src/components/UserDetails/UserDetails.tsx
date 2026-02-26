@@ -1,7 +1,8 @@
 import { useParams } from 'react-router-dom';
 import { trpc } from '@/lib/trpc';
 import { UserInformation } from './components/UserInformation';
-import { RelatedCasesAccordion } from '../common/RelatedCasesAccordion';
+import { RelationshipManagerAccordion } from '@/components/common/RelationshipManagerAccordion';
+import { formatCaseNumber } from '@carton/shared/client';
 
 export function UserDetails() {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +33,13 @@ export function UserDetails() {
     );
   }
 
+  const caseItems = (userData.createdCases || []).map((c) => ({
+    id: c.id,
+    title: c.title,
+    subtitle: formatCaseNumber(c.id, c.createdAt),
+    to: `/cases/${c.id}`,
+  }));
+
   return (
     <div className="flex flex-1 flex-col lg:flex-row gap-6">
       {/* Main Content */}
@@ -43,7 +51,13 @@ export function UserDetails() {
       </div>
 
       {/* Related Cases Sidebar */}
-      <RelatedCasesAccordion cases={userData.createdCases} />
+      <div className="lg:w-[300px] flex-shrink-0">
+        <RelationshipManagerAccordion
+          accordionTitle="Cases"
+          items={caseItems}
+          defaultOpen={true}
+        />
+      </div>
     </div>
   );
 }
