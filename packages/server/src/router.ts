@@ -404,6 +404,101 @@ export const appRouter = router({
         where: { id: input.id },
       });
     }),
+
+    getRelatedCases: publicProcedure
+      .input(z.object({ caseId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const caseWithRelated = await ctx.prisma.case.findUnique({
+          where: { id: input.caseId },
+          select: {
+            relatedCases: {
+              select: {
+                id: true,
+                title: true,
+                status: true,
+                priority: true,
+                createdAt: true,
+              },
+            },
+          },
+        });
+        return caseWithRelated?.relatedCases ?? [];
+      }),
+
+    addRelatedCases: publicProcedure
+      .input(
+        z.object({
+          caseId: z.string(),
+          relatedCaseIds: z.array(z.string()),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        // Add bidirectional relationships for each related case
+        await ctx.prisma.case.update({
+          where: { id: input.caseId },
+          data: {
+            relatedCases: {
+              connect: input.relatedCaseIds.map((id) => ({ id })),
+            },
+            relatedByCase: {
+              connect: input.relatedCaseIds.map((id) => ({ id })),
+            },
+          },
+        });
+
+        const updated = await ctx.prisma.case.findUnique({
+          where: { id: input.caseId },
+          select: {
+            relatedCases: {
+              select: {
+                id: true,
+                title: true,
+                status: true,
+                priority: true,
+                createdAt: true,
+              },
+            },
+          },
+        });
+        return updated?.relatedCases ?? [];
+      }),
+
+    removeRelatedCase: publicProcedure
+      .input(
+        z.object({
+          caseId: z.string(),
+          relatedCaseId: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        await ctx.prisma.case.update({
+          where: { id: input.caseId },
+          data: {
+            relatedCases: {
+              disconnect: { id: input.relatedCaseId },
+            },
+            relatedByCase: {
+              disconnect: { id: input.relatedCaseId },
+            },
+          },
+        });
+
+        const updated = await ctx.prisma.case.findUnique({
+          where: { id: input.caseId },
+          select: {
+            relatedCases: {
+              select: {
+                id: true,
+                title: true,
+                status: true,
+                priority: true,
+                createdAt: true,
+              },
+            },
+          },
+        });
+        return updated?.relatedCases ?? [];
+      }),
   }),
 
   // Comment routes
