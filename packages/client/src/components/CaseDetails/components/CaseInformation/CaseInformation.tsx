@@ -66,31 +66,11 @@ export function CaseInformation({ caseId, caseData }: CaseInformationProps) {
         type: 'error',
         title: 'Deleted',
         message: `"${deletedCase.title}" case has been successfully deleted`,
-        onUndo: () => {
-          undeleteCase.mutate({
-            id: deletedCase.id,
-            title: deletedCase.title,
-            description: deletedCase.description,
-            customerId: deletedCase.customerId,
-            status: deletedCase.status,
-            priority: deletedCase.priority,
-            createdBy: deletedCase.createdBy,
-            assignedTo: deletedCase.assignedTo || undefined,
-            createdAt: deletedCase.createdAt,
-          });
-        },
       });
     },
     onError: (error) => {
       console.error('Failed to delete case:', error);
       setIsDeleteDialogOpen(false);
-    },
-  });
-
-  const undeleteCase = trpc.case.undelete.useMutation({
-    onSuccess: (restoredCase) => {
-      utils.case.list.invalidate();
-      navigate(`/cases/${restoredCase.id}`);
     },
   });
 
