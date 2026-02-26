@@ -3,6 +3,7 @@ import { trpc } from '@/lib/trpc';
 import { CaseInformation } from './components/CaseInformation';
 import { CaseComments } from './components/CaseComments';
 import { CaseEssentialDetails } from './components/CaseEssentialDetails';
+import { RelatedCasesAccordion } from '@/components/common/RelatedCasesAccordion';
 
 export function CaseDetails() {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +37,7 @@ export function CaseDetails() {
       <div className="flex flex-col w-full lg:hidden gap-4 pb-6">
         <CaseInformation caseId={caseData.id} caseData={caseData} />
         <CaseEssentialDetails caseId={caseData.id} caseData={caseData} />
+        <RelatedCasesAccordion caseId={caseData.id} />
         <CaseComments caseData={caseData} />
       </div>
 
@@ -47,7 +49,10 @@ export function CaseDetails() {
           <CaseComments caseData={caseData} />
         </div>
         <div className="h-[9px]" />
-        <CaseEssentialDetails caseId={caseData.id} caseData={caseData} />
+        <div className="flex flex-col gap-4">
+          <CaseEssentialDetails caseId={caseData.id} caseData={caseData} />
+          <RelatedCasesAccordion caseId={caseData.id} />
+        </div>
       </div>
     </div>
   );
