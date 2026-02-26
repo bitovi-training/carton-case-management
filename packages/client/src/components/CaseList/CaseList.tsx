@@ -1,14 +1,53 @@
+import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { trpc } from '@/lib/trpc';
 import { Skeleton } from '@/components/obra/Skeleton';
 import { Button } from '@/components/obra/Button';
-import { formatCaseNumber } from '@carton/shared/client';
+import { FiltersTrigger } from '@/components/common/FiltersTrigger';
+import { formatCaseNumber, CaseStatus, CasePriority } from '@carton/shared/client';
+import { CaseFiltersDialog, type CaseFiltersState } from './components/CaseFiltersDialog';
 import type { CaseListProps, CaseListItem } from './types';
+
+const INITIAL_FILTERS: CaseFiltersState = {
+  customerIds: [],
+  statuses: [],
+  priorities: [],
+  lastUpdated: 'all',
+};
 
 export function CaseList({ onCaseClick }: CaseListProps) {
   const { id: activeId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: cases, isLoading, error, refetch } = trpc.case.list.useQuery();
+  
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [draftFilters, setDraftFilters] = useState<CaseFiltersState>(INITIAL_FILTERS);
+  const [appliedFilters, setAppliedFilters] = useState<CaseFiltersState>(INITIAL_FILTERS);
+  
+  const { data: cases, isLoading, error, refetch } = trpc.case.list.useQuery({
+    customerIds: appliedFilters.customerIds.length > 0 ? appliedFilters.customerIds : undefined,
+    statuses: appliedFilters.statuses.length > 0 ? appliedFilters.statuses as CaseStatus[] : undefined,
+    priorities: appliedFilters.priorities.length > 0 ? appliedFilters.priorities as CasePriority[] : undefined,
+    lastUpdated: appliedFilters.lastUpdated !== 'all' ? appliedFilters.lastUpdated as 'today' | 'last7days' | 'last30days' : undefined,
+  });
+
+  const activeFilterCount = 
+    appliedFilters.customerIds.length +
+    appliedFilters.statuses.length +
+    appliedFilters.priorities.length +
+    (appliedFilters.lastUpdated !== 'all' ? 1 : 0);
+
+  const handleOpenFilters = () => {
+    setDraftFilters(appliedFilters);
+    setFiltersOpen(true);
+  };
+
+  const handleApplyFilters = () => {
+    setAppliedFilters(draftFilters);
+  };
+
+  const handleClearFilters = () => {
+    setDraftFilters(INITIAL_FILTERS);
+  };
 
   if (isLoading) {
     return (
@@ -20,6 +59,11 @@ export function CaseList({ onCaseClick }: CaseListProps) {
         >
           Create Case
         </Button>
+        <FiltersTrigger
+          activeCount={activeFilterCount}
+          onClick={handleOpenFilters}
+          className="mb-2"
+        />
         <div className="flex flex-col gap-2">
           {[...Array(5)].map((_, index) => (
             <div key={index} className="flex items-center justify-between px-4 py-2 rounded-lg">
@@ -30,6 +74,14 @@ export function CaseList({ onCaseClick }: CaseListProps) {
             </div>
           ))}
         </div>
+        <CaseFiltersDialog
+          open={filtersOpen}
+          onOpenChange={setFiltersOpen}
+          filters={draftFilters}
+          onFiltersChange={setDraftFilters}
+          onApply={handleApplyFilters}
+          onClear={handleClearFilters}
+        />
       </div>
     );
   }
@@ -44,6 +96,11 @@ export function CaseList({ onCaseClick }: CaseListProps) {
         >
           Create Case
         </Button>
+        <FiltersTrigger
+          activeCount={activeFilterCount}
+          onClick={handleOpenFilters}
+          className="mb-2"
+        />
         <div className="text-center">
           <p className="text-red-600 font-semibold mb-2">Error loading cases</p>
           <p className="text-sm text-gray-600 mb-4">{error.message}</p>
@@ -51,6 +108,14 @@ export function CaseList({ onCaseClick }: CaseListProps) {
             Retry
           </Button>
         </div>
+        <CaseFiltersDialog
+          open={filtersOpen}
+          onOpenChange={setFiltersOpen}
+          filters={draftFilters}
+          onFiltersChange={setDraftFilters}
+          onApply={handleApplyFilters}
+          onClear={handleClearFilters}
+        />
       </div>
     );
   }
@@ -65,9 +130,25 @@ export function CaseList({ onCaseClick }: CaseListProps) {
         >
           Create Case
         </Button>
+        <FiltersTrigger
+          activeCount={activeFilterCount}
+          onClick={handleOpenFilters}
+          className="mb-2"
+        />
         <div className="text-center text-gray-500">
           <p className="text-sm">No cases found</p>
+          {activeFilterCount > 0 && (
+            <p className="text-xs mt-2">Try adjusting your filters</p>
+          )}
         </div>
+        <CaseFiltersDialog
+          open={filtersOpen}
+          onOpenChange={setFiltersOpen}
+          filters={draftFilters}
+          onFiltersChange={setDraftFilters}
+          onApply={handleApplyFilters}
+          onClear={handleClearFilters}
+        />
       </div>
     );
   }
@@ -81,6 +162,11 @@ export function CaseList({ onCaseClick }: CaseListProps) {
       >
         Create Case
       </Button>
+      <FiltersTrigger
+        activeCount={activeFilterCount}
+        onClick={handleOpenFilters}
+        className="mb-2"
+      />
       <div className="flex flex-col gap-2">
         {cases?.map((caseItem: CaseListItem) => {
           const isActive = caseItem.id === activeId;
@@ -103,6 +189,14 @@ export function CaseList({ onCaseClick }: CaseListProps) {
           );
         })}
       </div>
+      <CaseFiltersDialog
+        open={filtersOpen}
+        onOpenChange={setFiltersOpen}
+        filters={draftFilters}
+        onFiltersChange={setDraftFilters}
+        onApply={handleApplyFilters}
+        onClear={handleClearFilters}
+      />
     </div>
   );
 }
