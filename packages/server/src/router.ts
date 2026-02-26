@@ -408,6 +408,7 @@ export const appRouter = router({
     getRelatedCases: publicProcedure
       .input(z.object({ caseId: z.string() }))
       .query(async ({ ctx, input }) => {
+        // Query both sides of the self-referential relation and merge/deduplicate
         const caseWithRelated = await ctx.prisma.case.findUnique({
           where: { id: input.caseId },
           select: {
@@ -420,9 +421,29 @@ export const appRouter = router({
                 createdAt: true,
               },
             },
+            relatedByCase: {
+              select: {
+                id: true,
+                title: true,
+                status: true,
+                priority: true,
+                createdAt: true,
+              },
+            },
           },
         });
-        return caseWithRelated?.relatedCases ?? [];
+        if (!caseWithRelated) return [];
+
+        // Merge both sides, deduplicate by id
+        const seen = new Set<string>();
+        const merged = [...caseWithRelated.relatedCases, ...caseWithRelated.relatedByCase].filter(
+          (c) => {
+            if (seen.has(c.id)) return false;
+            seen.add(c.id);
+            return true;
+          }
+        );
+        return merged;
       }),
 
     addRelatedCases: publicProcedure
@@ -433,34 +454,51 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
-        // Add bidirectional relationships for each related case
+        // Connect only through one side (relatedCases). The other side (relatedByCase)
+        // will be visible when querying from the related case via the getRelatedCases query
+        // which merges both directions.
         await ctx.prisma.case.update({
           where: { id: input.caseId },
           data: {
             relatedCases: {
               connect: input.relatedCaseIds.map((id) => ({ id })),
             },
-            relatedByCase: {
-              connect: input.relatedCaseIds.map((id) => ({ id })),
-            },
           },
         });
 
-        const updated = await ctx.prisma.case.findUnique({
-          where: { id: input.caseId },
-          select: {
-            relatedCases: {
-              select: {
-                id: true,
-                title: true,
-                status: true,
-                priority: true,
-                createdAt: true,
+        return ctx.prisma.case
+          .findUnique({
+            where: { id: input.caseId },
+            select: {
+              relatedCases: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  priority: true,
+                  createdAt: true,
+                },
+              },
+              relatedByCase: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  priority: true,
+                  createdAt: true,
+                },
               },
             },
-          },
-        });
-        return updated?.relatedCases ?? [];
+          })
+          .then((updated) => {
+            if (!updated) return [];
+            const seen = new Set<string>();
+            return [...updated.relatedCases, ...updated.relatedByCase].filter((c) => {
+              if (seen.has(c.id)) return false;
+              seen.add(c.id);
+              return true;
+            });
+          });
       }),
 
     removeRelatedCase: publicProcedure
@@ -471,33 +509,61 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        // Disconnect from both sides to handle cases added from either direction
         await ctx.prisma.case.update({
           where: { id: input.caseId },
           data: {
             relatedCases: {
               disconnect: { id: input.relatedCaseId },
             },
-            relatedByCase: {
-              disconnect: { id: input.relatedCaseId },
+          },
+        });
+
+        // Also remove the reverse direction (if the relationship was stored from the other side)
+        await ctx.prisma.case.update({
+          where: { id: input.relatedCaseId },
+          data: {
+            relatedCases: {
+              disconnect: { id: input.caseId },
             },
           },
         });
 
-        const updated = await ctx.prisma.case.findUnique({
-          where: { id: input.caseId },
-          select: {
-            relatedCases: {
-              select: {
-                id: true,
-                title: true,
-                status: true,
-                priority: true,
-                createdAt: true,
+        return ctx.prisma.case
+          .findUnique({
+            where: { id: input.caseId },
+            select: {
+              relatedCases: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  priority: true,
+                  createdAt: true,
+                },
+              },
+              relatedByCase: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  priority: true,
+                  createdAt: true,
+                },
               },
             },
-          },
-        });
-        return updated?.relatedCases ?? [];
+          })
+          .then((updated) => {
+            if (!updated) return [];
+            const seen = new Set<string>();
+            return [...(updated.relatedCases ?? []), ...(updated.relatedByCase ?? [])].filter(
+              (c) => {
+                if (seen.has(c.id)) return false;
+                seen.add(c.id);
+                return true;
+              }
+            );
+          });
       }),
   }),
 
