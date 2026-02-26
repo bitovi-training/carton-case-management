@@ -404,6 +404,167 @@ export const appRouter = router({
         where: { id: input.id },
       });
     }),
+
+    getRelatedCases: publicProcedure
+      .input(z.object({ caseId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        // Query both sides of the self-referential relation and merge/deduplicate
+        const caseWithRelated = await ctx.prisma.case.findUnique({
+          where: { id: input.caseId },
+          select: {
+            relatedCases: {
+              select: {
+                id: true,
+                title: true,
+                status: true,
+                priority: true,
+                createdAt: true,
+              },
+            },
+            relatedByCase: {
+              select: {
+                id: true,
+                title: true,
+                status: true,
+                priority: true,
+                createdAt: true,
+              },
+            },
+          },
+        });
+        if (!caseWithRelated) return [];
+
+        // Merge both sides, deduplicate by id
+        const seen = new Set<string>();
+        const merged = [...caseWithRelated.relatedCases, ...caseWithRelated.relatedByCase].filter(
+          (c) => {
+            if (seen.has(c.id)) return false;
+            seen.add(c.id);
+            return true;
+          }
+        );
+        return merged;
+      }),
+
+    addRelatedCases: publicProcedure
+      .input(
+        z.object({
+          caseId: z.string(),
+          relatedCaseIds: z.array(z.string()),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        // Connect only through one side (relatedCases). The other side (relatedByCase)
+        // will be visible when querying from the related case via the getRelatedCases query
+        // which merges both directions.
+        await ctx.prisma.case.update({
+          where: { id: input.caseId },
+          data: {
+            relatedCases: {
+              connect: input.relatedCaseIds.map((id) => ({ id })),
+            },
+          },
+        });
+
+        return ctx.prisma.case
+          .findUnique({
+            where: { id: input.caseId },
+            select: {
+              relatedCases: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  priority: true,
+                  createdAt: true,
+                },
+              },
+              relatedByCase: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  priority: true,
+                  createdAt: true,
+                },
+              },
+            },
+          })
+          .then((updated) => {
+            if (!updated) return [];
+            const seen = new Set<string>();
+            return [...updated.relatedCases, ...updated.relatedByCase].filter((c) => {
+              if (seen.has(c.id)) return false;
+              seen.add(c.id);
+              return true;
+            });
+          });
+      }),
+
+    removeRelatedCase: publicProcedure
+      .input(
+        z.object({
+          caseId: z.string(),
+          relatedCaseId: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        // Disconnect from both sides to handle cases added from either direction
+        await ctx.prisma.case.update({
+          where: { id: input.caseId },
+          data: {
+            relatedCases: {
+              disconnect: { id: input.relatedCaseId },
+            },
+          },
+        });
+
+        // Also remove the reverse direction (if the relationship was stored from the other side)
+        await ctx.prisma.case.update({
+          where: { id: input.relatedCaseId },
+          data: {
+            relatedCases: {
+              disconnect: { id: input.caseId },
+            },
+          },
+        });
+
+        return ctx.prisma.case
+          .findUnique({
+            where: { id: input.caseId },
+            select: {
+              relatedCases: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  priority: true,
+                  createdAt: true,
+                },
+              },
+              relatedByCase: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  priority: true,
+                  createdAt: true,
+                },
+              },
+            },
+          })
+          .then((updated) => {
+            if (!updated) return [];
+            const seen = new Set<string>();
+            return [...(updated.relatedCases ?? []), ...(updated.relatedByCase ?? [])].filter(
+              (c) => {
+                if (seen.has(c.id)) return false;
+                seen.add(c.id);
+                return true;
+              }
+            );
+          });
+      }),
   }),
 
   // Comment routes

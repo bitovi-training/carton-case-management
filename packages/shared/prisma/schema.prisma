@@ -88,6 +88,9 @@ model Case {
   assignee User?    @relation("UserAssignedTo", fields: [assignedTo], references: [id], onDelete: Cascade)
   comments Comment[]
 
+  relatedCases   Case[] @relation("RelatedCases")
+  relatedByCase  Case[] @relation("RelatedCases")
+
   @@index([customerId])
   @@index([createdBy])
   @@index([assignedTo])
