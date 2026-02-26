@@ -32,3 +32,12 @@ export const CASE_STATUS_OPTIONS = [
   { value: 'COMPLETED' as const, label: 'Completed' },
   { value: 'CLOSED' as const, label: 'Closed' },
 ] as const;
+
+export const LAST_UPDATED_OPTIONS = [
+  { value: 'all' as const, label: 'All time' },
+  { value: 'today' as const, label: 'Today' },
+  { value: 'last7days' as const, label: 'Last 7 days' },
+  { value: 'last30days' as const, label: 'Last 30 days' },
+] as const;
+
+export type LastUpdatedFilter = 'all' | 'today' | 'last7days' | 'last30days';
