@@ -29,6 +29,11 @@ export interface RelationshipManagerAccordionProps {
   onAddClick?: () => void;
 
   /**
+   * Message to show when there are no items
+   */
+  emptyStateMessage?: string;
+
+  /**
    * Additional CSS classes
    */
   className?: string;

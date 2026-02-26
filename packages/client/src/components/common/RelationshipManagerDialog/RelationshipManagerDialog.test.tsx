@@ -153,4 +153,54 @@ describe('RelationshipManagerDialog', () => {
     await user.click(screen.getByLabelText('Close'));
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
+
+  it('shows success message when successMessage prop is provided', () => {
+    render(
+      <RelationshipManagerDialog
+        title="Add Related Cases"
+        open={true}
+        onOpenChange={vi.fn()}
+        items={mockItems}
+        selectedItems={[]}
+        onSelectionChange={vi.fn()}
+        onAdd={vi.fn()}
+        successMessage="Hasta la vista Baby"
+      />
+    );
+    expect(screen.getByText('Hasta la vista Baby')).toBeInTheDocument();
+    // List should not be visible when success message is shown
+    expect(screen.queryByText('Policy Coverage Inquiry')).not.toBeInTheDocument();
+  });
+
+  it('shows error message when errorMessage prop is provided', () => {
+    render(
+      <RelationshipManagerDialog
+        title="Add Related Cases"
+        open={true}
+        onOpenChange={vi.fn()}
+        items={mockItems}
+        selectedItems={['1']}
+        onSelectionChange={vi.fn()}
+        onAdd={vi.fn()}
+        errorMessage="Failed to add related cases. Please try again."
+      />
+    );
+    expect(screen.getByText('Failed to add related cases. Please try again.')).toBeInTheDocument();
+  });
+
+  it('disables add button when isLoading is true', () => {
+    render(
+      <RelationshipManagerDialog
+        title="Add Related Cases"
+        open={true}
+        onOpenChange={vi.fn()}
+        items={mockItems}
+        selectedItems={['1']}
+        onSelectionChange={vi.fn()}
+        onAdd={vi.fn()}
+        isLoading={true}
+      />
+    );
+    expect(screen.getByRole('button', { name: /adding/i })).toBeDisabled();
+  });
 });
