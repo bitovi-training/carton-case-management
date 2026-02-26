@@ -29,7 +29,7 @@ test.describe('Header Navigation', () => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/');
 
-    await expect(page.getByText('Carton Case Management')).toBeVisible();
+    await expect(page.getByText('Carton CMS')).toBeVisible();
 
     await page.setViewportSize({ width: 375, height: 667 });
 
