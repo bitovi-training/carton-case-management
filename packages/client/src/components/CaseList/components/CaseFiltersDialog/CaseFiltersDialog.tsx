@@ -68,7 +68,7 @@ export function CaseFiltersDialog({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      type="Desktop"
+      type="Desktop Scrollable"
       header={<DialogHeader type="Header" title="Filters" onClose={() => onOpenChange(false)} />}
       footer={
         <DialogFooter type="2 Buttons Right">
