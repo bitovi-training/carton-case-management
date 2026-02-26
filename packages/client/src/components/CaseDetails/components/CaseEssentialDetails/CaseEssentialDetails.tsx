@@ -24,17 +24,20 @@ export function CaseEssentialDetails({ caseData, caseId }: CaseEssentialDetailsP
       if (previousCase) {
         trpcUtils.case.getById.setData(
           { id: caseId },
-          {
-            ...previousCase,
-            ...variables,
-          }
+          previousCase
+            ? {
+                ...previousCase,
+                ...variables,
+              }
+            : undefined
         );
       }
 
       return { previousCase };
     },
-    onSuccess: (data) => {
-      trpcUtils.case.getById.setData({ id: caseId }, data);
+    onSuccess: () => {
+      // Refetch to get the full data including comments with votes
+      trpcUtils.case.getById.invalidate({ id: caseId });
     },
     onError: (error, _variables, context) => {
       console.error('Failed to update case:', error);
