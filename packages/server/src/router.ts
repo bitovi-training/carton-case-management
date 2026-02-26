@@ -237,6 +237,7 @@ export const appRouter = router({
           .object({
             status: caseStatusSchema.optional(),
             assignedTo: z.string().optional(),
+            customerId: z.string().optional(),
           })
           .optional()
       )
@@ -245,6 +246,7 @@ export const appRouter = router({
           where: {
             ...(input?.status ? { status: input.status } : {}),
             ...(input?.assignedTo ? { assignedTo: input.assignedTo } : {}),
+            ...(input?.customerId ? { customerId: input.customerId } : {}),
           },
           include: {
             customer: {
@@ -404,6 +406,72 @@ export const appRouter = router({
         where: { id: input.id },
       });
     }),
+    getRelatedCases: publicProcedure
+      .input(z.object({ id: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const [asSource, asTarget] = await Promise.all([
+          ctx.prisma.caseRelationship.findMany({
+            where: { caseId: input.id },
+            include: {
+              related: {
+                select: { id: true, title: true, createdAt: true },
+              },
+            },
+          }),
+          ctx.prisma.caseRelationship.findMany({
+            where: { relatedId: input.id },
+            include: {
+              case: {
+                select: { id: true, title: true, createdAt: true },
+              },
+            },
+          }),
+        ]);
+
+        const seen = new Set<string>();
+        const results: { id: string; title: string; createdAt: Date }[] = [];
+
+        for (const r of asSource) {
+          if (!seen.has(r.related.id)) {
+            seen.add(r.related.id);
+            results.push(r.related);
+          }
+        }
+        for (const r of asTarget) {
+          if (!seen.has(r.case.id)) {
+            seen.add(r.case.id);
+            results.push(r.case);
+          }
+        }
+
+        return results;
+      }),
+    addRelatedCases: publicProcedure
+      .input(z.object({ caseId: z.string(), relatedCaseIds: z.array(z.string()) }))
+      .mutation(async ({ ctx, input }) => {
+        const { caseId, relatedCaseIds } = input;
+
+        for (const relatedId of relatedCaseIds) {
+          const existing = await ctx.prisma.caseRelationship.findFirst({
+            where: {
+              OR: [
+                { caseId, relatedId },
+                { caseId: relatedId, relatedId: caseId },
+              ],
+            },
+          });
+          if (!existing) {
+            await ctx.prisma.caseRelationship.createMany({
+              data: [
+                { caseId, relatedId },
+                { caseId: relatedId, relatedId: caseId },
+              ],
+            });
+          }
+        }
+
+        return { success: true };
+      }),
   }),
 
   // Comment routes
