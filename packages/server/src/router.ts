@@ -400,10 +400,52 @@ export const appRouter = router({
         });
       }),
     delete: publicProcedure.input(z.object({ id: z.string() })).mutation(async ({ ctx, input }) => {
-      return ctx.prisma.case.delete({
+      const caseToDelete = await ctx.prisma.case.findUnique({
         where: { id: input.id },
       });
+      
+      if (!caseToDelete) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Case not found',
+        });
+      }
+
+      await ctx.prisma.case.delete({
+        where: { id: input.id },
+      });
+
+      return caseToDelete;
     }),
+    undelete: publicProcedure
+      .input(
+        z.object({
+          id: z.string(),
+          title: z.string(),
+          description: z.string(),
+          customerId: z.string(),
+          status: caseStatusSchema,
+          priority: casePrioritySchema,
+          createdBy: z.string(),
+          assignedTo: z.string().optional(),
+          createdAt: z.date(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        return ctx.prisma.case.create({
+          data: {
+            id: input.id,
+            title: input.title,
+            description: input.description,
+            customerId: input.customerId,
+            status: input.status,
+            priority: input.priority,
+            createdBy: input.createdBy,
+            assignedTo: input.assignedTo,
+            createdAt: input.createdAt,
+          },
+        });
+      }),
   }),
 
   // Comment routes
