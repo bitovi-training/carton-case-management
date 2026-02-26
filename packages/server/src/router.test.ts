@@ -27,6 +27,10 @@ describe('appRouter', () => {
       comment: {
         create: vi.fn(),
       },
+      caseRelationship: {
+        findMany: vi.fn(),
+        upsert: vi.fn(),
+      },
     };
 
     mockContext = {
@@ -635,6 +639,104 @@ describe('appRouter', () => {
           code: 'UNAUTHORIZED',
         });
       });
+    });
+  });
+
+  describe('case.getRelatedCases', () => {
+    it('returns related cases where the case is the source', async () => {
+      const mockRelationships = [
+        {
+          id: 'rel-1',
+          caseId: 'case-1',
+          relatedCaseId: 'case-2',
+          createdAt: new Date(),
+          case: { id: 'case-1', title: 'Case 1', createdAt: new Date() },
+          relatedCase: { id: 'case-2', title: 'Case 2', createdAt: new Date() },
+        },
+      ];
+      mockPrisma.caseRelationship.findMany.mockResolvedValue(mockRelationships);
+
+      const caller = appRouter.createCaller(mockContext);
+      const result = await caller.case.getRelatedCases({ caseId: 'case-1' });
+
+      expect(mockPrisma.caseRelationship.findMany).toHaveBeenCalledWith({
+        where: {
+          OR: [{ caseId: 'case-1' }, { relatedCaseId: 'case-1' }],
+        },
+        include: {
+          case: { select: { id: true, title: true, createdAt: true } },
+          relatedCase: { select: { id: true, title: true, createdAt: true } },
+        },
+      });
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('case-2');
+      expect(result[0].title).toBe('Case 2');
+    });
+
+    it('returns related cases where the case is the target', async () => {
+      const now = new Date();
+      const mockRelationships = [
+        {
+          id: 'rel-1',
+          caseId: 'case-3',
+          relatedCaseId: 'case-1',
+          createdAt: now,
+          case: { id: 'case-3', title: 'Case 3', createdAt: now },
+          relatedCase: { id: 'case-1', title: 'Case 1', createdAt: now },
+        },
+      ];
+      mockPrisma.caseRelationship.findMany.mockResolvedValue(mockRelationships);
+
+      const caller = appRouter.createCaller(mockContext);
+      const result = await caller.case.getRelatedCases({ caseId: 'case-1' });
+
+      // relatedCaseId === caseId, so we return the 'case' side
+      expect(result[0].id).toBe('case-3');
+    });
+
+    it('returns empty array when no related cases exist', async () => {
+      mockPrisma.caseRelationship.findMany.mockResolvedValue([]);
+
+      const caller = appRouter.createCaller(mockContext);
+      const result = await caller.case.getRelatedCases({ caseId: 'case-1' });
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('case.addRelatedCases', () => {
+    it('upserts relationships for all provided relatedCaseIds', async () => {
+      const mockResult = { id: 'rel-1', caseId: 'case-1', relatedCaseId: 'case-2', createdAt: new Date() };
+      mockPrisma.caseRelationship.upsert.mockResolvedValue(mockResult);
+
+      const caller = appRouter.createCaller(mockContext);
+      const result = await caller.case.addRelatedCases({
+        caseId: 'case-1',
+        relatedCaseIds: ['case-2', 'case-3'],
+      });
+
+      expect(mockPrisma.caseRelationship.upsert).toHaveBeenCalledTimes(2);
+      expect(mockPrisma.caseRelationship.upsert).toHaveBeenCalledWith({
+        where: { caseId_relatedCaseId: { caseId: 'case-1', relatedCaseId: 'case-2' } },
+        update: {},
+        create: { caseId: 'case-1', relatedCaseId: 'case-2' },
+      });
+      expect(result).toHaveLength(2);
+    });
+  });
+
+  describe('case.list with customerId filter', () => {
+    it('filters cases by customerId when provided', async () => {
+      mockPrisma.case.findMany.mockResolvedValue([]);
+
+      const caller = appRouter.createCaller(mockContext);
+      await caller.case.list({ customerId: 'customer-1' });
+
+      expect(mockPrisma.case.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ customerId: 'customer-1' }),
+        })
+      );
     });
   });
 });

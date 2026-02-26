@@ -13,6 +13,9 @@ export function RelationshipManagerDialog({
   selectedItems,
   onSelectionChange,
   onAdd,
+  successMessage,
+  errorMessage,
+  isLoading = false,
   className,
 }: RelationshipManagerDialogProps) {
   const listItems: RelationshipManagerListItem[] = items.map((item) => ({
@@ -42,19 +45,30 @@ export function RelationshipManagerDialog({
         />
       }
       footer={
-        <DialogFooter>
-          <Button
-            onClick={() => onAdd(selectedItems)}
-            disabled={selectedItems.length === 0}
-            className="bg-gray-950 text-white hover:bg-gray-800"
-          >
-            Add
-          </Button>
-        </DialogFooter>
+        !successMessage ? (
+          <DialogFooter>
+            {errorMessage && (
+              <p className="text-sm text-red-600 mb-2">{errorMessage}</p>
+            )}
+            <Button
+              onClick={() => onAdd(selectedItems)}
+              disabled={selectedItems.length === 0 || isLoading}
+              className="bg-gray-950 text-white hover:bg-gray-800"
+            >
+              {isLoading ? 'Adding...' : 'Add'}
+            </Button>
+          </DialogFooter>
+        ) : undefined
       }
       className={cn('w-[400px] h-auto max-h-[90vh]', className)}
     >
-      <RelationshipManagerList title={title} items={listItems} onItemToggle={handleToggle} className="w-full" />
+      {successMessage ? (
+        <div className="flex flex-col items-center justify-center py-8 px-4 gap-2">
+          <p className="text-lg font-semibold text-gray-950">{successMessage}</p>
+        </div>
+      ) : (
+        <RelationshipManagerList title={title} items={listItems} onItemToggle={handleToggle} className="w-full" />
+      )}
     </Dialog>
   );
 }
