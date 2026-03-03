@@ -20,9 +20,12 @@ figma.connect(Alert, 'https://www.figma.com/design/MQUbIrlfuM8qnr9XZ7jc82/Obra-s
     }),
     showIcon: figma.boolean('Show Icon'),
     flipIcon: figma.boolean('Flip Icon'),
-    showButton: figma.boolean('Show Button'),
+    action: figma.boolean('Show Button', {
+      true: <Button variant="outline">Action</Button>,
+      false: undefined,
+    }),
   },
-  example: ({ type, children, description, showLine2, icon, showIcon, flipIcon, showButton }) => (
+  example: ({ type, children, description, showLine2, icon, showIcon, flipIcon, action }) => (
     <Alert
       type={type}
       description={description}
@@ -30,7 +33,7 @@ figma.connect(Alert, 'https://www.figma.com/design/MQUbIrlfuM8qnr9XZ7jc82/Obra-s
       icon={icon}
       showIcon={showIcon}
       flipIcon={flipIcon}
-      action={showButton ? <Button variant="outline">Action</Button> : undefined}
+      action={action}
     >
       {children}
     </Alert>
@@ -58,9 +61,12 @@ figma.connect(Alert, 'https://www.figma.com/design/W2OPvGxXCtbFPP8wYxezX1/Riot-G
     }),
     showIcon: figma.boolean('Show Icon'),
     flipIcon: figma.boolean('Flip Icon'),
-    showButton: figma.boolean('Show Button'),
+    action: figma.boolean('Show Button', {
+      true: <Button variant="outline">Action</Button>,
+      false: undefined,
+    }),
   },
-  example: ({ type, children, description, showLine2, icon, showIcon, flipIcon, showButton }) => (
+  example: ({ type, children, description, showLine2, icon, showIcon, flipIcon, action }) => (
     <Alert
       type={type}
       description={description}
@@ -68,7 +74,7 @@ figma.connect(Alert, 'https://www.figma.com/design/W2OPvGxXCtbFPP8wYxezX1/Riot-G
       icon={icon}
       showIcon={showIcon}
       flipIcon={flipIcon}
-      action={showButton ? <Button variant="outline">Action</Button> : undefined}
+      action={action}
     >
       {children}
     </Alert>

@@ -27,14 +27,31 @@ figma.connect(
       Round: 'round',
     }),
 
+    disabled: figma.enum('State', {
+      Disabled: true,
+    }),
+
     children: figma.textContent('Label'),
+
+    leftIcon: figma.boolean('Show left icon', {
+      true: figma.instance('⮑ Left icon'),
+      false: undefined,
+    }),
+
+    rightIcon: figma.boolean('Show right icon', {
+      true: figma.instance('⮑ Right icon'),
+      false: undefined,
+    }),
   },
 
-  example: ({ variant, size, roundness, children }) => (
+  example: ({ variant, size, roundness, disabled, children, leftIcon, rightIcon }) => (
     <Button
       variant={variant}
       size={size}
       roundness={roundness}
+      disabled={disabled}
+      leftIcon={leftIcon}
+      rightIcon={rightIcon}
     >
       {children}
     </Button>
@@ -71,14 +88,31 @@ figma.connect(
       Round: 'round',
     }),
 
+    disabled: figma.enum('State', {
+      Disabled: true,
+    }),
+
     children: figma.textContent('Label'),
+
+    leftIcon: figma.boolean('Show left icon', {
+      true: figma.instance('⮑ Left icon'),
+      false: undefined,
+    }),
+
+    rightIcon: figma.boolean('Show right icon', {
+      true: figma.instance('⮑ Right icon'),
+      false: undefined,
+    }),
   },
 
-  example: ({ variant, size, roundness, children }) => (
+  example: ({ variant, size, roundness, disabled, children, leftIcon, rightIcon }) => (
     <Button
       variant={variant}
       size={size}
       roundness={roundness}
+      disabled={disabled}
+      leftIcon={leftIcon}
+      rightIcon={rightIcon}
     >
       {children}
     </Button>

@@ -14,11 +14,13 @@ figma.connect(
       False: false,
       True: true,
     }),
+    showLine2: figma.boolean('Show Line 2'),
   },
   example: (props) => (
     <RichCheckboxGroup
       checked={props.checked}
       flipped={props.flipped}
+      showLine2={props.showLine2}
       label="Label"
       secondaryText="Secondary text"
       onCheckedChange={() => {}}
@@ -43,11 +45,13 @@ figma.connect(
       False: false,
       True: true,
     }),
+    showLine2: figma.boolean('Show Line 2'),
   },
   example: (props) => (
     <RichCheckboxGroup
       checked={props.checked}
       flipped={props.flipped}
+      showLine2={props.showLine2}
       label="Label"
       secondaryText="Secondary text"
       onCheckedChange={() => {}}
