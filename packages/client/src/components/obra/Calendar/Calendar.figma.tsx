@@ -5,9 +5,17 @@ figma.connect(
   Calendar,
   'https://www.figma.com/design/MQUbIrlfuM8qnr9XZ7jc82/Obra-shadcn-ui--Carton-?node-id=288-119954&m=dev',
   {
-  example: () => (
+  props: {
+    months: figma.enum('Months', {
+      '1 Month': 1,
+      '2 months': 2,
+      '3 months': 3,
+    }),
+  },
+  example: ({ months }) => (
     <Calendar
       mode="single"
+      numberOfMonths={months}
       selected={new Date()}
       onSelect={(date) => console.log(date)}
     />
@@ -22,9 +30,17 @@ figma.connect(
   Calendar,
   'https://www.figma.com/design/W2OPvGxXCtbFPP8wYxezX1/Riot-Games-Obra-shadcn-ui?node-id=288-119954',
   {
-  example: () => (
+  props: {
+    months: figma.enum('Months', {
+      '1 Month': 1,
+      '2 months': 2,
+      '3 months': 3,
+    }),
+  },
+  example: ({ months }) => (
     <Calendar
       mode="single"
+      numberOfMonths={months}
       selected={new Date()}
       onSelect={(date) => console.log(date)}
     />
