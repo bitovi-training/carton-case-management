@@ -11,6 +11,7 @@ export function RelationshipManagerDialog({
   title,
   items,
   selectedItems,
+  disabledItems = [],
   onSelectionChange,
   onAdd,
   className,
@@ -18,9 +19,11 @@ export function RelationshipManagerDialog({
   const listItems: RelationshipManagerListItem[] = items.map((item) => ({
     ...item,
     selected: selectedItems.includes(item.id),
+    disabled: disabledItems.includes(item.id),
   }));
 
   const handleToggle = (itemId: string) => {
+    if (disabledItems.includes(itemId)) return;
     if (selectedItems.includes(itemId)) {
       onSelectionChange(selectedItems.filter((id) => id !== itemId));
     } else {

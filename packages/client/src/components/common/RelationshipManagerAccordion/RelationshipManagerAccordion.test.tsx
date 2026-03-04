@@ -88,4 +88,50 @@ describe('RelationshipManagerAccordion', () => {
     );
     expect(container.firstChild).toHaveClass('custom-class');
   });
+
+  it('shows empty state when no items', () => {
+    renderWithRouter(<RelationshipManagerAccordion accordionTitle="Relationships" items={[]} defaultOpen />);
+    expect(screen.getByText('No related cases')).toBeInTheDocument();
+  });
+
+  it('shows 3-dot menu on hover when onRemoveItem is provided', async () => {
+    const user = userEvent.setup();
+    const onRemoveItem = vi.fn();
+    renderWithRouter(
+      <RelationshipManagerAccordion
+        accordionTitle="Relationships"
+        items={mockItems}
+        defaultOpen
+        onRemoveItem={onRemoveItem}
+      />
+    );
+
+    await user.hover(screen.getByText('Policy Coverage Inquiry'));
+    const moreOptionsButton = screen.getByLabelText('Options for Policy Coverage Inquiry');
+    expect(moreOptionsButton).toBeInTheDocument();
+  });
+
+  it('calls onRemoveItem when remove option is clicked', async () => {
+    const user = userEvent.setup();
+    const onRemoveItem = vi.fn();
+    renderWithRouter(
+      <RelationshipManagerAccordion
+        accordionTitle="Relationships"
+        items={mockItems}
+        defaultOpen
+        onRemoveItem={onRemoveItem}
+      />
+    );
+
+    await user.click(screen.getAllByLabelText(/Options for/)[0]);
+    await user.click(screen.getByText('Remove linked case'));
+    expect(onRemoveItem).toHaveBeenCalledWith('1');
+  });
+
+  it('does not show remove menu when onRemoveItem is not provided', () => {
+    renderWithRouter(
+      <RelationshipManagerAccordion accordionTitle="Relationships" items={mockItems} defaultOpen />
+    );
+    expect(screen.queryByLabelText(/Options for/)).not.toBeInTheDocument();
+  });
 });

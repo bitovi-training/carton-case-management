@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Accordion, Button } from '@/components/obra';
+import { MoreOptionsMenu, MenuItem } from '@/components/common/MoreOptionsMenu';
 import type { RelationshipManagerAccordionProps } from './types';
 
 export function RelationshipManagerAccordion({
@@ -9,6 +10,7 @@ export function RelationshipManagerAccordion({
   items,
   defaultOpen = false,
   onAddClick,
+  onRemoveItem,
   className,
 }: RelationshipManagerAccordionProps) {
   const accordionValue = accordionTitle.toLowerCase().replace(/\s+/g, '-');
@@ -29,22 +31,40 @@ export function RelationshipManagerAccordion({
             content: (
               <div className="flex flex-col gap-3">
                 <div className="flex flex-col gap-3">
-                  {items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between rounded-lg px-4 py-2"
-                    >
-                      <div className="flex flex-col text-sm leading-[21px]">
-                        <Link
-                          to={item.to}
-                          className="font-semibold text-teal-600 hover:underline"
-                        >
-                          {item.title}
-                        </Link>
-                        <p className="text-gray-950">{item.subtitle}</p>
+                  {items.length === 0 ? (
+                    <p className="text-sm text-gray-500 px-4">No related cases</p>
+                  ) : (
+                    items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="group flex items-center justify-between rounded-lg px-4 py-2 hover:bg-gray-50"
+                      >
+                        <div className="flex flex-col text-sm leading-[21px]">
+                          <Link
+                            to={item.to}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-semibold text-teal-600 hover:underline"
+                          >
+                            {item.title}
+                          </Link>
+                          <p className="text-gray-950">{item.subtitle}</p>
+                        </div>
+                        {onRemoveItem && (
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                            <MoreOptionsMenu aria-label={`Options for ${item.title}`}>
+                              <MenuItem
+                                onClick={() => onRemoveItem(item.id)}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                Remove linked case
+                              </MenuItem>
+                            </MoreOptionsMenu>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
                 {onAddClick && (
                   <Button
