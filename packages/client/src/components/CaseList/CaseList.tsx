@@ -2,13 +2,73 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { trpc } from '@/lib/trpc';
 import { Skeleton } from '@/components/obra/Skeleton';
 import { Button } from '@/components/obra/Button';
+import { FiltersTrigger, FiltersDialog } from '@/components/common';
+import type { FilterItem } from '@/components/common/FiltersList/types';
 import { formatCaseNumber } from '@carton/shared/client';
+import { useCaseFilters } from './hooks/useCaseFilters';
 import type { CaseListProps, CaseListItem } from './types';
 
 export function CaseList({ onCaseClick }: CaseListProps) {
   const { id: activeId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: cases, isLoading, error, refetch } = trpc.case.list.useQuery();
+  
+  const {
+    isDialogOpen,
+    draftFilters,
+    appliedFilters,
+    filterOptions,
+    activeFilterCount,
+    handleOpenDialog,
+    handleCloseDialog,
+    handleApply,
+    handleClear,
+    updateDraftFilter,
+  } = useCaseFilters();
+
+  const { data: cases, isLoading, error, refetch } = trpc.case.list.useQuery({
+    customerId: appliedFilters.customer.length > 0 ? appliedFilters.customer : undefined,
+    status: appliedFilters.status.length > 0 ? appliedFilters.status as any : undefined,
+    priority: appliedFilters.priority.length > 0 ? appliedFilters.priority as any : undefined,
+    lastUpdated: appliedFilters.lastUpdated !== 'all' ? appliedFilters.lastUpdated : undefined,
+  });
+
+  const filters: FilterItem[] = [
+    {
+      id: 'customer',
+      label: 'Customer',
+      value: draftFilters.customer,
+      options: filterOptions.customer,
+      multiSelect: true,
+      count: draftFilters.customer.length,
+      onChange: (value) => updateDraftFilter('customer', value as string[]),
+    },
+    {
+      id: 'status',
+      label: 'Status',
+      value: draftFilters.status,
+      options: filterOptions.status,
+      multiSelect: true,
+      count: draftFilters.status.length,
+      onChange: (value) => updateDraftFilter('status', value as string[]),
+    },
+    {
+      id: 'priority',
+      label: 'Priority',
+      value: draftFilters.priority,
+      options: filterOptions.priority,
+      multiSelect: true,
+      count: draftFilters.priority.length,
+      onChange: (value) => updateDraftFilter('priority', value as string[]),
+    },
+    {
+      id: 'lastUpdated',
+      label: 'Last updated',
+      value: draftFilters.lastUpdated,
+      options: filterOptions.lastUpdated,
+      multiSelect: false,
+      onChange: (value) => updateDraftFilter('lastUpdated', value as any),
+    },
+  ];
 
   if (isLoading) {
     return (
@@ -20,6 +80,7 @@ export function CaseList({ onCaseClick }: CaseListProps) {
         >
           Create Case
         </Button>
+        <FiltersTrigger activeCount={activeFilterCount} onClick={handleOpenDialog} className="mb-2" />
         <div className="flex flex-col gap-2">
           {[...Array(5)].map((_, index) => (
             <div key={index} className="flex items-center justify-between px-4 py-2 rounded-lg">
@@ -44,6 +105,7 @@ export function CaseList({ onCaseClick }: CaseListProps) {
         >
           Create Case
         </Button>
+        <FiltersTrigger activeCount={activeFilterCount} onClick={handleOpenDialog} className="mb-2" />
         <div className="text-center">
           <p className="text-red-600 font-semibold mb-2">Error loading cases</p>
           <p className="text-sm text-gray-600 mb-4">{error.message}</p>
@@ -65,8 +127,18 @@ export function CaseList({ onCaseClick }: CaseListProps) {
         >
           Create Case
         </Button>
+        <FiltersTrigger activeCount={activeFilterCount} onClick={handleOpenDialog} className="mb-2" />
+        <FiltersDialog
+          open={isDialogOpen}
+          onOpenChange={handleCloseDialog}
+          filters={filters}
+          onApply={handleApply}
+          onClear={handleClear}
+        />
         <div className="text-center text-gray-500">
-          <p className="text-sm">No cases found</p>
+          <p className="text-sm">
+            {activeFilterCount > 0 ? 'No cases match the selected filters' : 'No cases found'}
+          </p>
         </div>
       </div>
     );
@@ -81,6 +153,14 @@ export function CaseList({ onCaseClick }: CaseListProps) {
       >
         Create Case
       </Button>
+      <FiltersTrigger activeCount={activeFilterCount} onClick={handleOpenDialog} className="mb-2" />
+      <FiltersDialog
+        open={isDialogOpen}
+        onOpenChange={handleCloseDialog}
+        filters={filters}
+        onApply={handleApply}
+        onClear={handleClear}
+      />
       <div className="flex flex-col gap-2">
         {cases?.map((caseItem: CaseListItem) => {
           const isActive = caseItem.id === activeId;

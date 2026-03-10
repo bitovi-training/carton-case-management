@@ -235,15 +235,41 @@ export const appRouter = router({
       .input(
         z
           .object({
-            status: caseStatusSchema.optional(),
+            status: z.array(caseStatusSchema).optional(),
+            priority: z.array(casePrioritySchema).optional(),
+            customerId: z.array(z.string()).optional(),
+            lastUpdated: z.enum(['all', 'today', 'last7days', 'last30days']).optional(),
             assignedTo: z.string().optional(),
           })
           .optional()
       )
       .query(async ({ ctx, input }) => {
+        const now = new Date();
+        const getDateFilter = () => {
+          if (!input?.lastUpdated || input.lastUpdated === 'all') return {};
+          
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          
+          switch (input.lastUpdated) {
+            case 'today':
+              return { gte: today };
+            case 'last7days':
+              return { gte: last7Days };
+            case 'last30days':
+              return { gte: last30Days };
+            default:
+              return {};
+          }
+        };
+
         return ctx.prisma.case.findMany({
           where: {
-            ...(input?.status ? { status: input.status } : {}),
+            ...(input?.status && input.status.length > 0 ? { status: { in: input.status } } : {}),
+            ...(input?.priority && input.priority.length > 0 ? { priority: { in: input.priority } } : {}),
+            ...(input?.customerId && input.customerId.length > 0 ? { customerId: { in: input.customerId } } : {}),
+            ...(input?.lastUpdated && input.lastUpdated !== 'all' ? { updatedAt: getDateFilter() } : {}),
             ...(input?.assignedTo ? { assignedTo: input.assignedTo } : {}),
           },
           include: {
@@ -272,7 +298,7 @@ export const appRouter = router({
             },
           },
           orderBy: {
-            createdAt: 'desc',
+            updatedAt: 'desc',
           },
         });
       }),
