@@ -34,7 +34,7 @@ export function VoteButton({
       aria-label={type === 'up' ? 'Upvote' : 'Downvote'}
       aria-pressed={active}
     >
-      <Icon className="h-6 w-6 shrink-0" />
+      <Icon className="h-5 w-5 md:h-6 md:w-6 shrink-0" />
       {showCount && count !== undefined && (
         <span className="text-sm leading-[21px] tracking-[0.07px]">
           {count}
