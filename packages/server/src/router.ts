@@ -237,6 +237,7 @@ export const appRouter = router({
           .object({
             status: caseStatusSchema.optional(),
             assignedTo: z.string().optional(),
+            customerId: z.string().optional(),
           })
           .optional()
       )
@@ -245,6 +246,7 @@ export const appRouter = router({
           where: {
             ...(input?.status ? { status: input.status } : {}),
             ...(input?.assignedTo ? { assignedTo: input.assignedTo } : {}),
+            ...(input?.customerId ? { customerId: input.customerId } : {}),
           },
           include: {
             customer: {
@@ -404,6 +406,59 @@ export const appRouter = router({
         where: { id: input.id },
       });
     }),
+    getRelatedCases: publicProcedure
+      .input(z.object({ caseId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const relationships = await ctx.prisma.caseRelationship.findMany({
+          where: {
+            OR: [{ caseId: input.caseId }, { relatedCaseId: input.caseId }],
+          },
+          include: {
+            case: {
+              select: { id: true, title: true, createdAt: true },
+            },
+            relatedCase: {
+              select: { id: true, title: true, createdAt: true },
+            },
+          },
+        });
+
+        return relationships.map((r) => {
+          const relatedCase = r.caseId === input.caseId ? r.relatedCase : r.case;
+          return {
+            id: relatedCase.id,
+            title: relatedCase.title,
+            createdAt: relatedCase.createdAt,
+          };
+        });
+      }),
+    addRelatedCases: publicProcedure
+      .input(
+        z.object({
+          caseId: z.string(),
+          relatedCaseIds: z.array(z.string()).min(1),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const results = await Promise.all(
+          input.relatedCaseIds.map((relatedCaseId) =>
+            ctx.prisma.caseRelationship.upsert({
+              where: {
+                caseId_relatedCaseId: {
+                  caseId: input.caseId,
+                  relatedCaseId,
+                },
+              },
+              update: {},
+              create: {
+                caseId: input.caseId,
+                relatedCaseId,
+              },
+            })
+          )
+        );
+        return results;
+      }),
   }),
 
   // Comment routes

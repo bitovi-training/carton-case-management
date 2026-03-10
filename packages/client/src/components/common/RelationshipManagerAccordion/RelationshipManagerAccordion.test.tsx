@@ -88,4 +88,38 @@ describe('RelationshipManagerAccordion', () => {
     );
     expect(container.firstChild).toHaveClass('custom-class');
   });
+
+  it('shows empty state message when items is empty and emptyStateMessage is provided', () => {
+    renderWithRouter(
+      <RelationshipManagerAccordion
+        accordionTitle="Relationships"
+        items={[]}
+        defaultOpen
+        emptyStateMessage="No related cases yet."
+      />
+    );
+    expect(screen.getByText('No related cases yet.')).toBeInTheDocument();
+  });
+
+  it('does not show empty state message when items exist', () => {
+    renderWithRouter(
+      <RelationshipManagerAccordion
+        accordionTitle="Relationships"
+        items={mockItems}
+        defaultOpen
+        emptyStateMessage="No related cases yet."
+      />
+    );
+    expect(screen.queryByText('No related cases yet.')).not.toBeInTheDocument();
+    expect(screen.getByText('Policy Coverage Inquiry')).toBeInTheDocument();
+  });
+
+  it('opens related case link in new tab', () => {
+    renderWithRouter(
+      <RelationshipManagerAccordion accordionTitle="Relationships" items={mockItems} defaultOpen />
+    );
+    const link = screen.getByText('Policy Coverage Inquiry').closest('a');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
 });

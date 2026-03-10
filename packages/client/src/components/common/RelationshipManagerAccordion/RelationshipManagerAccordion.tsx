@@ -9,6 +9,7 @@ export function RelationshipManagerAccordion({
   items,
   defaultOpen = false,
   onAddClick,
+  emptyStateMessage,
   className,
 }: RelationshipManagerAccordionProps) {
   const accordionValue = accordionTitle.toLowerCase().replace(/\s+/g, '-');
@@ -29,22 +30,28 @@ export function RelationshipManagerAccordion({
             content: (
               <div className="flex flex-col gap-3">
                 <div className="flex flex-col gap-3">
-                  {items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between rounded-lg px-4 py-2"
-                    >
-                      <div className="flex flex-col text-sm leading-[21px]">
-                        <Link
-                          to={item.to}
-                          className="font-semibold text-teal-600 hover:underline"
-                        >
-                          {item.title}
-                        </Link>
-                        <p className="text-gray-950">{item.subtitle}</p>
+                  {items.length === 0 && emptyStateMessage ? (
+                    <p className="text-sm text-gray-500 px-4">{emptyStateMessage}</p>
+                  ) : (
+                    items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between rounded-lg px-4 py-2"
+                      >
+                        <div className="flex flex-col text-sm leading-[21px]">
+                          <Link
+                            to={item.to}
+                            className="font-semibold text-teal-600 hover:underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {item.title}
+                          </Link>
+                          <p className="text-gray-950">{item.subtitle}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
                 {onAddClick && (
                   <Button
